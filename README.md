@@ -8,6 +8,8 @@
 ## Présentation
 
 **AuditIQ** est une plateforme SaaS complète pour l'audit de fairness et la détection de biais dans les modèles d'intelligence artificielle. Elle aide les organisations à garantir la conformité de leurs modèles ML avec les standards éthiques et les réglementations comme l'**EU AI Act**.
+<img width="1919" height="935" alt="image" src="https://github.com/user-attachments/assets/ce6f95fc-392f-4b7e-ae3f-7586de5fd59b" href="https://ai-auditiq.netlify.app/" />
+
 
 ---
 
