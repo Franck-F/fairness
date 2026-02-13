@@ -12,6 +12,9 @@ import uuid
 from datetime import datetime
 from dotenv import load_dotenv
 
+# DS Engine import
+from ds_engine import SeniorDataScientistEngine
+
 # ML imports
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
@@ -97,6 +100,34 @@ class ReportRequest(BaseModel):
     fairness_results: Dict[str, Any]
     model_metrics: Optional[Dict[str, float]] = None
     format: str = "pdf"  # or "txt"
+
+# New Data Science Models
+class DSAnalyzeRequest(BaseModel):
+    dataset_id: str
+    target_column: Optional[str] = None
+
+class DSEdaRequest(BaseModel):
+    dataset_id: str
+    target_column: Optional[str] = None
+    n_components: int = 2
+
+class DSFeatureEngRequest(BaseModel):
+    dataset_id: str
+    target_column: Optional[str] = None
+    date_column: Optional[str] = None
+    lags: List[int] = [1, 3, 7]
+    windows: List[int] = [3, 7]
+
+class DSModelingRequest(BaseModel):
+    dataset_id: str
+    target_column: str
+    algorithm: str = "logistic_regression"  # "logistic_regression", "xgboost", "random_forest"
+    test_size: float = 0.2
+    feature_columns: Optional[List[str]] = None
+
+class DSInterpretRequest(BaseModel):
+    model_id: str
+    dataset_id: str
 
 # Health check
 @app.get("/health")
@@ -661,6 +692,148 @@ METRIQUES PAR ATTRIBUT
             
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur de generation de rapport: {str(e)}")
+
+@app.post("/api/ds/analyze")
+async def ds_analyze(request: DSAnalyzeRequest):
+    try:
+        if request.dataset_id not in datasets_store:
+            raise HTTPException(status_code=404, detail=f"Dataset '{request.dataset_id}' non trouve")
+        
+        df = datasets_store[request.dataset_id]["df"]
+        
+        # Log analysis start
+        print(f"Analyzing dataset {request.dataset_id} for target {request.target_column}")
+        
+        detailed_stats = SeniorDataScientistEngine.get_detailed_stats(df)
+        recommendations = SeniorDataScientistEngine.get_expert_recommendations(df, request.target_column)
+        quality_score = SeniorDataScientistEngine.get_quality_score(df)
+        
+        return {
+            "status": "success",
+            "detailed_stats": detailed_stats,
+            "recommendations": recommendations,
+            "quality_score": quality_score
+        }
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        import traceback
+        print(f"DS Analyze Error: {str(e)}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/ds/eda")
+async def ds_eda(request: DSEdaRequest):
+    try:
+        if request.dataset_id not in datasets_store:
+            raise HTTPException(status_code=404, detail=f"Dataset '{request.dataset_id}' non trouve")
+        
+        df = datasets_store[request.dataset_id]["df"]
+        print(f"Running EDA for dataset {request.dataset_id}")
+        
+        target_dist = None
+        if request.target_column:
+            target_dist = SeniorDataScientistEngine.get_target_distributions(df, request.target_column)
+        
+        dim_reduction = SeniorDataScientistEngine.get_dimensionality_reduction(df, request.n_components)
+        
+        return {
+            "status": "success",
+            "target_distributions": target_dist,
+            "dimensionality_reduction": dim_reduction
+        }
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        import traceback
+        print(f"DS EDA Error: {str(e)}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/ds/feature-engineering")
+async def ds_feature_engineering(request: DSFeatureEngRequest):
+    try:
+        if request.dataset_id not in datasets_store:
+            raise HTTPException(status_code=404, detail=f"Dataset '{request.dataset_id}' non trouve")
+        
+        df = datasets_store[request.dataset_id]["df"].copy()
+        
+        new_features = []
+        if request.date_column:
+            df, ts_features = SeniorDataScientistEngine.engineer_time_series_features(
+                df, request.date_column, request.target_column, request.lags, request.windows
+            )
+            new_features.extend(ts_features)
+        
+        # Update store with new features
+        datasets_store[request.dataset_id]["df"] = df
+        
+        return {
+            "status": "success",
+            "new_features": new_features,
+            "preview": df.head(10).to_dict(orient="records")
+        }
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        import traceback
+        print(f"DS FE Error: {str(e)}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/ds/modeling")
+async def ds_modeling(request: DSModelingRequest):
+    try:
+        from main import train_model, TrainRequest
+        
+        train_req = TrainRequest(
+            dataset_id=request.dataset_id,
+            target_column=request.target_column,
+            algorithm=request.algorithm,
+            test_size=request.test_size,
+            feature_columns=request.feature_columns
+        )
+        
+        return await train_model(train_req)
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        import traceback
+        print(f"DS Modeling Error: {str(e)}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/ds/interpret")
+async def ds_interpret(request: DSInterpretRequest):
+    try:
+        if request.model_id not in models_store:
+            raise HTTPException(status_code=404, detail="Modele non trouve")
+        if request.dataset_id not in datasets_store:
+            raise HTTPException(status_code=404, detail="Dataset non trouve")
+            
+        model_data = models_store[request.model_id]
+        df = datasets_store[request.dataset_id]["df"]
+        
+        # Prepare X (simple version for now)
+        X = df.select_dtypes(include=[np.number])
+        if model_data.get("feature_names"):
+            # Only use columns that exist in both
+            common_cols = [c for c in model_data["feature_names"] if c in X.columns]
+            X = X[common_cols]
+        
+        shap_results = SeniorDataScientistEngine.get_shap_interpretation(model_data["model"], X)
+        
+        return {
+            "status": "success",
+            "shap": shap_results
+        }
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        import traceback
+        print(f"DS Interpret Error: {str(e)}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=str(e))
 
 # EDA endpoint
 @app.get("/api/eda/{dataset_id}")

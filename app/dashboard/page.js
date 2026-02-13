@@ -33,7 +33,7 @@ export default function DashboardPage() {
       // TODO: Replace with real API call
       // const response = await fetch('/api/audits/stats')
       // const data = await response.json()
-      
+
       // Mock data for now
       setStats({
         totalAudits: 0,
@@ -155,11 +155,11 @@ export default function DashboardPage() {
             </CardHeader>
           </Card>
 
-          <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push('/dashboard/eda')}>
+          <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push('/dashboard/data-science')}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5" />
-                Analyse EDA
+                Data Science
               </CardTitle>
               <CardDescription>
                 Explorez vos données avec des visualisations interactives

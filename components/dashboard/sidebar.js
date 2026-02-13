@@ -32,7 +32,7 @@ const navigationItems = [
   { name: 'Mes Audits', href: '/dashboard/audits', icon: FileBarChart2 },
   { name: 'Conformite', href: '/dashboard/compliance', icon: Shield },
   { name: 'Rapports', href: '/dashboard/reports', icon: FileText },
-  { name: 'Analyse EDA', href: '/dashboard/eda', icon: BarChart3 },
+  { name: 'Data Science', href: '/dashboard/data-science', icon: BarChart3 },
   { name: 'WhatIf Analysis', href: '/dashboard/whatif', icon: Sparkles },
   { name: 'Chat AI', href: '/dashboard/chat', icon: MessageSquare },
   { name: 'Connexions', href: '/dashboard/connections', icon: Link2 },

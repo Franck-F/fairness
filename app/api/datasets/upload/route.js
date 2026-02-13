@@ -11,6 +11,12 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 )
 
+// Fallback to public client for user validation if service key is missing/placeholder
+const isPlaceholderKey = !process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_KEY === 'your-service-role-key'
+const authClient = isPlaceholderKey
+  ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  : supabase
+
 export async function POST(request) {
   try {
     // Get user session
@@ -20,14 +26,25 @@ export async function POST(request) {
     }
 
     const token = authHeader.replace('Bearer ', '')
-    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token)
+    const { data: { user: authUser }, error: authError } = await authClient.auth.getUser(token)
 
     if (authError || !authUser) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      console.error('Auth error:', authError)
+      return NextResponse.json({
+        error: isPlaceholderKey ? 'Configuration Supabase incomplète (SUPABASE_SERVICE_KEY)' : 'Unauthorized'
+      }, { status: 401 })
     }
 
+    // Use a client that has the user's token if we don't have a service key
+    // This allows database operations to work if RLS allows it
+    const dbClient = isPlaceholderKey
+      ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+        global: { headers: { Authorization: `Bearer ${token}` } }
+      })
+      : supabase
+
     // Find or create the user in the internal users table
-    let { data: internalUser, error: userFetchError } = await supabase
+    let { data: internalUser, error: userFetchError } = await dbClient
       .from('users')
       .select('id')
       .eq('email', authUser.email)
@@ -35,7 +52,7 @@ export async function POST(request) {
 
     if (!internalUser) {
       // Create user in internal table
-      const { data: newUser, error: createError } = await supabase
+      const { data: newUser, error: createError } = await dbClient
         .from('users')
         .insert({
           email: authUser.email,
@@ -67,7 +84,7 @@ export async function POST(request) {
 
     // Read file content
     const fileContent = await file.text()
-    
+
     // Parse CSV
     const parseResult = Papa.parse(fileContent, {
       header: true,
@@ -76,9 +93,9 @@ export async function POST(request) {
     })
 
     if (parseResult.errors.length > 0) {
-      return NextResponse.json({ 
-        error: 'Erreur lors du parsing CSV', 
-        details: parseResult.errors 
+      return NextResponse.json({
+        error: 'Erreur lors du parsing CSV',
+        details: parseResult.errors
       }, { status: 400 })
     }
 
@@ -88,7 +105,7 @@ export async function POST(request) {
     // Detect column types
     const detectedColumns = columns.map(colName => {
       const sampleValues = data.slice(0, 100).map(row => row[colName]).filter(v => v !== null && v !== undefined && v !== '')
-      
+
       if (sampleValues.length === 0) {
         return { name: colName, type: 'unknown' }
       }
@@ -134,11 +151,11 @@ export async function POST(request) {
 
     // Upload file to Supabase Storage
     const fileName = `${userId}/${Date.now()}_${file.name}`
-    
+
     // Get file as blob for storage upload
     const fileBlob = new Blob([fileContent], { type: file.type || 'text/csv' })
-    
-    const { data: uploadData, error: uploadError } = await supabase.storage
+
+    const { data: uploadData, error: uploadError } = await dbClient.storage
       .from('datasets')
       .upload(fileName, fileBlob, {
         contentType: file.type || 'text/csv',
@@ -159,7 +176,7 @@ export async function POST(request) {
         const sampleValues = data.slice(0, 5).map(row => row[col.name]).filter(v => v !== null && v !== undefined)
         const allValues = data.map(row => row[col.name]).filter(v => v !== null && v !== undefined && v !== '')
         const nullCount = data.filter(row => row[col.name] === null || row[col.name] === undefined || row[col.name] === '').length
-        
+
         const baseInfo = {
           name: col.name,
           type: col.type === 'numeric' ? 'numeric_integer' : col.type,
@@ -168,7 +185,7 @@ export async function POST(request) {
           unique_count: [...new Set(allValues)].length,
           sample_values: sampleValues,
         }
-        
+
         // Add numeric stats if applicable
         if (col.type === 'numeric' && allValues.length > 0) {
           const numericValues = allValues.map(v => Number(v)).filter(v => !isNaN(v))
@@ -180,13 +197,13 @@ export async function POST(request) {
             baseInfo.median = sorted[Math.floor(sorted.length / 2)]
           }
         }
-        
+
         return baseInfo
       })
     }
 
     // Create dataset record in database - matching the actual schema
-    const { data: dataset, error: dbError } = await supabase
+    const { data: dataset, error: dbError } = await dbClient
       .from('datasets')
       .insert({
         user_id: userId,
@@ -227,7 +244,7 @@ export async function POST(request) {
         fastApiDatasetId = fastApiResult.dataset_id
 
         // Update Supabase record with FastAPI dataset ID
-        await supabase
+        await dbClient
           .from('datasets')
           .update({ fastapi_dataset_id: fastApiDatasetId })
           .eq('id', dataset.id)
@@ -263,14 +280,23 @@ export async function GET(request) {
     }
 
     const token = authHeader.replace('Bearer ', '')
-    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token)
+    const { data: { user: authUser }, error: authError } = await authClient.auth.getUser(token)
 
     if (authError || !authUser) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({
+        error: isPlaceholderKey ? 'Configuration Supabase incomplète' : 'Unauthorized'
+      }, { status: 401 })
     }
 
+    // Use a client that has the user's token if we don't have a service key
+    const dbClient = isPlaceholderKey
+      ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+        global: { headers: { Authorization: `Bearer ${token}` } }
+      })
+      : supabase
+
     // Find the user in the internal users table
-    const { data: internalUser } = await supabase
+    const { data: internalUser } = await dbClient
       .from('users')
       .select('id')
       .eq('email', authUser.email)
@@ -281,7 +307,7 @@ export async function GET(request) {
     }
 
     // Get all datasets for this user
-    const { data: datasets, error } = await supabase
+    const { data: datasets, error } = await dbClient
       .from('datasets')
       .select('*')
       .eq('user_id', internalUser.id)

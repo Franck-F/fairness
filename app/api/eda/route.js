@@ -8,9 +8,14 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 )
 
+const isPlaceholderKey = !process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_KEY === 'your-service-role-key'
+const authClient = isPlaceholderKey
+  ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  : supabase
+
 // Helper to get internal user ID
-async function getInternalUserId(authUser) {
-  const { data: internalUser } = await supabase
+async function getInternalUserId(authUser, dbClient) {
+  const { data: internalUser } = await dbClient
     .from('users')
     .select('id')
     .eq('email', authUser.email)
@@ -27,13 +32,21 @@ export async function GET(request) {
     }
 
     const token = authHeader.replace('Bearer ', '')
-    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token)
+    const { data: { user: authUser }, error: authError } = await authClient.auth.getUser(token)
 
     if (authError || !authUser) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({
+        error: isPlaceholderKey ? 'Configuration Supabase incomplète' : 'Unauthorized'
+      }, { status: 401 })
     }
 
-    const userId = await getInternalUserId(authUser)
+    const dbClient = isPlaceholderKey
+      ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+        global: { headers: { Authorization: `Bearer ${token}` } }
+      })
+      : supabase
+
+    const userId = await getInternalUserId(authUser, dbClient)
 
     const { searchParams } = new URL(request.url)
     const datasetId = searchParams.get('dataset_id')
@@ -43,7 +56,7 @@ export async function GET(request) {
     }
 
     // Get dataset from Supabase to verify ownership
-    const { data: dataset, error: datasetError } = await supabase
+    const { data: dataset, error: datasetError } = await dbClient
       .from('datasets')
       .select('*')
       .eq('id', datasetId)
@@ -56,16 +69,16 @@ export async function GET(request) {
 
     // Try to download the file and send to FastAPI for EDA
     let edaResult = null
-    
+
     try {
       // Download file from Supabase Storage
-      const { data: fileData, error: downloadError } = await supabase.storage
+      const { data: fileData, error: downloadError } = await dbClient.storage
         .from('datasets')
         .download(dataset.filename)
-      
+
       if (!downloadError && fileData) {
         const fileContent = await fileData.text()
-        
+
         // Upload to FastAPI and get EDA
         const formData = new FormData()
         const blob = new Blob([fileContent], { type: 'text/csv' })
@@ -104,10 +117,10 @@ export async function GET(request) {
     // Fallback: Generate basic EDA from columns_info stored in database
     const columnsInfo = dataset.columns_info || {}
     const columns = columnsInfo.columns || []
-    
+
     const numericColumns = columns.filter(c => c.type?.includes('numeric') || c.type?.includes('int') || c.type?.includes('float')).map(c => c.name)
     const categoricalColumns = columns.filter(c => c.type === 'text' || c.type === 'boolean' || c.type === 'categorical').map(c => c.name)
-    
+
     // Build numeric stats from columns_info
     const numericStats = {}
     columns.filter(c => numericColumns.includes(c.name)).forEach(col => {
