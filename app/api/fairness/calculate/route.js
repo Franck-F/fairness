@@ -8,9 +8,14 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 )
 
+const isPlaceholderKey = !process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_KEY === 'your-service-role-key'
+const dbClient = isPlaceholderKey
+  ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  : supabase
+
 // Helper to get internal user ID
-async function getInternalUserId(authUser) {
-  const { data: internalUser } = await supabase
+async function getInternalUserId(authUser, dbClient) {
+  const { data: internalUser } = await dbClient
     .from('users')
     .select('id')
     .eq('email', authUser.email)
@@ -27,13 +32,13 @@ export async function POST(request) {
     }
 
     const token = authHeader.replace('Bearer ', '')
-    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token)
+    const { data: { user: authUser }, error: authError } = await dbClient.auth.getUser(token)
 
     if (authError || !authUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userId = await getInternalUserId(authUser)
+    const userId = await getInternalUserId(authUser, dbClient)
     const body = await request.json()
     const { audit_id } = body
 
@@ -42,9 +47,9 @@ export async function POST(request) {
     }
 
     // Get audit with dataset info from Supabase
-    const { data: audit, error: auditError } = await supabase
+    const { data: audit, error: auditError } = await dbClient
       .from('audits')
-      .select(`*, datasets(*)`)
+      .select('*')
       .eq('id', audit_id)
       .eq('user_id', userId)
       .single()
@@ -53,32 +58,43 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Audit not found' }, { status: 404 })
     }
 
-    const dataset = audit.datasets
-    if (!dataset) {
-      return NextResponse.json({ error: 'Dataset not found' }, { status: 404 })
-    }
+    // Reset audit status and results to ensure polling waits correctly
+    console.log(`[Calculate] Resetting status for Audit ${audit_id}...`)
+    await dbClient
+      .from('audits')
+      .update({
+        status: 'processing',
+        metrics_results: null,
+        overall_score: null,
+        bias_detected: false,
+        critical_bias_count: 0,
+        recommendations: null,
+        completed_at: null
+      })
+      .eq('id', audit_id)
 
-    // Try to download the dataset file from Supabase Storage
-    let datasetContent = null
-    try {
-      const { data: fileData, error: downloadError } = await supabase.storage
+    // Helper to upload dataset to FastAPI
+    const uploadToFastAPI = async (datasetId) => {
+      if (!datasetId) return null
+
+      const { data: dataset } = await dbClient
         .from('datasets')
-        .download(dataset.filename)
-      
-      if (!downloadError && fileData) {
-        datasetContent = await fileData.text()
-      }
-    } catch (storageError) {
-      console.error('Storage download error:', storageError)
-    }
+        .select('*')
+        .eq('id', datasetId)
+        .single()
 
-    let fastApiDatasetId = null
-    
-    // If we have dataset content, upload it to FastAPI first
-    if (datasetContent) {
+      if (!dataset) return null
+
       try {
+        const { data: fileData, error: downloadError } = await dbClient.storage
+          .from('datasets')
+          .download(dataset.filename)
+
+        if (downloadError || !fileData) return null
+
+        const content = await fileData.text()
         const formData = new FormData()
-        const blob = new Blob([datasetContent], { type: 'text/csv' })
+        const blob = new Blob([content], { type: 'text/csv' })
         formData.append('file', blob, dataset.original_filename || 'data.csv')
         formData.append('dataset_name', dataset.original_filename || 'data.csv')
 
@@ -89,24 +105,32 @@ export async function POST(request) {
 
         if (uploadResponse.ok) {
           const uploadResult = await uploadResponse.json()
-          fastApiDatasetId = uploadResult.dataset_id
+          return uploadResult.dataset_id
         }
-      } catch (uploadError) {
-        console.error('FastAPI upload error:', uploadError)
+      } catch (e) {
+        console.error('FastAPI upload error:', e)
       }
+      return null
     }
 
-    // If we have a FastAPI dataset, calculate fairness
-    if (fastApiDatasetId) {
+    // Upload both datasets if present
+    const fastApiDatasetIdPre = await uploadToFastAPI(audit.dataset_id)
+    const fastApiDatasetIdPost = await uploadToFastAPI(audit.dataset_id_post)
+
+    // If we have at least the pre dataset, calculate fairness
+    if (fastApiDatasetIdPre) {
       try {
         const fairnessResponse = await fetch(`${FASTAPI_URL}/api/fairness/calculate`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            dataset_id: fastApiDatasetId,
+            dataset_id: fastApiDatasetIdPre,
+            dataset_id_post: fastApiDatasetIdPost,
             target_column: audit.target_column,
             sensitive_attributes: audit.sensitive_attributes || [],
             favorable_outcome: 1,
+            model_type: audit.model_type,
+            ia_type: audit.ia_type
           }),
         })
 
@@ -123,14 +147,26 @@ export async function POST(request) {
             technique: 'Mixte',
           }))
 
-          const { error: updateError } = await supabase
+          // Calculate critical_bias_count from failed metrics
+          let criticalBiasCount = 0
+          if (result.metrics_by_attribute) {
+            Object.values(result.metrics_by_attribute).forEach(metrics => {
+              if (Array.isArray(metrics)) {
+                criticalBiasCount += metrics.filter(m => m.status === 'fail').length
+              }
+            })
+          }
+
+          const { error: updateError } = await dbClient
             .from('audits')
             .update({
               status: 'completed',
               overall_score: Math.round(result.overall_score),
               risk_level: result.risk_level === 'faible' ? 'Low' : result.risk_level === 'moyen' ? 'Medium' : 'High',
               bias_detected: result.bias_detected,
+              critical_bias_count: criticalBiasCount,
               metrics_results: result.metrics_by_attribute,
+              comparison_results: result.comparison_results || null,
               recommendations: recommendations,
               completed_at: new Date().toISOString(),
             })
@@ -154,59 +190,21 @@ export async function POST(request) {
       }
     }
 
-    // Fallback: Generate simulated results if FastAPI is not available
-    console.log('Using simulated fairness results')
-    const simulatedMetrics = {}
-    const sensitiveAttrs = audit.sensitive_attributes || ['gender']
-    
-    sensitiveAttrs.forEach(attr => {
-      simulatedMetrics[attr] = {
-        demographic_parity: 0.6 + Math.random() * 0.3,
-        equal_opportunity: 0.6 + Math.random() * 0.3,
-        equalized_odds: 0.6 + Math.random() * 0.3,
-        predictive_parity: 0.6 + Math.random() * 0.3,
-        disparate_impact: 0.7 + Math.random() * 0.25,
-      }
-    })
+    // FastAPI backend is unreachable — return error instead of fake data
+    console.error('FastAPI backend unreachable, cannot calculate fairness metrics')
 
-    const overallScore = Math.round(
-      Object.values(simulatedMetrics).reduce((sum, metrics) => {
-        return sum + Object.values(metrics).reduce((a, b) => a + b, 0) / Object.values(metrics).length
-      }, 0) / Object.keys(simulatedMetrics).length * 100
-    )
-
-    const riskLevel = overallScore >= 80 ? 'Low' : overallScore >= 60 ? 'Medium' : 'High'
-    const biasDetected = overallScore < 80
-
-    const recommendations = [
-      { title: 'Ré-échantillonnage des données', description: 'Équilibrer les groupes défavorisés', impact: '+12%', effort: 'Moyen', priority: 'Haute', technique: 'Pre-processing' },
-      { title: 'Contraintes d\'équité', description: 'Ajouter des contraintes lors de l\'entraînement', impact: '+8%', effort: 'Faible', priority: 'Haute', technique: 'In-processing' },
-      { title: 'Ajustement des seuils', description: 'Optimiser les seuils par groupe', impact: '+5%', effort: 'Faible', priority: 'Moyenne', technique: 'Post-processing' },
-    ]
-
-    // Update audit with simulated results
-    await supabase
+    // Mark audit as failed so the user knows
+    await dbClient
       .from('audits')
       .update({
-        status: 'completed',
-        overall_score: overallScore,
-        risk_level: riskLevel,
-        bias_detected: biasDetected,
-        metrics_results: simulatedMetrics,
-        recommendations: recommendations,
-        completed_at: new Date().toISOString(),
+        status: 'failed',
       })
       .eq('id', audit_id)
 
     return NextResponse.json({
-      success: true,
-      overall_score: overallScore,
-      risk_level: riskLevel,
-      bias_detected: biasDetected,
-      metrics_by_attribute: simulatedMetrics,
-      recommendations: recommendations.map(r => r.title),
-      simulated: true,
-    })
+      error: 'Le serveur d\'analyse (FastAPI) est injoignable. Veuillez vérifier qu\'il est lancé sur le port 8000.',
+      details: 'Lancez le backend avec: cd backend && python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload',
+    }, { status: 503 })
 
   } catch (error) {
     console.error('Fairness calculation error:', error)

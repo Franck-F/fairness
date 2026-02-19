@@ -3,10 +3,12 @@ const nextConfig = {
   images: {
     unoptimized: true,
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
+      { protocol: 'https', hostname: 'customer-assets.emergentagent.com' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'cdn.jsdelivr.net' },
+      { protocol: 'https', hostname: 'upload.wikimedia.org' },
+      { protocol: 'https', hostname: 'www.gstatic.com' },
+      { protocol: 'https', hostname: '**' },
     ],
   },
   experimental: {
@@ -21,7 +23,7 @@ const nextConfig = {
         ignored: ['**/node_modules'],
       };
     }
-    
+
     // Handle plotly.js for server-side
     if (isServer) {
       config.externals = config.externals || [];
@@ -29,7 +31,7 @@ const nextConfig = {
         'plotly.js': 'plotly.js',
       });
     }
-    
+
     return config;
   },
   onDemandEntries: {

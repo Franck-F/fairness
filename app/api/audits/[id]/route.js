@@ -6,9 +6,14 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 )
 
+const isPlaceholderKey = !process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_KEY === 'your-service-role-key'
+const dbClient = isPlaceholderKey
+  ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  : supabase
+
 // Helper to get internal user ID
-async function getInternalUserId(authUser) {
-  const { data: internalUser } = await supabase
+async function getInternalUserId(authUser, dbClient) {
+  const { data: internalUser } = await dbClient
     .from('users')
     .select('id')
     .eq('email', authUser.email)
@@ -30,15 +35,13 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userId = await getInternalUserId(authUser)
+    const userId = await getInternalUserId(authUser, dbClient)
     const { id } = await params
 
-    const { data: audit, error } = await supabase
+    // Fetch audit without dataset join to avoid 404 if dataset is missing
+    const { data: audit, error } = await dbClient
       .from('audits')
-      .select(`
-        *,
-        datasets (original_filename, filename)
-      `)
+      .select('*')
       .eq('id', id)
       .eq('user_id', userId)
       .single()
@@ -68,11 +71,11 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userId = await getInternalUserId(authUser)
+    const userId = await getInternalUserId(authUser, dbClient)
     const { id } = await params
     const body = await request.json()
 
-    const { data: audit, error } = await supabase
+    const { data: audit, error } = await dbClient
       .from('audits')
       .update(body)
       .eq('id', id)
@@ -105,10 +108,10 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userId = await getInternalUserId(authUser)
+    const userId = await getInternalUserId(authUser, dbClient)
     const { id } = await params
 
-    const { error } = await supabase
+    const { error } = await dbClient
       .from('audits')
       .delete()
       .eq('id', id)

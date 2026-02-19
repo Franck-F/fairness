@@ -1,7 +1,25 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 
-const FASTAPI_URL = process.env.FASTAPI_URL || 'http://localhost:8000'
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY
+)
+
+const isPlaceholderKey = !process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_KEY === 'your-service-role-key'
+const authClient = isPlaceholderKey
+  ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  : supabase
+
+// Helper to get internal user ID
+async function getInternalUserId(authUser, dbClient) {
+  const { data: internalUser } = await dbClient
+    .from('users')
+    .select('id')
+    .eq('email', authUser.email)
+    .single()
+  return internalUser?.id
+}
 
 // WhatIf Analysis - Counterfactual explanations
 export async function POST(request) {
@@ -12,11 +30,19 @@ export async function POST(request) {
     }
 
     const token = authHeader.replace('Bearer ', '')
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    const { data: { user: authUser }, error: authError } = await authClient.auth.getUser(token)
 
-    if (authError || !user) {
+    if (authError || !authUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const dbClient = isPlaceholderKey
+      ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+        global: { headers: { Authorization: `Bearer ${token}` } }
+      })
+      : supabase
+
+    const userId = await getInternalUserId(authUser, dbClient)
 
     const { audit_id, instance_data, target_outcome, constraints } = await request.json()
 
@@ -25,11 +51,11 @@ export async function POST(request) {
     }
 
     // Get audit info
-    const { data: audit, error: auditError } = await supabase
+    const { data: audit, error: auditError } = await dbClient
       .from('audits')
-      .select('*, dataset:datasets(*)')
+      .select('*, datasets!audits_dataset_id_fkey(*)')
       .eq('id', audit_id)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .single()
 
     if (auditError || !audit) {
@@ -62,7 +88,7 @@ export async function POST(request) {
 // Generate counterfactual examples
 function generateCounterfactuals(instance, sensitiveAttrs, targetOutcome, constraints) {
   const counterfactuals = []
-  
+
   // Generate variations by modifying non-sensitive attributes
   const modifiableAttrs = Object.keys(instance).filter(
     key => !sensitiveAttrs?.includes(key) && key !== 'prediction' && key !== 'probability'
@@ -120,9 +146,9 @@ function generateExplanation(original, counterfactuals) {
     return "Aucun contrefactuel n'a pu etre genere pour cette instance."
   }
 
-  const bestCf = counterfactuals.reduce((best, cf) => 
+  const bestCf = counterfactuals.reduce((best, cf) =>
     cf.confidence > best.confidence ? cf : best
-  , counterfactuals[0])
+    , counterfactuals[0])
 
   const changeDescriptions = bestCf.changes?.map(c => {
     const direction = c.to > c.from ? 'augmenter' : 'diminuer'

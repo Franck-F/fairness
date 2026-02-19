@@ -7,22 +7,26 @@ import { cn } from '@/lib/utils'
 
 export function DashboardShell({ children }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardSidebar 
-        collapsed={sidebarCollapsed} 
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} 
+    <div className="min-h-screen bg-background relative overflow-x-hidden">
+      <DashboardSidebar
+        collapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        mobileOpen={mobileSidebarOpen}
+        onMobileClose={() => setMobileSidebarOpen(false)}
       />
-      
-      <div 
+
+      <div
         className={cn(
-          'transition-all duration-300',
-          sidebarCollapsed ? 'ml-16' : 'ml-64'
+          'transition-all duration-500 ease-in-out min-h-screen flex flex-col',
+          'ml-0', // Default mobile margin
+          sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-80'
         )}
       >
-        <DashboardHeader />
-        
+        <DashboardHeader onMenuClick={() => setMobileSidebarOpen(true)} />
+
         <main className="p-6">
           {children}
         </main>
