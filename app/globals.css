@@ -86,26 +86,76 @@
   * {
     @apply border-border;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground overflow-x-hidden min-h-[100dvh];
   }
 }
 
 /* Scrollbar personnalisée pour le thème sombre */
 @layer utilities {
   .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
   }
+
   .scrollbar-thin::-webkit-scrollbar-track {
     background: hsl(var(--muted));
     border-radius: 3px;
   }
+
   .scrollbar-thin::-webkit-scrollbar-thumb {
     background: hsl(var(--primary) / 0.5);
     border-radius: 3px;
   }
+
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--primary));
+  }
+
+  /* Redesign Premium Utilities from Stitch */
+  .glass-card {
+    background: rgba(64, 43, 60, 0.4);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(226, 8, 161, 0.2);
+  }
+
+  .slanted-sidebar {
+    transform: skewY(-2deg);
+    transform-origin: left top;
+  }
+
+  .slanted-sidebar>* {
+    transform: skewY(2deg);
+  }
+
+  .glow-border {
+    box-shadow: 0 0 15px rgba(226, 8, 161, 0.15);
+  }
+
+  .bg-orb {
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(64, 43, 60, 0.3) 0%, rgba(0, 0, 0, 0) 70%);
+    z-index: -1;
+    filter: blur(60px);
+    pointer-events: none;
+  }
+
+  .animate-spin-slow {
+    animation: spin 8s linear infinite;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(360deg);
+    }
   }
 }

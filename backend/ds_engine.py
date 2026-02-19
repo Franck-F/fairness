@@ -128,7 +128,10 @@ class SeniorDataScientistEngine:
     def get_dimensionality_reduction(df, n_components=2):
         """PCA and t-SNE for multivariate visualization."""
         try:
-            numeric_df = df.select_dtypes(include=[np.number]).dropna(axis=1, how='all').dropna()
+            numeric_df = df.select_dtypes(include=[np.number]).dropna(axis=1, how='all')
+            # Fill NaNs with 0 for reduction instead of dropping everything
+            numeric_df = numeric_df.fillna(0)
+            
             if numeric_df.empty or numeric_df.shape[1] < n_components:
                 return {
                     "pca": [], "tsne": [], "explained_variance": [], "indices": []
@@ -164,8 +167,8 @@ class SeniorDataScientistEngine:
             shap_values = explainer(X_train)
             
             return {
-                "base_value": shap_values.base_values.tolist() if hasattr(shap_values, 'base_values') else None,
-                "values": shap_values.values.tolist(),
+                "base_value": [SeniorDataScientistEngine._safe_float(x) for x in shap_values.base_values.tolist()] if hasattr(shap_values, 'base_values') else None,
+                "values": [[SeniorDataScientistEngine._safe_float(x) for x in row] for row in shap_values.values.tolist()],
                 "feature_names": X_train.columns.tolist()
             }
         except Exception as e:
@@ -175,10 +178,14 @@ class SeniorDataScientistEngine:
     @staticmethod
     def get_quality_score(df):
         """Quantify dataset health from 0 to 100."""
+        if df.empty:
+            return 0.0
+            
         score = 100
         
         # Penalty for missing values
         missing_pct = df.isnull().mean().mean()
+        if pd.isna(missing_pct): missing_pct = 0.0
         score -= missing_pct * 100
         
         # Penalty for outliers (rough estimate)
@@ -193,9 +200,11 @@ class SeniorDataScientistEngine:
                     outliers = ((col_data < (q1 - 1.5 * iqr)) | (col_data > (q3 + 1.5 * iqr))).sum()
                     outliers_total += outliers / len(col_data)
             
-            score -= (outliers_total / len(numeric_df.columns)) * 20
+            penalty = (outliers_total / len(numeric_df.columns)) * 20
+            if pd.isna(penalty): penalty = 0.0
+            score -= penalty
             
-        return max(0, min(100, round(score, 1)))
+        return max(0.0, min(100.0, round(float(score), 1)))
 
     @staticmethod
     def get_expert_recommendations(df, target_col=None):
@@ -240,3 +249,51 @@ class SeniorDataScientistEngine:
             })
             
         return recs
+
+    @staticmethod
+    def get_correlation_matrix(df):
+        """Calculate correlation matrix for numeric columns."""
+        try:
+            numeric_df = df.select_dtypes(include=[np.number]).dropna(axis=1, how='all')
+            if numeric_df.empty:
+                return {}
+            
+            # fillna(0) to avoid issues with sparse correlations
+            corr = numeric_df.fillna(0).corr().round(3)
+            return corr.to_dict()
+        except Exception as e:
+            logger.error(f"Correlation matrix error: {e}")
+            return {}
+
+    @staticmethod
+    def get_outlier_analysis(df, top_n=5):
+        """Analyze top columns with most outliers."""
+        try:
+            numeric_df = df.select_dtypes(include=[np.number]).fillna(0)
+            outlier_details = []
+            
+            for col in numeric_df.columns:
+                col_data = numeric_df[col].dropna()
+                if len(col_data) < 1: continue
+                
+                q1, q3 = col_data.quantile(0.25), col_data.quantile(0.75)
+                iqr = q3 - q1
+                lower_bound = q1 - 1.5 * iqr
+                upper_bound = q3 + 1.5 * iqr
+                
+                outliers = col_data[(col_data < lower_bound) | (col_data > upper_bound)]
+                if len(outliers) > 0:
+                    outlier_details.append({
+                        "column": col,
+                        "count": len(outliers),
+                        "percentage": round(len(outliers) / len(col_data) * 100, 2),
+                        "min_outlier": SeniorDataScientistEngine._safe_float(outliers.min()),
+                        "max_outlier": SeniorDataScientistEngine._safe_float(outliers.max())
+                    })
+            
+            # Sort by count descending
+            outlier_details.sort(key=lambda x: x['count'], reverse=True)
+            return outlier_details[:top_n]
+        except Exception as e:
+            logger.error(f"Outlier analysis error: {e}")
+            return []

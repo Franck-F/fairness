@@ -5,7 +5,7 @@ const FASTAPI_URL = process.env.FASTAPI_URL || 'http://localhost:8000'
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    process.env.SUPABASE_SERVICE_KEY
 )
 
 // Helper to re-upload dataset to FastAPI if missing
@@ -16,18 +16,35 @@ async function autoHealDataset(datasetId, token) {
         let { data: dataset, error: dbError } = await supabase
             .from('datasets')
             .select('*')
-            .or(`id.eq.${datasetId},fastapi_dataset_id.eq.${datasetId}`)
+            .eq('id', datasetId)
             .single()
 
         if (dbError || !dataset) {
-            console.error('Dataset not found in Supabase (tried both ID types):', dbError)
+            console.error('Dataset not found in Supabase:', dbError)
             return false
         }
+
+        console.log('Dataset found for auto-heal:', {
+            id: dataset.id,
+            keys: Object.keys(dataset),
+            file_path: dataset.file_path,
+            storage_path: dataset.storage_path,
+            filename: dataset.filename
+        })
+
+        const storagePathRaw = dataset.file_path || dataset.storage_path || dataset.filename
+        if (!storagePathRaw) {
+            console.error('No storage path found in dataset object')
+            return false
+        }
+
+        const storagePath = String(storagePathRaw).trim()
+        console.log(`Downloading from storage: [datasets] path: "${storagePath}" (type: ${typeof storagePath})`)
 
         // 2. Download from Storage
         const { data: fileData, error: storageError } = await supabase.storage
             .from('datasets')
-            .download(dataset.filename)
+            .download(storagePath)
 
         if (storageError || !fileData) {
             console.error('File not found in Storage:', storageError)
@@ -38,9 +55,13 @@ async function autoHealDataset(datasetId, token) {
         const formData = new FormData()
         formData.append('file', fileData, dataset.original_filename || 'dataset.csv')
         formData.append('dataset_name', dataset.original_filename || 'dataset.csv')
+        formData.append('dataset_id', datasetId) // Maintain the same ID!
 
         const uploadResponse = await fetch(`${FASTAPI_URL}/api/datasets/upload`, {
             method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
             body: formData,
         })
 
@@ -75,8 +96,16 @@ export async function POST(request, { params }) {
         const { slug } = params
         const path = slug.join('/')
 
-        // Get the request body
-        const body = await request.json()
+        // Get the request body safely
+        let body = {}
+        try {
+            const text = await request.text()
+            if (text) {
+                body = JSON.parse(text)
+            }
+        } catch (e) {
+            console.warn('Could not parse request body as JSON')
+        }
 
         // Forward the request to FastAPI
         let response = await fetch(`${FASTAPI_URL}/api/ds/${path}`, {

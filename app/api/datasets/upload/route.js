@@ -254,16 +254,15 @@ export async function POST(request) {
     }
 
     return NextResponse.json({
-      id: dataset.id,
+      dataset_id: dataset.id, // Use dataset_id to match frontend expectations
+      id: dataset.id, // Keep id for backward compatibility
       fastapi_dataset_id: fastApiDatasetId,
       filename: file.name,
-      data: data.slice(0, 100), // Return first 100 rows for preview
-      columns: detectedColumns,
+      preview: data.slice(0, 10), // 10 rows for preview
+      columns: detectedColumns, // Array of {name, type}
       stats: {
         rows: data.length,
-        columns: columns.length,
-        missingValues: missingValuesCount,
-        fileSize: file.size,
+        size: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
       },
     })
   } catch (error) {

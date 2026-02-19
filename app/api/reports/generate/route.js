@@ -8,9 +8,14 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 )
 
+const isPlaceholderKey = !process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_KEY === 'your-service-role-key'
+const dbClient = isPlaceholderKey
+  ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  : supabase
+
 // Helper to get internal user ID
-async function getInternalUserId(authUser) {
-  const { data: internalUser } = await supabase
+async function getInternalUserId(authUser, dbClient) {
+  const { data: internalUser } = await dbClient
     .from('users')
     .select('id')
     .eq('email', authUser.email)
@@ -27,13 +32,13 @@ export async function POST(request) {
     }
 
     const token = authHeader.replace('Bearer ', '')
-    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token)
+    const { data: { user: authUser }, error: authError } = await dbClient.auth.getUser(token)
 
     if (authError || !authUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userId = await getInternalUserId(authUser)
+    const userId = await getInternalUserId(authUser, dbClient)
     const { audit_id, format } = await request.json()
 
     if (!audit_id || !format) {
@@ -41,9 +46,9 @@ export async function POST(request) {
     }
 
     // Get audit with full details from Supabase
-    const { data: audit, error: auditError } = await supabase
+    const { data: audit, error: auditError } = await dbClient
       .from('audits')
-      .select(`*, datasets(*)`)
+      .select(`*, datasets!audits_dataset_id_fkey(*)`)
       .eq('id', audit_id)
       .eq('user_id', userId)
       .single()
@@ -76,12 +81,12 @@ export async function POST(request) {
         if (response.ok) {
           // Return PDF as blob
           const pdfBuffer = await response.arrayBuffer()
-          
+
           // Create report record in Supabase
           const fileName = `report_${audit_id}_${Date.now()}.pdf`
-          await supabase.from('reports').insert({
+          await dbClient.from('reports').insert({
             audit_id: audit_id,
-            user_id: user.id,
+            user_id: userId,
             report_name: `Rapport ${audit.audit_name}`,
             format: 'pdf',
             file_path: fileName,
@@ -133,7 +138,7 @@ export async function POST(request) {
 // Generate TXT report
 function generateTXTReport(audit) {
   const date = new Date(audit.created_at).toLocaleDateString('fr-FR')
-  
+
   let report = `
 ========================================
 RAPPORT D'AUDIT DE FAIRNESS - AuditIQ
@@ -205,7 +210,7 @@ Genere par AuditIQ - ${new Date().toLocaleString('fr-FR')}
 // Generate HTML report (can be converted to PDF client-side)
 function generateHTMLReport(audit) {
   const date = new Date(audit.created_at).toLocaleDateString('fr-FR')
-  
+
   return `
 <!DOCTYPE html>
 <html lang="fr">

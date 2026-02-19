@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AuditIQ AI Fairness Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#e208a1",
+                        "background-light": "#f8f5f7",
+                        "background-dark": "#000000",
+                        "violet-glow": "#402B3C",
+                        "cotton-bloom": "#EA60D1",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #000000;
+            overflow-x: hidden;
+        }
+        .glass-card {
+            background: rgba(64, 43, 60, 0.4);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(226, 8, 161, 0.2);
+        }
+        .slanted-sidebar {
+            transform: skewY(-2deg);
+            transform-origin: left top;
+        }
+        .slanted-sidebar > * {
+            transform: skewY(2deg);
+        }
+        .glow-border {
+            box-shadow: 0 0 15px rgba(226, 8, 161, 0.15);
+        }
+        .bg-orb {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(64, 43, 60, 0.3) 0%, rgba(0,0,0,0) 70%);
+            z-index: -1;
+            filter: blur(60px);
+        }
+    </style>
+</head>
+<body class="font-display text-white bg-background-light dark:bg-background-dark min-h-screen">
+<!-- Background Orbs -->
+<div class="bg-orb -top-20 -left-20"></div>
+<div class="bg-orb bottom-0 right-0 opacity-50"></div>
+<div class="flex min-h-screen">
+<!-- Slanted Sidebar -->
+<aside class="w-72 p-6 h-screen sticky top-0 z-50">
+<div class="slanted-sidebar h-full glass-card rounded-xl p-8 flex flex-col glow-border">
+<div class="mb-12 flex items-center gap-3">
+<div class="w-10 h-10 bg-primary rounded flex items-center justify-center">
+<span class="material-icons text-white">query_stats</span>
+</div>
+<h1 class="text-2xl font-bold tracking-tighter">AuditIQ</h1>
+</div>
+<nav class="space-y-6 flex-1">
+<a class="flex items-center gap-4 text-primary group" href="#">
+<span class="material-icons">dashboard</span>
+<span class="font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-4 text-white/60 hover:text-primary transition-colors group" href="#">
+<span class="material-icons">storage</span>
+<span class="font-medium">Datasets</span>
+</a>
+<a class="flex items-center gap-4 text-white/60 hover:text-primary transition-colors group" href="#">
+<span class="material-icons">analytics</span>
+<span class="font-medium">Analysis</span>
+</a>
+<a class="flex items-center gap-4 text-white/60 hover:text-primary transition-colors group" href="#">
+<span class="material-icons">description</span>
+<span class="font-medium">Reports</span>
+</a>
+</nav>
+<div class="mt-auto space-y-6">
+<a class="flex items-center gap-4 text-white/60 hover:text-primary transition-colors group" href="#">
+<span class="material-icons">settings</span>
+<span class="font-medium">Settings</span>
+</a>
+<div class="pt-6 border-t border-white/10">
+<div class="flex items-center gap-3">
+<img alt="Profile" class="w-10 h-10 rounded-full border border-primary/50 object-cover" data-alt="Close up portrait of a senior data scientist" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQ-wy6vtH3lAYnKVZiFBCgRX7VTL0TADrWheye6rIQ-clD0sv4HxezQ2mV4_nusBHgPgwGaw5foeaxl0Z8IQRPVqiNi-XrO8LOM07i1SNmWFT9WjAeC4bFCx71-LZBKWFupsDdUTZnJB7C8WvdpiBDzLmwQjf07NpUjKQvxMWTzvFbsBpc3reiBh6kxSK_HbEj2vPfZw7Obwku3q6k02PWI3svAftBG23hxFNAPftlWGdvZYyWIYH9AFkeXzR-gZQLA_fI3ldzXP8"/>
+<div>
+<p class="text-sm font-semibold">Franck L.</p>
+<p class="text-[10px] text-white/40 uppercase tracking-widest">Senior Lead</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 p-8 lg:p-12">
+<!-- Top Bar -->
+<header class="flex justify-between items-center mb-12">
+<div>
+<h2 class="text-3xl font-bold mb-2">Bonjour, Franck !</h2>
+<p class="text-white/50">Prêt à auditer l'équité aujourd'hui ?</p>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-primary transition-colors">search</span>
+<input class="bg-white/5 border border-white/10 rounded-full py-2.5 pl-12 pr-6 w-64 focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white/10 transition-all font-display" placeholder="Search audits..." type="text"/>
+</div>
+<button class="w-12 h-12 glass-card rounded-full flex items-center justify-center hover:bg-primary/20 transition-all">
+<span class="material-icons text-white/70">notifications</span>
+</button>
+</div>
+</header>
+<!-- KPI Cards Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<div class="glass-card p-6 rounded-xl hover:translate-y-[-4px] transition-transform duration-300">
+<p class="text-white/40 text-sm mb-1 uppercase tracking-wider">Total Audits</p>
+<div class="flex items-end justify-between">
+<h3 class="text-4xl font-bold">142</h3>
+<span class="text-primary text-xs font-semibold mb-1">+12% vs month</span>
+</div>
+</div>
+<div class="glass-card p-6 rounded-xl hover:translate-y-[-4px] transition-transform duration-300">
+<p class="text-white/40 text-sm mb-1 uppercase tracking-wider">Fairness Score</p>
+<div class="flex items-end justify-between">
+<h3 class="text-4xl font-bold text-cotton-bloom">84%</h3>
+<div class="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin-slow opacity-20"></div>
+</div>
+</div>
+<div class="glass-card p-6 rounded-xl border-red-500/20 hover:translate-y-[-4px] transition-transform duration-300">
+<p class="text-white/40 text-sm mb-1 uppercase tracking-wider">Bias Detected</p>
+<div class="flex items-end justify-between">
+<h3 class="text-4xl font-bold text-red-400">02</h3>
+<span class="material-icons text-red-500 mb-1">warning</span>
+</div>
+</div>
+<div class="glass-card p-6 rounded-xl hover:translate-y-[-4px] transition-transform duration-300">
+<p class="text-white/40 text-sm mb-1 uppercase tracking-wider">Cloud Compute</p>
+<div class="flex items-end justify-between">
+<h3 class="text-4xl font-bold">1.2 TB</h3>
+<span class="text-white/30 text-xs mb-1">NVidia A100 x 4</span>
+</div>
+</div>
+</section>
+<!-- Main Charts Row -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+<!-- Fairness Trend Chart Card -->
+<div class="lg:col-span-2 glass-card rounded-xl p-8 relative overflow-hidden">
+<div class="flex justify-between items-center mb-10">
+<div>
+<h4 class="text-xl font-bold">Bias Trend Analysis</h4>
+<p class="text-sm text-white/40">Performance over the last 30 audit cycles</p>
+</div>
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-primary/20 rounded-full text-[10px] text-primary font-bold uppercase">Shocking Pink</span>
+<span class="px-3 py-1 bg-cotton-bloom/20 rounded-full text-[10px] text-cotton-bloom font-bold uppercase">Cotton Bloom</span>
+</div>
+</div>
+<div class="h-64 flex items-end justify-between gap-1 relative">
+<!-- Simulated Chart Bars/Lines -->
+<div class="absolute inset-0 flex items-center justify-center opacity-10">
+<span class="material-icons text-[200px]">stacked_line_chart</span>
+</div>
+<div class="w-3 bg-primary rounded-t-full h-[40%] opacity-40"></div>
+<div class="w-3 bg-cotton-bloom rounded-t-full h-[60%]"></div>
+<div class="w-3 bg-primary rounded-t-full h-[55%] opacity-40"></div>
+<div class="w-3 bg-cotton-bloom rounded-t-full h-[45%]"></div>
+<div class="w-3 bg-primary rounded-t-full h-[70%] opacity-40"></div>
+<div class="w-3 bg-cotton-bloom rounded-t-full h-[80%]"></div>
+<div class="w-3 bg-primary rounded-t-full h-[30%] opacity-40"></div>
+<div class="w-3 bg-cotton-bloom rounded-t-full h-[40%]"></div>
+<div class="w-3 bg-primary rounded-t-full h-[65%] opacity-40"></div>
+<div class="w-3 bg-cotton-bloom rounded-t-full h-[90%]"></div>
+<div class="w-3 bg-primary rounded-t-full h-[45%] opacity-40"></div>
+<div class="w-3 bg-cotton-bloom rounded-t-full h-[55%]"></div>
+<div class="w-3 bg-primary rounded-t-full h-[70%] opacity-40"></div>
+<div class="w-3 bg-cotton-bloom rounded-t-full h-[60%]"></div>
+<div class="w-3 bg-primary rounded-t-full h-[50%] opacity-40"></div>
+<div class="w-3 bg-cotton-bloom rounded-t-full h-[75%]"></div>
+<div class="w-3 bg-primary rounded-t-full h-[40%] opacity-40"></div>
+<div class="w-3 bg-cotton-bloom rounded-t-full h-[50%]"></div>
+</div>
+</div>
+<!-- AI Insights Box -->
+<div class="glass-card rounded-xl p-8 border-primary/40 glow-border flex flex-col">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-8 h-8 rounded bg-primary/20 flex items-center justify-center">
+<span class="material-icons text-primary text-sm">auto_awesome</span>
+</div>
+<h4 class="font-bold">AI Insights</h4>
+</div>
+<div class="space-y-6 flex-1">
+<div class="p-4 bg-white/5 rounded-lg border-l-4 border-primary">
+<p class="text-sm leading-relaxed text-white/80">
+<span class="text-primary font-bold">Optimization Alert:</span> Demographic parity detected a 12% drift in the "Financial_Loan_V4" dataset. Recalibration recommended.
+                            </p>
+</div>
+<div class="p-4 bg-white/5 rounded-lg border-l-4 border-cotton-bloom">
+<p class="text-sm leading-relaxed text-white/80">
+<span class="text-cotton-bloom font-bold">Recommendation:</span> Re-weighting the training samples for the 'Age' feature could improve the current fairness score from 84% to 91%.
+                            </p>
+</div>
+</div>
+<button class="mt-8 w-full py-3 bg-primary text-white rounded font-bold hover:brightness-110 transition-all uppercase text-xs tracking-widest">
+                        Apply Suggested Fixes
+                    </button>
+</div>
+</section>
+<!-- Bottom Grid -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<!-- Recent Datasets -->
+<div class="glass-card rounded-xl p-8">
+<div class="flex justify-between items-center mb-8">
+<h4 class="text-xl font-bold">Recent Datasets</h4>
+<button class="text-xs text-white/40 uppercase font-bold hover:text-white transition-colors">View All</button>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/5 hover:border-primary/30 transition-all cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-cotton-bloom/10 rounded flex items-center justify-center">
+<span class="material-icons text-cotton-bloom">table_chart</span>
+</div>
+<div>
+<p class="font-bold">Customer_Churn_Gold.csv</p>
+<p class="text-xs text-white/40">Modified 2h ago • 450 MB</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="px-3 py-1 bg-green-500/10 text-green-500 text-[10px] font-bold rounded-full uppercase">Audited</span>
+<span class="material-icons text-white/20">more_vert</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/5 hover:border-primary/30 transition-all cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-primary/10 rounded flex items-center justify-center">
+<span class="material-icons text-primary">table_chart</span>
+</div>
+<div>
+<p class="font-bold">Insurance_Claims_Final.parquet</p>
+<p class="text-xs text-white/40">Modified 5h ago • 1.2 GB</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="px-3 py-1 bg-yellow-500/10 text-yellow-500 text-[10px] font-bold rounded-full uppercase">Pending</span>
+<span class="material-icons text-white/20">more_vert</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/5 hover:border-primary/30 transition-all cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-white/10 rounded flex items-center justify-center">
+<span class="material-icons text-white/40">table_chart</span>
+</div>
+<div>
+<p class="font-bold">Hiring_Algorithm_V2.csv</p>
+<p class="text-xs text-white/40">Modified 1d ago • 89 MB</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="px-3 py-1 bg-red-500/10 text-red-500 text-[10px] font-bold rounded-full uppercase">Critical Bias</span>
+<span class="material-icons text-white/20">more_vert</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Active Audits Detail -->
+<div class="glass-card rounded-xl p-8 relative overflow-hidden">
+<div class="flex justify-between items-center mb-8">
+<h4 class="text-xl font-bold">Fairness Radar</h4>
+<div class="flex gap-2">
+<button class="material-icons text-white/40 hover:text-white transition-colors">refresh</button>
+<button class="material-icons text-white/40 hover:text-white transition-colors">settings</button>
+</div>
+</div>
+<div class="flex justify-center items-center py-4">
+<div class="relative w-64 h-64">
+<!-- SVG Radar Simulation -->
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<!-- Grid Lines -->
+<circle cx="50" cy="50" fill="none" r="45" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"></circle>
+<circle cx="50" cy="50" fill="none" r="30" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"></circle>
+<circle cx="50" cy="50" fill="none" r="15" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"></circle>
+<!-- Radar Shape -->
+<path d="M 50 10 L 80 40 L 65 80 L 35 80 L 20 40 Z" fill="rgba(226, 8, 161, 0.2)" stroke="#e208a1" stroke-width="2"></path>
+<path d="M 50 25 L 70 45 L 60 70 L 40 70 L 30 45 Z" fill="rgba(234, 96, 209, 0.2)" stroke="#EA60D1" stroke-width="1.5"></path>
+</svg>
+<!-- Labels -->
+<div class="absolute -top-4 left-1/2 -translate-x-1/2 text-[10px] uppercase font-bold text-white/60">Gender</div>
+<div class="absolute top-1/2 -right-12 -translate-y-1/2 text-[10px] uppercase font-bold text-white/60">Ethnicity</div>
+<div class="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[10px] uppercase font-bold text-white/60">Age Group</div>
+<div class="absolute top-1/2 -left-12 -translate-y-1/2 text-[10px] uppercase font-bold text-white/60">Location</div>
+</div>
+</div>
+<div class="mt-8 grid grid-cols-2 gap-4">
+<div class="p-3 bg-white/5 rounded-lg text-center">
+<p class="text-[10px] text-white/40 uppercase mb-1">Max Deviation</p>
+<p class="text-lg font-bold">14.2%</p>
+</div>
+<div class="p-3 bg-white/5 rounded-lg text-center">
+<p class="text-[10px] text-white/40 uppercase mb-1">Impact Ratio</p>
+<p class="text-lg font-bold">0.82</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+</body></html>

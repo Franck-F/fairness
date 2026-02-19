@@ -7,6 +7,11 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 )
 
+const isPlaceholderKey = !process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_KEY === 'your-service-role-key'
+const dbClient = isPlaceholderKey
+  ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  : supabase
+
 export async function POST(request) {
   try {
     const { email } = await request.json()
@@ -16,7 +21,7 @@ export async function POST(request) {
     }
 
     // Use Supabase's built-in password reset
-    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { data, error } = await dbClient.auth.resetPasswordForEmail(email, {
       redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/reset-password`,
     })
 
