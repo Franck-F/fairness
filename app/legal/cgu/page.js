@@ -7,64 +7,64 @@ import { ThemeToggle } from '@/components/theme-toggle'
 import { Building2, ChevronRight, User, Server, Copyright, Database, Cookie, Link2, AlertTriangle, Scale, Phone } from 'lucide-react'
 
 export const metadata = {
-  title: 'Mentions Legales - AuditIQ',
-  description: 'Mentions legales et informations sur l\'editeur du site AuditIQ.',
+  title: 'Mentions Légales - AuditIQ',
+  description: 'Mentions légales et informations sur l\'éditeur du site AuditIQ.',
 }
 
 const sections = [
   {
     id: 'editeur',
-    title: '1. Editeur du Site',
+    title: '1. Éditeur du Site',
     icon: Building2,
-    content: 'Le site AuditIQ (www.auditiq.ai) est edite par :',
+    content: 'Le site AuditIQ (www.auditiq.ai) est édité par :',
     details: [
       { label: 'Raison sociale', value: 'AuditIQ SAS' },
-      { label: 'Forme juridique', value: 'Societe par Actions Simplifiee au capital de 50 000 euros' },
+      { label: 'Forme juridique', value: 'Société par Actions Simplifiée au capital de 50 000 euros' },
       { label: 'Siege social', value: '42 Rue de l\'Innovation, 75008 Paris, France' },
       { label: 'RCS Paris', value: '912 345 678' },
       { label: 'TVA', value: 'FR 12 912345678' },
       { label: 'Email', value: 'contact@auditiq.ai' },
-      { label: 'Telephone', value: '+33 1 23 45 67 89' }
+      { label: 'Téléphone', value: '+33 1 23 45 67 89' }
     ]
   },
   {
     id: 'directeur',
     title: '2. Directeur de la Publication',
     icon: User,
-    content: 'Dr. Marie Laurent, Presidente d\'AuditIQ SAS'
+    content: 'Dr. Marie Laurent, Présidente d\'AuditIQ SAS'
   },
   {
     id: 'hebergement',
-    title: '3. Hebergement',
+    title: '3. Hébergement',
     icon: Server,
-    content: 'Le site est heberge par :',
+    content: 'Le site est hébergé par :',
     details: [
-      { label: 'Hebergeur', value: 'Vercel Inc.' },
+      { label: 'Hébergeur', value: 'Vercel Inc.' },
       { label: 'Adresse', value: '340 S Lemon Ave #4133, Walnut, CA 91789, USA' },
       { label: 'Site', value: 'https://vercel.com' }
     ],
-    footer: 'Les donnees sont stockees sur des serveurs situes dans l\'Union Europeenne (AWS Frankfurt).'
+    footer: 'Les données sont stockées sur des serveurs situés dans l\'Union Européenne (AWS Frankfurt).'
   },
   {
     id: 'propriete',
-    title: '4. Propriete Intellectuelle',
+    title: '4. Propriété Intellectuelle',
     icon: Copyright,
-    content: `L'ensemble des elements constituant le site AuditIQ (textes, graphismes, logiciels, photographies, images, sons, plans, noms, logos, marques, creations et oeuvres protegees diverses, bases de donnees, etc.) ainsi que le site lui-meme, sont la propriete exclusive d'AuditIQ SAS ou de tiers ayant autorise AuditIQ a les utiliser.`,
-    footer: 'Ces elements sont proteges par les lois francaises et internationales relatives a la propriete intellectuelle. Toute reproduction, representation, modification, publication, adaptation de tout ou partie des elements du site, quel que soit le moyen ou le procede utilise, est interdite, sauf autorisation ecrite prealable d\'AuditIQ.'
+    content: `L'ensemble des éléments constituant le site AuditIQ (textes, graphismes, logiciels, photographies, images, sons, plans, noms, logos, marques, créations et œuvres protégées diverses, bases de données, etc.) ainsi que le site lui-meme, sont la propriété exclusive d'AuditIQ SAS ou de tiers ayant autorisé AuditIQ à les utiliser.`,
+    footer: 'Ces éléments sont protégés par les lois françaises et internationales relatives a la propriété intellectuelle. Toute reproduction, representation, modification, publication, adaptation de tout ou partie des éléments du site, quel que soit le moyen ou le procédé utilisé, est interdite, sauf autorisation écrite préalable d\'AuditIQ.'
   },
   {
     id: 'donnees',
-    title: '5. Donnees Personnelles',
+    title: '5. Données Personnelles',
     icon: Database,
-    content: `Le traitement des donnees personnelles collectees sur ce site est regi par notre Politique de Confidentialite.`,
-    footer: 'Conformement au Reglement General sur la Protection des Donnees (RGPD), vous disposez de droits sur vos donnees personnelles que vous pouvez exercer en contactant notre DPO a l\'adresse : dpo@auditiq.ai',
-    link: { href: '/legal/privacy', text: 'Voir notre Politique de Confidentialite' }
+    content: `Le traitement des données personnelles collectées sur ce site est regi par notre Politique de Confidentialité.`,
+    footer: 'Conformement au Règlement Général sur la Protection des Données (RGPD), vous disposez de droits sur vos données personnelles que vous pouvez exercer en contactant notre DPO a l\'adresse : dpo@auditiq.ai',
+    link: { href: '/legal/privacy', text: 'Voir notre Politique de Confidentialité' }
   },
   {
     id: 'cookies',
     title: '6. Cookies',
     icon: Cookie,
-    content: `Le site utilise des cookies pour son fonctionnement et pour realiser des statistiques de visite. Pour en savoir plus sur notre utilisation des cookies et gerer vos preferences, consultez notre Politique de Confidentialite.`
+    content: `Le site utilise des cookies pour son fonctionnement et pour réaliser des statistiques de visite. Pour en savoir plus sur notre utilisation des cookies et gerer vos préférences, consultez notre Politique de Confidentialité.`
   },
   {
     id: 'liens',
@@ -76,19 +76,19 @@ const sections = [
     id: 'responsabilite',
     title: '8. Limitation de Responsabilite',
     icon: AlertTriangle,
-    content: `AuditIQ s'efforce de fournir des informations aussi precises que possible. Toutefois, AuditIQ ne pourra etre tenue responsable des omissions, des inexactitudes et des carences dans la mise a jour, qu'elles soient de son fait ou du fait des tiers partenaires qui lui fournissent ces informations.`
+    content: `AuditIQ s'efforce de fournir des informations aussi précises que possible. Toutefois, AuditIQ ne pourra être tenue responsable des omissions, des inexactitudes et des carences dans la mise a jour, qu'elles soient de son fait ou du fait des tiers partenaires qui lui fournissent ces informations.`
   },
   {
     id: 'droit',
     title: '9. Droit Applicable',
     icon: Scale,
-    content: `Les presentes mentions legales sont regies par le droit francais. En cas de litige, les tribunaux de Paris seront seuls competents.`
+    content: `Les présentes mentions légales sont régies par le droit français. En cas de litige, les tribunaux de Paris seront seuls compétents.`
   },
   {
     id: 'contact',
     title: '10. Contact',
     icon: Phone,
-    content: 'Pour toute question concernant les presentes mentions legales, vous pouvez nous contacter :',
+    content: 'Pour toute question concernant les présentes mentions légales, vous pouvez nous contacter :',
     contacts: [
       { type: 'Email', value: 'legal@auditiq.ai' },
       { type: 'Courrier', value: 'AuditIQ SAS - 42 Rue de l\'Innovation, 75008 Paris' },
@@ -129,15 +129,15 @@ export default function CGUPage() {
             <ChevronRight className="h-4 w-4" />
             <span>Legal</span>
             <ChevronRight className="h-4 w-4" />
-            <span className="text-primary">Mentions Legales</span>
+            <span className="text-primary">Mentions Légales</span>
           </div>
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center">
               <Building2 className="h-8 w-8 text-primary" />
             </div>
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold">Mentions Legales</h1>
-              <p className="text-muted-foreground mt-2">Derniere mise a jour : 1er Janvier 2025</p>
+              <h1 className="text-4xl md:text-5xl font-bold">Mentions Légales</h1>
+              <p className="text-muted-foreground mt-2">Dernière mise à jour : 1er Janvier 2025</p>
             </div>
           </div>
         </div>
@@ -217,10 +217,10 @@ export default function CGUPage() {
 
           {/* Navigation vers autres pages legales */}
           <Card className="p-6 mt-12 bg-card/50">
-            <h3 className="font-semibold mb-4">Documents juridiques associes</h3>
+            <h3 className="font-semibold mb-4">Documents juridiques associés</h3>
             <div className="flex flex-wrap gap-4">
-              <Link href="/legal/terms" className="text-primary hover:underline">Conditions Generales d'Utilisation</Link>
-              <Link href="/legal/privacy" className="text-primary hover:underline">Politique de Confidentialite</Link>
+              <Link href="/legal/terms" className="text-primary hover:underline">Conditions Générales d'Utilisation</Link>
+              <Link href="/legal/privacy" className="text-primary hover:underline">Politique de Confidentialité</Link>
             </div>
           </Card>
         </div>

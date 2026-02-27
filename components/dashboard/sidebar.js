@@ -31,16 +31,16 @@ const navigationItems = [
   { name: 'Tableau de Bord', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Nouvel Audit', href: '/dashboard/upload', icon: Upload },
   { name: 'Mes Audits', href: '/dashboard/audits', icon: FileBarChart2 },
-  { name: 'Conformite', href: '/dashboard/compliance', icon: Shield },
+  { name: 'Conformité', href: '/dashboard/compliance', icon: Shield },
   { name: 'Rapports', href: '/dashboard/reports', icon: FileText },
   { name: 'Analyse', href: '/dashboard/data-science', icon: BarChart3 },
-  { name: 'WhatIf Analysis', href: '/dashboard/whatif', icon: Sparkles },
-  { name: 'Chat AI', href: '/dashboard/chat', icon: MessageSquare },
+  { name: 'Analyse WhatIf', href: '/dashboard/whatif', icon: Sparkles },
+  { name: 'Assistant IA', href: '/dashboard/chat', icon: MessageSquare },
   { name: 'Connexions', href: '/dashboard/connections', icon: Link2 },
-  { name: 'Equipe', href: '/dashboard/team', icon: Users },
+  { name: 'Équipe', href: '/dashboard/team', icon: Users },
   { name: 'Profil', href: '/dashboard/profile', icon: User },
   { name: 'Notifications', href: '/dashboard/notifications', icon: Bell },
-  { name: 'Parametres', href: '/dashboard/settings', icon: Settings },
+  { name: 'Paramètres', href: '/dashboard/settings', icon: Settings },
 ]
 
 export function DashboardSidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
@@ -52,42 +52,34 @@ export function DashboardSidebar({ collapsed, onToggle, mobileOpen, onMobileClos
       {/* Mobile Overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[45] lg:hidden transition-opacity duration-500"
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[45] lg:hidden transition-opacity duration-300"
           onClick={onMobileClose}
         />
       )}
 
       <aside
         className={cn(
-          'fixed left-0 top-0 h-screen p-4 lg:p-6 transition-all duration-500 z-50',
-          collapsed ? 'w-20' : 'w-80',
-          // Mobile classes
+          'fixed left-0 top-0 h-screen transition-all duration-300 z-50',
+          collapsed ? 'w-20' : 'w-72',
           'max-w-[85vw]',
           mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
       >
-        <div className="lg:slanted-sidebar h-full glass-card rounded-r-3xl lg:rounded-3xl flex flex-col lg:glow-border overflow-hidden relative group/sidebar">
-          {/* Decorative background gradients for nested glass feel */}
-          <div className="absolute -top-24 -left-24 w-48 h-48 bg-brand-primary/10 rounded-full blur-3xl pointer-events-none group-hover/sidebar:bg-brand-primary/20 transition-all duration-700" />
-          <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-brand-cotton/10 rounded-full blur-3xl pointer-events-none group-hover/sidebar:bg-brand-cotton/20 transition-all duration-700" />
-
+        <div className="h-full bg-sidebar border-r border-sidebar-border flex flex-col overflow-hidden">
           {/* Header */}
           <div className={cn(
-            "p-8 mb-4 flex items-center transition-all duration-500",
-            collapsed ? "justify-center" : "gap-4"
+            "p-6 flex items-center transition-all duration-300",
+            collapsed ? "justify-center" : "gap-3"
           )}>
-            <div className="relative group/logo">
-              <div className="absolute -inset-2 bg-brand-primary/20 rounded-xl blur-md opacity-0 group-hover/logo:opacity-100 transition-opacity" />
-              <div className="relative w-11 h-11 bg-gradient-to-br from-brand-primary to-brand-cotton rounded-xl flex items-center justify-center flex-shrink-0 shadow-xl shadow-brand-primary/30 transform transition-transform duration-500 group-hover/logo:scale-110 group-hover/logo:rotate-3">
-                <Brain className="h-6 w-6 text-white" />
-              </div>
+            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
+              <Brain className="h-5 w-5 text-primary-foreground" />
             </div>
             {!collapsed && (
               <div className="flex flex-col">
-                <h1 className="text-2xl font-display font-black tracking-tighter text-white leading-none">
+                <h1 className="text-xl font-display font-bold tracking-tight text-sidebar-foreground leading-none">
                   AuditIQ
                 </h1>
-                <span className="text-[10px] text-brand-primary font-black uppercase tracking-[0.2em] mt-1 ml-0.5">Premium</span>
+                <span className="text-[10px] text-primary font-semibold uppercase tracking-widest mt-0.5">Premium</span>
               </div>
             )}
 
@@ -95,7 +87,7 @@ export function DashboardSidebar({ collapsed, onToggle, mobileOpen, onMobileClos
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden ml-auto text-white/40 hover:text-white"
+              className="lg:hidden ml-auto text-sidebar-foreground/60 hover:text-sidebar-foreground"
               onClick={onMobileClose}
             >
               <X className="h-5 w-5" />
@@ -103,7 +95,7 @@ export function DashboardSidebar({ collapsed, onToggle, mobileOpen, onMobileClos
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto scrollbar-none relative z-10">
+          <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto scrollbar-thin">
             {navigationItems.map((item) => {
               const isActive = pathname === item.href
               return (
@@ -111,78 +103,58 @@ export function DashboardSidebar({ collapsed, onToggle, mobileOpen, onMobileClos
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-500 group/nav relative overflow-hidden',
+                    'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200 group/nav relative',
                     isActive
-                      ? 'text-white bg-white/10 shadow-[0_4px_12px_rgba(0,0,0,0.1)]'
-                      : 'text-white/50 hover:text-white hover:bg-white/5'
+                      ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
+                      : 'text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
                   )}
                 >
-                  {/* Active Glow Backdrop */}
                   {isActive && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/20 to-transparent opacity-50" />
+                    <div className="absolute left-0 w-1 h-6 bg-primary rounded-r-full" />
                   )}
 
                   <item.icon className={cn(
-                    "h-5 w-5 transition-all duration-500 relative z-10",
-                    isActive
-                      ? "text-brand-primary scale-110 drop-shadow-[0_0_8px_rgba(226,8,161,0.5)]"
-                      : "group-hover/nav:text-brand-primary group-hover/nav:scale-110"
+                    "h-[18px] w-[18px] flex-shrink-0 transition-colors",
+                    isActive ? "text-primary" : "group-hover/nav:text-primary"
                   )} />
 
                   {!collapsed && (
-                    <span className={cn(
-                      "font-display font-bold text-sm tracking-wide relative z-10 transition-all duration-500",
-                      isActive ? "translate-x-1" : "group-hover/nav:translate-x-1"
-                    )}>
+                    <span className="text-sm truncate">
                       {item.name}
                     </span>
                   )}
-
-                  {/* Active Indicator Bar */}
-                  {isActive && (
-                    <div className="absolute left-0 w-1.5 h-8 bg-brand-primary rounded-r-full shadow-[0_0_15px_rgba(226,8,161,0.8)] z-20" />
-                  )}
-
-                  {/* Hover Particle Effect (CSS only) */}
-                  <div className="absolute right-4 w-1 h-1 bg-brand-primary rounded-full opacity-0 group-hover/nav:opacity-40 transition-opacity blur-[1px]" />
                 </Link>
               )
             })}
           </nav>
 
-          {/* User Profile Section (Premium Card) */}
-          <div className="p-4 mt-auto relative z-10">
+          {/* User Profile Section */}
+          <div className="p-3 mt-auto border-t border-sidebar-border">
             <div className={cn(
-              "glass-card border-white/5 bg-white/5 rounded-3xl p-3 transition-all duration-500 mb-4",
-              collapsed ? "p-1.5" : "hover:bg-white/10 hover:border-white/10 shadow-lg"
+              "rounded-lg p-3 transition-colors",
+              collapsed ? "p-2" : ""
             )}>
               {!collapsed ? (
                 <div className="flex items-center gap-3">
-                  <div className="relative group/avatar">
-                    <div className="absolute -inset-1 bg-gradient-to-tr from-brand-primary to-brand-cotton rounded-full blur-[2px] opacity-70 animate-pulse" />
-                    <div className="relative w-11 h-11 rounded-full border-2 border-brand-violet/50 overflow-hidden bg-brand-violet/30">
-                      <img
-                        src={user?.user_metadata?.avatar_url || "https://api.dicebear.com/7.x/avataaars/svg?seed=Franck"}
-                        alt="Profile"
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover/avatar:scale-110"
-                      />
-                    </div>
+                  <div className="w-9 h-9 rounded-full border border-sidebar-border overflow-hidden bg-muted flex-shrink-0">
+                    <img
+                      src={user?.user_metadata?.avatar_url || "https://api.dicebear.com/7.x/avataaars/svg?seed=Franck"}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-display font-black text-white truncate group-hover/avatar:text-brand-primary transition-colors">
-                      {user?.user_metadata?.full_name || 'Franck L.'}
+                    <p className="text-sm font-medium text-sidebar-foreground truncate">
+                      {user?.user_metadata?.full_name || 'Utilisateur'}
                     </p>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                      <p className="text-[9px] text-white/40 uppercase font-black tracking-widest truncate">
-                        Senior Lead Analyst
-                      </p>
-                    </div>
+                    <p className="text-xs text-sidebar-foreground/50 truncate">
+                      {user?.email || ''}
+                    </p>
                   </div>
                 </div>
               ) : (
-                <div className="flex justify-center py-1">
-                  <div className="relative w-10 h-10 rounded-full border-2 border-brand-primary/30 overflow-hidden shadow-lg shadow-brand-primary/10">
+                <div className="flex justify-center">
+                  <div className="w-9 h-9 rounded-full border border-sidebar-border overflow-hidden bg-muted">
                     <img
                       src={user?.user_metadata?.avatar_url || "https://api.dicebear.com/7.x/avataaars/svg?seed=Franck"}
                       alt="Profile"
@@ -193,25 +165,25 @@ export function DashboardSidebar({ collapsed, onToggle, mobileOpen, onMobileClos
               )}
 
               {!collapsed && (
-                <div className="mt-3 pt-3 border-t border-white/5 flex gap-2">
+                <div className="mt-3 pt-3 border-t border-sidebar-border flex gap-2">
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="flex-1 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-[10px] font-bold uppercase tracking-wider text-white/60 hover:text-white"
+                    className="flex-1 h-8 rounded-lg text-xs text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent"
                     asChild
                   >
                     <Link href="/dashboard/settings">
-                      <Settings className="h-3 w-3 mr-1.5" />
-                      Stats
+                      <Settings className="h-3.5 w-3.5 mr-1.5" />
+                      Paramètres
                     </Link>
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0 rounded-xl bg-red-400/5 hover:bg-red-400/10 text-red-400/40 hover:text-red-400 transition-colors"
+                    className="h-8 w-8 p-0 rounded-lg text-destructive/60 hover:text-destructive hover:bg-destructive/10"
                     onClick={signOut}
                   >
-                    <LogOut className="h-3 w-3" />
+                    <LogOut className="h-3.5 w-3.5" />
                   </Button>
                 </div>
               )}
@@ -220,7 +192,7 @@ export function DashboardSidebar({ collapsed, onToggle, mobileOpen, onMobileClos
             {collapsed && (
               <Button
                 variant="ghost"
-                className="w-full p-0 h-10 rounded-xl bg-red-400/5 hover:bg-red-400/10 text-red-400/40 hover:text-red-400"
+                className="w-full p-0 h-9 rounded-lg text-destructive/60 hover:text-destructive hover:bg-destructive/10 mt-2"
                 onClick={signOut}
               >
                 <LogOut className="h-4 w-4" />
@@ -228,15 +200,15 @@ export function DashboardSidebar({ collapsed, onToggle, mobileOpen, onMobileClos
             )}
           </div>
 
-          {/* Improved Toggle button */}
+          {/* Toggle button */}
           <button
             onClick={onToggle}
-            className="absolute -right-3 top-10 bg-brand-violet border border-white/10 rounded-full w-7 h-7 hidden lg:flex items-center justify-center hover:bg-brand-primary transition-all duration-500 text-white/60 hover:text-white shadow-xl shadow-black/50 z-50 group/toggle"
+            className="absolute -right-3 top-10 bg-card border border-border rounded-full w-6 h-6 hidden lg:flex items-center justify-center hover:bg-accent transition-colors text-muted-foreground hover:text-foreground shadow-sm z-50"
           >
             {collapsed ? (
-              <ChevronRight className="h-4 w-4 transform group-hover/toggle:translate-x-0.5 transition-transform" />
+              <ChevronRight className="h-3.5 w-3.5" />
             ) : (
-              <ChevronLeft className="h-4 w-4 transform group-hover/toggle:-translate-x-0.5 transition-transform" />
+              <ChevronLeft className="h-3.5 w-3.5" />
             )}
           </button>
         </div>

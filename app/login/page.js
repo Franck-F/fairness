@@ -12,6 +12,7 @@ import { toast } from 'sonner'
 import { Mail, Lock, ChevronRight, Activity, ArrowLeft, ShieldCheck } from 'lucide-react'
 import { auth } from '@/lib/supabase'
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google'
+import { AnimatedCharacters } from '@/components/ui/animated-characters'
 
 function LoginForm() {
   const router = useRouter()
@@ -20,6 +21,8 @@ function LoginForm() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [isTypingEmail, setIsTypingEmail] = useState(false)
+  const [isTypingPassword, setIsTypingPassword] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -29,11 +32,19 @@ function LoginForm() {
     try {
       const { data, error } = await auth.signIn(email, password)
       if (error) throw error
+
+      // Store token as cookie so middleware can read it
+      const token = data?.session?.access_token
+      if (token) {
+        document.cookie = `sb-access-token=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`
+      }
+
       toast.success('Connexion réussie.')
-      router.push('/dashboard')
+      window.location.href = '/dashboard'
     } catch (err) {
-      setError(err.message || 'Authentification échouée.')
-      toast.error('Accès refusé.')
+      const msg = err.message || 'Authentification échouée.'
+      setError(msg)
+      toast.error(msg)
     } finally {
       setLoading(false)
     }
@@ -47,8 +58,12 @@ function LoginForm() {
         body: JSON.stringify({ idToken: credentialResponse.credential }),
       })
       if (!response.ok) throw new Error('Auth Failed')
+      const result = await response.json()
+      if (result?.session?.access_token) {
+        document.cookie = `sb-access-token=${result.session.access_token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`
+      }
       toast.success('Connexion Google réussie.')
-      router.push('/dashboard')
+      window.location.href = '/dashboard'
     } catch (error) {
       toast.error('Erreur de connexion Google.')
     }
@@ -57,45 +72,33 @@ function LoginForm() {
   return (
     <div className="min-h-screen bg-[#0A0A0B] text-white flex flex-col lg:flex-row overflow-hidden selection:bg-brand-primary">
 
-      {/* Left Section: Professional Visual */}
-      <div className="hidden lg:flex flex-[1.2] flex-col justify-between p-20 relative border-r border-white/5 bg-white/[0.01]">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full bg-[url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2670&auto=format&fit=crop')] bg-cover bg-center opacity-10 mix-blend-overlay"></div>
-          <div className="absolute bottom-0 left-0 w-full h-2/3 bg-gradient-to-t from-[#0A0A0B] to-transparent"></div>
-        </div>
-
-        <div className="relative z-10">
+      {/* Left Section: Animated Characters */}
+      <div className="hidden lg:flex flex-[1.2] flex-col items-center justify-between p-12 relative bg-[#111113] border-r border-white/5">
+        <div className="relative z-10 w-full">
           <Link href="/" className="group flex items-center gap-3 w-fit">
-            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-brand-primary transition-colors">
-              <ArrowLeft className="h-4 w-4 text-white/40 group-hover:text-white" />
-            </div>
-            <span className="text-sm font-medium text-white/60 group-hover:text-white transition-colors">Retour à l'accueil</span>
+            <Image
+              src="https://customer-assets.emergentagent.com/job_auditiq/artifacts/snxql2e8_logo%20audiot-iq%20big%20without%20bg.png.png"
+              alt="AuditIQ Logo"
+              width={120}
+              height={48}
+              style={{ width: 'auto', height: 'auto' }}
+              className="brightness-200"
+            />
           </Link>
         </div>
 
-        <div className="relative z-10 space-y-8 max-w-xl">
-          <div className="w-16 h-16 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center mb-6">
-            <ShieldCheck className="h-8 w-8 text-brand-primary" />
-          </div>
-          <h1 className="text-5xl font-display font-bold leading-tight">
-            L'Audit IA <span className="text-brand-primary">Nouvelle Génération</span>.
-          </h1>
-          <p className="text-xl text-white/40 leading-relaxed">
-            Garantissez la conformité et l'équité de vos algorithmes avec la plateforme AuditIQ.
-            Détectez, analysez et corrigez les biais en temps réel.
-          </p>
-
-          <div className="flex gap-4 pt-4">
-            {['Conformité AI Act', 'Analyses de Biais', 'Rapports PDF'].map(tag => (
-              <span key={tag} className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-white/60">
-                {tag}
-              </span>
-            ))}
-          </div>
+        <div className="relative z-10 flex-1 flex items-center justify-center w-full">
+          <AnimatedCharacters
+            isTyping={isTypingEmail || isTypingPassword}
+            showPassword={showPassword}
+            passwordLength={password.length}
+          />
         </div>
 
-        <div className="relative z-10 text-xs text-white/20">
-          © 2026 AuditIQ Inc. Tous droits réservés.
+        <div className="relative z-10 flex items-center gap-6 text-xs text-white/60">
+          <Link href="/legal/privacy" className="hover:text-white transition-colors">Confidentialité</Link>
+          <Link href="/legal/terms" className="hover:text-white transition-colors">CGU</Link>
+          <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
         </div>
       </div>
 
@@ -109,6 +112,7 @@ function LoginForm() {
               alt="AuditIQ Logo"
               width={140}
               height={56}
+              style={{ width: 'auto', height: 'auto' }}
               className="brightness-200 mb-6 lg:mx-0 mx-auto"
             />
             <h2 className="text-2xl font-semibold tracking-tight">Bienvenue sur AuditIQ</h2>
@@ -125,6 +129,9 @@ function LoginForm() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    onFocus={() => setIsTypingEmail(true)}
+                    onBlur={() => setIsTypingEmail(false)}
+                    autoComplete="off"
                     className="h-12 pl-12 bg-white/5 border-white/10 rounded-xl focus:ring-brand-primary focus:border-brand-primary transition-all text-sm"
                     placeholder="nom@entreprise.com"
                     required
@@ -143,6 +150,9 @@ function LoginForm() {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    onFocus={() => setIsTypingPassword(true)}
+                    onBlur={() => setIsTypingPassword(false)}
+                    autoComplete="new-password"
                     className="h-12 pl-12 pr-12 bg-white/5 border-white/10 rounded-xl focus:ring-brand-primary focus:border-brand-primary transition-all text-sm"
                     placeholder="••••••••"
                     required
@@ -157,6 +167,13 @@ function LoginForm() {
                   </button>
                 </div>
               </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox id="remember" className="rounded border-white/20 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary" />
+              <Label htmlFor="remember" className="text-sm text-white/50 cursor-pointer">
+                Se souvenir de moi
+              </Label>
             </div>
 
             <Button

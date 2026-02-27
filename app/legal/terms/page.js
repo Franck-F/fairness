@@ -7,77 +7,77 @@ import { ThemeToggle } from '@/components/theme-toggle'
 import { FileText, ChevronRight } from 'lucide-react'
 
 export const metadata = {
-  title: 'Conditions Generales d\'Utilisation - AuditIQ',
-  description: 'Conditions generales d\'utilisation de la plateforme AuditIQ.',
+  title: 'Conditions Générales d\'Utilisation - AuditIQ',
+  description: 'Conditions générales d\'utilisation de la plateforme AuditIQ.',
 }
 
 const sections = [
   {
     id: 'objet',
     title: '1. Objet',
-    content: `Les presentes Conditions Generales d'Utilisation (CGU) ont pour objet de definir les modalites et conditions d'utilisation des services proposes par AuditIQ (ci-apres "le Service"), ainsi que de definir les droits et obligations des parties dans ce cadre.`
+    content: `Les présentes Conditions Générales d'Utilisation (CGU) ont pour objet de définir les modalités et conditions d'utilisation des services proposés par AuditIQ (ci-après "le Service"), ainsi que de définir les droits et obligations des parties dans ce cadre.`
   },
   {
     id: 'acceptation',
     title: '2. Acceptation des CGU',
-    content: `L'utilisation du Service implique l'acceptation pleine et entiere des presentes CGU. En accedant au Service, l'Utilisateur reconnait avoir pris connaissance des presentes CGU et les accepter sans reserve.`
+    content: `L'utilisation du Service implique l'acceptation pleine et entière des présentes CGU. En accédant au Service, l'Utilisateur reconnaît avoir pris connaissance des présentes CGU et les accepter sans réserve.`
   },
   {
     id: 'description',
     title: '3. Description du Service',
-    content: `AuditIQ est une plateforme SaaS d'audit de fairness et de detection de biais dans les systemes d'intelligence artificielle.`,
+    content: `AuditIQ est une plateforme SaaS d'audit de fairness et de détection de biais dans les systèmes d'intelligence artificielle.`,
     list: [
       'L\'upload et l\'analyse de datasets',
-      'L\'entrainement de modeles de Machine Learning',
-      'Le calcul de metriques de fairness',
-      'La generation de rapports d\'audit',
-      'Un assistant IA pour l\'interpretation des resultats'
+      'L\'entraînement de modèles de Machine Learning',
+      'Le calcul de métriques de fairness',
+      'La génération de rapports d\'audit',
+      'Un assistant IA pour l\'interprétation des résultats'
     ]
   },
   {
     id: 'inscription',
     title: '4. Inscription et Compte Utilisateur',
-    content: `L'acces au Service necessite la creation d'un compte utilisateur. L'Utilisateur s'engage a :`,
+    content: `L'accès au Service nécessite la création d'un compte utilisateur. L'Utilisateur s'engage à :`,
     list: [
-      'Fournir des informations exactes et a jour lors de l\'inscription',
-      'Maintenir la confidentialite de ses identifiants de connexion',
-      'Notifier immediatement AuditIQ en cas d\'utilisation non autorisee de son compte'
+      'Fournir des informations exactes et à jour lors de l\'inscription',
+      'Maintenir la confidentialité de ses identifiants de connexion',
+      'Notifier immédiatement AuditIQ en cas d\'utilisation non autorisée de son compte'
     ]
   },
   {
     id: 'propriete',
-    title: '5. Propriete Intellectuelle',
-    content: `L'ensemble des elements constituant le Service (logiciels, algorithmes, interfaces, textes, images) sont la propriete exclusive d'AuditIQ ou de ses partenaires et sont proteges par les lois relatives a la propriete intellectuelle.`
+    title: '5. Propriété Intellectuelle',
+    content: `L'ensemble des éléments constituant le Service (logiciels, algorithmes, interfaces, textes, images) sont la propriété exclusive d'AuditIQ ou de ses partenaires et sont protégés par les lois relatives à la propriété intellectuelle.`
   },
   {
     id: 'donnees',
-    title: '6. Donnees Utilisateur',
-    content: `L'Utilisateur reste proprietaire des donnees qu'il uploade sur la plateforme. AuditIQ s'engage a ne pas utiliser ces donnees a d'autres fins que la fourniture du Service, conformement a sa Politique de Confidentialite.`
+    title: '6. Données Utilisateur',
+    content: `L'Utilisateur reste propriétaire des données qu'il uploade sur la plateforme. AuditIQ s'engage à ne pas utiliser ces données à d'autres fins que la fourniture du Service, conformément à sa Politique de Confidentialité.`
   },
   {
     id: 'responsabilite',
-    title: '7. Responsabilite',
-    content: `AuditIQ s'efforce de maintenir le Service accessible 24h/24 et 7j/7 mais ne peut garantir une disponibilite absolue. AuditIQ ne saurait etre tenue responsable des dommages indirects resultant de l'utilisation ou de l'impossibilite d'utiliser le Service.`
+    title: '7. Responsabilité',
+    content: `AuditIQ s'efforce de maintenir le Service accessible 24h/24 et 7j/7 mais ne peut garantir une disponibilité absolue. AuditIQ ne saurait être tenue responsable des dommages indirects résultant de l'utilisation ou de l'impossibilité d'utiliser le Service.`
   },
   {
     id: 'resiliation',
-    title: '8. Resiliation',
-    content: `L'Utilisateur peut resilier son compte a tout moment depuis les parametres de son compte. AuditIQ se reserve le droit de suspendre ou resilier un compte en cas de violation des presentes CGU.`
+    title: '8. Résiliation',
+    content: `L'Utilisateur peut résilier son compte à tout moment depuis les paramètres de son compte. AuditIQ se réserve le droit de suspendre ou résilier un compte en cas de violation des présentes CGU.`
   },
   {
     id: 'modification',
     title: '9. Modification des CGU',
-    content: `AuditIQ se reserve le droit de modifier les presentes CGU a tout moment. Les Utilisateurs seront informes de toute modification par email ou via le Service.`
+    content: `AuditIQ se réserve le droit de modifier les présentes CGU à tout moment. Les Utilisateurs seront informés de toute modification par email ou via le Service.`
   },
   {
     id: 'droit',
     title: '10. Droit Applicable',
-    content: `Les presentes CGU sont soumises au droit francais. En cas de litige, les tribunaux de Paris seront seuls competents.`
+    content: `Les présentes CGU sont soumises au droit français. En cas de litige, les tribunaux de Paris seront seuls compétents.`
   },
   {
     id: 'contact',
     title: '11. Contact',
-    content: `Pour toute question concernant les presentes CGU, vous pouvez nous contacter a l'adresse : legal@auditiq.ai`
+    content: `Pour toute question concernant les présentes CGU, vous pouvez nous contacter à l'adresse : legal@auditiq.ai`
   }
 ]
 
@@ -120,8 +120,8 @@ export default function TermsPage() {
               <FileText className="h-8 w-8 text-primary" />
             </div>
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold">Conditions Generales d'Utilisation</h1>
-              <p className="text-muted-foreground mt-2">Derniere mise a jour : 1er Janvier 2025</p>
+              <h1 className="text-4xl md:text-5xl font-bold">Conditions Générales d'Utilisation</h1>
+              <p className="text-muted-foreground mt-2">Dernière mise à jour : 1er Janvier 2025</p>
             </div>
           </div>
         </div>
@@ -173,12 +173,12 @@ export default function TermsPage() {
             ))}
           </div>
 
-          {/* Navigation vers autres pages legales */}
+          {/* Navigation vers autres pages légales */}
           <Card className="p-6 mt-12 bg-card/50">
-            <h3 className="font-semibold mb-4">Documents juridiques associes</h3>
+            <h3 className="font-semibold mb-4">Documents juridiques associés</h3>
             <div className="flex flex-wrap gap-4">
-              <Link href="/legal/privacy" className="text-primary hover:underline">Politique de Confidentialite</Link>
-              <Link href="/legal/cgu" className="text-primary hover:underline">Mentions Legales</Link>
+              <Link href="/legal/privacy" className="text-primary hover:underline">Politique de Confidentialité</Link>
+              <Link href="/legal/cgu" className="text-primary hover:underline">Mentions Légales</Link>
             </div>
           </Card>
         </div>

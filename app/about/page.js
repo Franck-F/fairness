@@ -7,31 +7,31 @@ import { ThemeToggle } from '@/components/theme-toggle'
 import { Shield, Target, Users, Zap, ChevronRight } from 'lucide-react'
 
 export const metadata = {
-  title: 'A Propos - AuditIQ',
-  description: 'Decouvrez AuditIQ, la plateforme leader pour l\'audit de fairness et la detection de biais dans les systemes d\'IA.',
+  title: 'À Propos - AuditIQ',
+  description: 'Découvrez AuditIQ, la plateforme leader pour l\'audit de fairness et la détection de biais dans les systèmes d\'IA.',
 }
 
 export default function AboutPage() {
   const values = [
     {
       icon: Shield,
-      title: 'Integrite',
-      description: 'Nous nous engageons a fournir des audits transparents et impartiaux pour garantir l\'equite de vos modeles IA.',
+      title: 'Intégrité',
+      description: 'Nous nous engageons à fournir des audits transparents et impartiaux pour garantir l\'équité de vos modèles IA.',
     },
     {
       icon: Target,
-      title: 'Precision',
-      description: 'Nos 16 metriques de fairness sont basees sur les dernieres recherches academiques et les standards de l\'industrie.',
+      title: 'Précision',
+      description: 'Nos 16 métriques de fairness sont basées sur les dernières recherches académiques et les standards de l\'industrie.',
     },
     {
       icon: Users,
       title: 'Collaboration',
-      description: 'Nous travaillons en partenariat avec nos clients pour comprendre leurs besoins specifiques et adapter nos solutions.',
+      description: 'Nous travaillons en partenariat avec nos clients pour comprendre leurs besoins spécifiques et adapter nos solutions.',
     },
     {
       icon: Zap,
       title: 'Innovation',
-      description: 'Nous investissons continuellement dans la R&D pour rester a la pointe de la detection de biais algorithmiques.',
+      description: 'Nous investissons continuellement dans la R&D pour rester à la pointe de la détection de biais algorithmiques.',
     },
   ]
 
@@ -57,7 +57,7 @@ export default function AboutPage() {
             />
           </Link>
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="/about" className="text-sm font-medium text-primary">A Propos</Link>
+            <Link href="/about" className="text-sm font-medium text-primary">À Propos</Link>
             <Link href="/pricing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Tarifs</Link>
             <Link href="/contact" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Contact</Link>
             <Link href="/blog" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Blog</Link>
@@ -77,14 +77,14 @@ export default function AboutPage() {
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
             <Link href="/" className="hover:text-primary transition-colors">Accueil</Link>
             <ChevronRight className="h-4 w-4" />
-            <span className="text-primary">A Propos</span>
+            <span className="text-primary">À Propos</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Notre Mission: Une IA Plus <span className="text-primary">Equitable</span>
+            Notre Mission : Une IA Plus <span className="text-primary">Équitable</span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mb-8">
-            AuditIQ est ne de la conviction que l'intelligence artificielle doit etre au service de tous, 
-            sans discrimination. Nous aidons les entreprises a construire des systemes IA responsables et conformes.
+            AuditIQ est né de la conviction que l'intelligence artificielle doit être au service de tous,
+            sans discrimination. Nous aidons les entreprises à construire des systèmes IA responsables et conformes.
           </p>
         </div>
       </section>
@@ -95,17 +95,17 @@ export default function AboutPage() {
           <div>
             <h2 className="text-3xl font-bold mb-6">Notre Histoire</h2>
             <p className="text-muted-foreground mb-4">
-              Fondee en 2023 par une equipe d'experts en Machine Learning et en ethique de l'IA, 
-              AuditIQ est nee d'un constat simple: les biais algorithmiques sont partout, mais peu 
-              d'entreprises disposent des outils pour les detecter et les corriger.
+              Fondée en 2023 par une équipe d'experts en Machine Learning et en éthique de l'IA,
+              AuditIQ est née d'un constat simple : les biais algorithmiques sont partout, mais peu
+              d'entreprises disposent des outils pour les détecter et les corriger.
             </p>
             <p className="text-muted-foreground mb-4">
-              Face a l'AI Act europeen et aux exigences croissantes de transparence, nous avons 
-              developpe une plateforme SaaS complete permettant a toute entreprise d'auditer 
-              la fairness de ses modeles de Machine Learning.
+              Face à l'AI Act européen et aux exigences croissantes de transparence, nous avons
+              développé une plateforme SaaS complète permettant à toute entreprise d'auditer
+              la fairness de ses modèles de Machine Learning.
             </p>
             <p className="text-muted-foreground">
-              Aujourd'hui, AuditIQ accompagne plus de 200 entreprises dans leur demarche d'IA 
+              Aujourd'hui, AuditIQ accompagne plus de 200 entreprises dans leur démarche d'IA
               responsable, des startups aux grands groupes du CAC 40.
             </p>
           </div>
@@ -116,11 +116,11 @@ export default function AboutPage() {
             </Card>
             <Card className="p-6 text-center bg-card">
               <div className="text-4xl font-bold text-primary">10K+</div>
-              <div className="text-sm text-muted-foreground">Audits realises</div>
+              <div className="text-sm text-muted-foreground">Audits réalisés</div>
             </Card>
             <Card className="p-6 text-center bg-card">
               <div className="text-4xl font-bold text-primary">16</div>
-              <div className="text-sm text-muted-foreground">Metriques de fairness</div>
+              <div className="text-sm text-muted-foreground">Métriques de fairness</div>
             </Card>
             <Card className="p-6 text-center bg-card">
               <div className="text-4xl font-bold text-primary">98%</div>
@@ -150,7 +150,7 @@ export default function AboutPage() {
 
       {/* Team Section */}
       <section className="container mx-auto px-4 py-16">
-        <h2 className="text-3xl font-bold text-center mb-12">Notre Equipe</h2>
+        <h2 className="text-3xl font-bold text-center mb-12">Notre Équipe</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {team.map((member, index) => (
             <Card key={index} className="p-6 text-center bg-card hover:border-primary/30 transition-colors">
@@ -171,7 +171,7 @@ export default function AboutPage() {
           <h2 className="text-3xl font-bold mb-4">Rejoignez le Mouvement de l'IA Responsable</h2>
           <p className="text-lg mb-8 text-muted-foreground">Commencez votre premier audit gratuitement</p>
           <Link href="/signup">
-            <Button size="lg">Demarrer Maintenant</Button>
+            <Button size="lg">Démarrer maintenant</Button>
           </Link>
         </Card>
       </section>
