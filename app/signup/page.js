@@ -9,9 +9,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { toast } from 'sonner'
-import { Mail, Lock, User, ChevronRight, Activity, ArrowLeft, CheckCircle2 } from 'lucide-react'
+import { Mail, Lock, User, ChevronRight, Activity, ArrowLeft, CheckCircle2, Eye, EyeOff } from 'lucide-react'
 import { auth } from '@/lib/supabase'
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google'
+import { AnimatedCharacters } from '@/components/ui/animated-characters'
 
 function SignupForm() {
   const router = useRouter()
@@ -19,7 +20,10 @@ function SignupForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [isTypingEmail, setIsTypingEmail] = useState(false)
+  const [isTypingPassword, setIsTypingPassword] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -61,43 +65,36 @@ function SignupForm() {
   return (
     <div className="min-h-screen bg-[#0A0A0B] text-white flex flex-col lg:flex-row overflow-hidden selection:bg-brand-primary">
 
-      {/* Left Section: Professional Visual */}
-      <div className="hidden lg:flex flex-[1] flex-col justify-between p-20 relative border-r border-white/5 bg-white/[0.01]">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full bg-[url('https://images.unsplash.com/photo-1518186285589-2f7649de83e0?q=80&w=2574&auto=format&fit=crop')] bg-cover bg-center opacity-10 mix-blend-overlay"></div>
-          <div className="absolute bottom-0 left-0 w-full h-2/3 bg-gradient-to-t from-[#0A0A0B] to-transparent"></div>
-        </div>
+      {/* Left Section: Animated Characters */}
+      <div className="hidden lg:flex flex-[1] flex-col justify-between p-12 relative bg-[#111113] border-r border-white/5 text-white">
+        <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-brand-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-brand-cotton/5 rounded-full blur-3xl" />
 
-        <div className="relative z-10">
+        <div className="relative z-20">
           <Link href="/" className="group flex items-center gap-3 w-fit">
-            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-brand-primary transition-colors">
-              <ArrowLeft className="h-4 w-4 text-white/40 group-hover:text-white" />
-            </div>
-            <span className="text-sm font-medium text-white/60 group-hover:text-white transition-colors">Retour à l'accueil</span>
+            <Image
+              src="https://customer-assets.emergentagent.com/job_auditiq/artifacts/snxql2e8_logo%20audiot-iq%20big%20without%20bg.png.png"
+              alt="AuditIQ Logo"
+              width={120}
+              height={48}
+              style={{ width: 'auto', height: 'auto' }}
+              className="brightness-200"
+            />
           </Link>
         </div>
 
-        <div className="relative z-10 space-y-8 max-w-xl">
-          <h1 className="text-4xl font-display font-bold leading-tight">
-            Rejoignez les experts de la <span className="text-brand-primary">Confiance IA</span>.
-          </h1>
-          <div className="space-y-4">
-            {[
-              'Audit automatisé de vos modèles ML',
-              'Génération de rapports de conformité',
-              'Détection et mitigation des biais',
-              'Collaboration sécurisée en équipe'
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <CheckCircle2 className="h-5 w-5 text-brand-primary" />
-                <span className="text-white/60">{item}</span>
-              </div>
-            ))}
-          </div>
+        <div className="relative z-20 flex items-end justify-center">
+          <AnimatedCharacters
+            isTyping={isTypingEmail || isTypingPassword}
+            showPassword={showPassword}
+            passwordLength={password.length}
+          />
         </div>
 
-        <div className="relative z-10 text-xs text-white/20">
-          © 2026 AuditIQ Inc. Tous droits réservés.
+        <div className="relative z-20 flex items-center gap-8 text-sm text-white/60">
+          <Link href="/legal/privacy" className="hover:text-white transition-colors">Confidentialité</Link>
+          <Link href="/legal/terms" className="hover:text-white transition-colors">CGU</Link>
+          <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
         </div>
       </div>
 
@@ -111,6 +108,7 @@ function SignupForm() {
               alt="AuditIQ Logo"
               width={140}
               height={56}
+              style={{ width: 'auto', height: 'auto' }}
               className="brightness-200 mb-6 lg:mx-0 mx-auto"
             />
             <h2 className="text-2xl font-semibold tracking-tight">Créer un compte AuditIQ</h2>
@@ -141,6 +139,8 @@ function SignupForm() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  onFocus={() => setIsTypingEmail(true)}
+                  onBlur={() => setIsTypingEmail(false)}
                   className="h-12 pl-12 bg-white/5 border-white/10 rounded-xl focus:ring-brand-primary focus:border-brand-primary transition-all text-sm"
                   placeholder="nom@entreprise.com"
                   required
@@ -153,13 +153,22 @@ function SignupForm() {
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/20 group-focus-within:text-brand-primary transition-colors" />
                 <Input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-12 pl-12 bg-white/5 border-white/10 rounded-xl focus:ring-brand-primary focus:border-brand-primary transition-all text-sm"
+                  onFocus={() => setIsTypingPassword(true)}
+                  onBlur={() => setIsTypingPassword(false)}
+                  className="h-12 pl-12 pr-12 bg-white/5 border-white/10 rounded-xl focus:ring-brand-primary focus:border-brand-primary transition-all text-sm"
                   placeholder="••••••••"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
               </div>
             </div>
 

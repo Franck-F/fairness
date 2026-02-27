@@ -30,6 +30,8 @@ import { AdvancedModelingStep } from '@/components/dashboard/data-science/advanc
 import { ModelInterpretationStep } from '@/components/dashboard/data-science/model-interpretation'
 import { FileUpload } from '@/components/dashboard/file-upload'
 import { DSAgentInterface } from '@/components/dashboard/data-science/ds-agent-interface'
+import { PageHeader } from '@/components/dashboard/page-header'
+import { EmptyState } from '@/components/dashboard/empty-state'
 import {
   Dialog,
   DialogContent,
@@ -89,7 +91,7 @@ export default function DataSciencePage() {
         }
       }
     } catch (error) {
-      console.error('Error fetching projects:', error)
+      // silently handle fetch errors
     }
   }
 
@@ -118,14 +120,14 @@ export default function DataSciencePage() {
       if (data.status === 'success') {
         setProjects([data.project, ...projects])
         setSelectedProjectId(data.project.id)
-        toast.success('Projet créé avec succès')
+        toast.success('Projet cree avec succes')
         setIsNewProjectDialogOpen(false)
         setProjectName('')
         // Refresh intelligence with project link
         fetchIntelligence(selectedDataset, data.project.id)
       }
     } catch (error) {
-      toast.error('Erreur lors de la création du projet')
+      toast.error('Erreur lors de la creation du projet')
     } finally {
       setIsCreatingProject(false)
     }
@@ -150,7 +152,6 @@ export default function DataSciencePage() {
         setDatasets(data.datasets)
       }
     } catch (error) {
-      console.error('Error fetching datasets:', error)
       toast.error('Erreur lors du chargement des datasets')
     } finally {
       setLoadingDatasets(false)
@@ -209,13 +210,13 @@ export default function DataSciencePage() {
         // Auto-select target if AI suggested it and we don't have one
         if (data.intelligence?.suggested_target && !targetColumn) {
           setTargetColumn(data.intelligence.suggested_target)
-          toast.info(`IA suggère la cible : ${data.intelligence.suggested_target}`, {
+          toast.info(`IA suggere la cible : ${data.intelligence.suggested_target}`, {
             description: "Cliquez sur la carte d'intelligence pour confirmer."
           })
         }
       }
     } catch (error) {
-      console.error('Intelligence error:', error)
+      // silently handle intelligence errors
     } finally {
       setLoadingIntelligence(false)
     }
@@ -224,7 +225,6 @@ export default function DataSciencePage() {
   const runInitialAnalysis = async (datasetId) => {
     if (!datasetId) return
     setLoading(true)
-    console.log('Running analysis for dataset:', datasetId)
     try {
       const response = await fetch('/api/ds/analyze', {
         method: 'POST',
@@ -247,14 +247,13 @@ export default function DataSciencePage() {
 
       if (data.status === 'success') {
         setAnalysisData(data)
-        toast.success('Analyse initiale terminée')
+        toast.success('Analyse initiale terminee')
       }
     } catch (error) {
-      console.error('Analysis error:', error)
       const isFetchError = error.message === 'fetch failed'
       toast.error(
         isFetchError
-          ? 'Backend injoignable. Vérifiez que le serveur FastAPI est lancé (port 8000).'
+          ? 'Backend injoignable. Verifiez que le serveur FastAPI est lance (port 8000).'
           : error.message || 'Erreur lors de l\'analyse'
       )
     } finally {
@@ -285,12 +284,11 @@ export default function DataSciencePage() {
       const data = await response.json()
       if (data.status === 'success') {
         setEdaData(data)
-        toast.success('Visualisations avancées calculées')
+        toast.success('Visualisations avancees calculees')
       } else {
         throw new Error(data.error || 'Erreur EDA')
       }
     } catch (error) {
-      console.error('EDA error:', error)
       toast.error(error.message || 'Erreur lors du calcul EDA')
     } finally {
       setLoading(false)
@@ -318,7 +316,7 @@ export default function DataSciencePage() {
       })
       const data = await response.json()
       if (data.status === 'success') {
-        toast.success('Feature Engineering appliqué avec succès')
+        toast.success('Feature Engineering applique avec succes')
         setCurrentStep(4) // Move to modeling
       }
     } catch (error) {
@@ -330,7 +328,7 @@ export default function DataSciencePage() {
 
   const runModeling = async (options) => {
     if (!targetColumn) {
-      toast.error('Veuillez sélectionner une variable cible')
+      toast.error('Veuillez selectionner une variable cible')
       return
     }
 
@@ -357,11 +355,11 @@ export default function DataSciencePage() {
         setModelingResults(data)
         // Auto-run interpretation
         runInterpretation(data.model_id)
-        toast.success('Modèle entraîné avec succès')
+        toast.success('Modele entraine avec succes')
         setCurrentStep(5)
       }
     } catch (error) {
-      toast.error('Erreur modélisation')
+      toast.error('Erreur modelisation')
     } finally {
       setLoading(false)
     }
@@ -389,12 +387,11 @@ export default function DataSciencePage() {
         setShapData(data.shap)
       }
     } catch (error) {
-      console.error('Interpretation error:', error)
+      // silently handle interpretation errors
     }
   }
 
   const handleAgentAction = (action) => {
-    console.log('Agent action triggered:', action)
     if (action.type === 'analysis' || action.type === 'eda') {
       if (action.params?.target_column) setTargetColumn(action.params.target_column)
       setCurrentStep(action.type === 'analysis' ? 1 : 2)
@@ -404,7 +401,7 @@ export default function DataSciencePage() {
     } else if (action.type === 'modeling') {
       setCurrentStep(4)
     }
-    toast.info(`Action IA activée : ${action.label}`)
+    toast.info(`Action IA activee : ${action.label}`)
   }
 
 
@@ -417,31 +414,31 @@ export default function DataSciencePage() {
     { id: 1, title: 'Analyse Initiale', icon: BarChart3 },
     { id: 2, title: 'Exploration Expert', icon: Sparkles },
     { id: 3, title: 'Feature Engineering', icon: Settings2 },
-    { id: 4, title: 'Modélisation', icon: Rocket },
-    { id: 5, title: 'Interprétation', icon: Eye },
+    { id: 4, title: 'Modelisation', icon: Rocket },
+    { id: 5, title: 'Interpretation', icon: Eye },
   ]
 
   return (
     <DashboardShell>
-      <div className="space-y-10 max-w-7xl mx-auto py-8 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+      <div className="space-y-8 max-w-7xl mx-auto py-8 animate-in fade-in slide-in-from-bottom-6 duration-1000">
         {/* Header Section */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 pb-4 border-b border-white/5">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 pb-4 border-b border-border">
           <div className="space-y-2">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center shadow-[0_0_20px_rgba(255,105,180,0.1)]">
-                <Brain className="h-8 w-8 text-brand-primary" />
+              <div className="w-14 h-14 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                <Brain className="h-8 w-8 text-primary" />
               </div>
               <div>
-                <h1 className="text-2xl md:text-3xl font-display font-black tracking-tight text-white leading-none">
-                  Science des <span className="text-brand-primary">Données</span>
+                <h1 className="text-2xl md:text-3xl font-display font-black tracking-tight text-foreground leading-none">
+                  Science des <span className="text-primary">Donnees</span>
                 </h1>
-                <p className="text-white/40 font-display font-medium mt-1 uppercase tracking-widest text-[10px]">Workflow Expert Senior</p>
+                <p className="text-muted-foreground font-display font-medium mt-1 uppercase tracking-widest text-[10px]">Workflow Expert Senior</p>
               </div>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-4">
-            <div className="glass-card p-1.5 rounded-2xl border-white/5 bg-white/5 flex items-center gap-2">
+            <div className="bg-card border border-border p-1.5 rounded-xl flex items-center gap-2">
               {/* Project Selection */}
               <Select
                 value={selectedProjectId || ''}
@@ -453,17 +450,17 @@ export default function DataSciencePage() {
                   }
                 }}
               >
-                <SelectTrigger className="w-[180px] h-11 bg-transparent border-none text-white font-display font-bold focus:ring-0">
-                  <Brain className="h-4 w-4 mr-2 text-brand-primary" />
+                <SelectTrigger className="w-[180px] h-11 bg-transparent border-none font-display font-bold focus:ring-0">
+                  <Brain className="h-4 w-4 mr-2 text-primary" />
                   <SelectValue placeholder="Choisir Projet" />
                 </SelectTrigger>
-                <SelectContent className="glass-card border-white/10 bg-[#0A0A0B]/90 backdrop-blur-xl">
+                <SelectContent>
                   {projects.map((p) => (
-                    <SelectItem key={p.id} value={p.id} className="focus:bg-brand-primary/20">
+                    <SelectItem key={p.id} value={p.id}>
                       {p.project_name}
                     </SelectItem>
                   ))}
-                  <SelectItem value="new_project" className="text-brand-primary border-t border-white/5 focus:bg-brand-primary/10">
+                  <SelectItem value="new_project" className="text-primary border-t border-border">
                     <Plus className="h-4 w-4 mr-2 inline" /> Nouveau Projet
                   </SelectItem>
                 </SelectContent>
@@ -471,19 +468,19 @@ export default function DataSciencePage() {
 
               {/* Outside Dialog to avoid focus trap */}
               <Dialog open={isNewProjectDialogOpen} onOpenChange={setIsNewProjectDialogOpen}>
-                <DialogContent className="glass-card border-white/10 bg-[#0A0A0B]/95 backdrop-blur-2xl sm:max-w-[450px]">
+                <DialogContent className="sm:max-w-[450px]">
                   <DialogHeader>
-                    <DialogTitle className="text-white">Nouveau Projet Data Science</DialogTitle>
-                    <DialogDescription className="text-white/60">
-                      Créez un espace de travail dédié pour vos analyses et modèles.
+                    <DialogTitle>Nouveau Projet Data Science</DialogTitle>
+                    <DialogDescription>
+                      Creez un espace de travail dedie pour vos analyses et modeles.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-6 py-4">
                     <div className="space-y-2">
-                      <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold ml-1">Nom du Projet</label>
+                      <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold ml-1">Nom du Projet</label>
                       <input
-                        className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white outline-none focus:border-brand-primary/50 transition-colors"
-                        placeholder="Ex: Analyse Prédictive Hiver..."
+                        className="w-full bg-muted border border-border rounded-xl p-4 text-foreground outline-none focus:border-primary/50 transition-colors"
+                        placeholder="Ex: Analyse Predictive Hiver..."
                         value={projectName}
                         onChange={(e) => setProjectName(e.target.value)}
                         autoFocus
@@ -492,22 +489,22 @@ export default function DataSciencePage() {
                     <Button
                       onClick={createProject}
                       disabled={isCreatingProject || !projectName}
-                      className="w-full h-12 bg-brand-primary hover:bg-brand-primary/90 text-white font-bold rounded-xl transition-all shadow-lg shadow-brand-primary/20"
+                      className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl transition-all"
                     >
-                      {isCreatingProject ? <Loader2 className="animate-spin mr-2" /> : 'Créer le Projet'}
+                      {isCreatingProject ? <Loader2 className="animate-spin mr-2" /> : 'Creer le Projet'}
                     </Button>
                   </div>
                 </DialogContent>
               </Dialog>
 
-              <div className="w-px h-6 bg-white/10 mx-1" />
+              <div className="w-px h-6 bg-border mx-1" />
 
               <Select value={selectedDataset} onValueChange={handleDatasetChange}>
-                <SelectTrigger className="w-[200px] h-11 bg-transparent border-none text-white font-display font-bold focus:ring-0">
-                  <Database className="h-4 w-4 mr-2 text-brand-primary" />
+                <SelectTrigger className="w-[200px] h-11 bg-transparent border-none font-display font-bold focus:ring-0">
+                  <Database className="h-4 w-4 mr-2 text-primary" />
                   <SelectValue placeholder="Dataset" />
                 </SelectTrigger>
-                <SelectContent className="glass-card border-white/10 bg-[#0A0A0B]/90 backdrop-blur-xl">
+                <SelectContent>
                   {datasets.map((ds) => (
                     <SelectItem key={ds.id} value={ds.id.toString()}>
                       {ds.original_filename || ds.filename}
@@ -516,16 +513,16 @@ export default function DataSciencePage() {
                 </SelectContent>
               </Select>
 
-              <div className="w-px h-6 bg-white/10 mx-1" />
+              <div className="w-px h-6 bg-border mx-1" />
 
               <Select value={targetColumn} onValueChange={setTargetColumn}>
-                <SelectTrigger className="w-[180px] h-11 bg-transparent border-none text-brand-cotton font-display font-bold focus:ring-0">
-                  <Rocket className="h-4 w-4 mr-2 text-brand-cotton" />
+                <SelectTrigger className="w-[180px] h-11 bg-transparent border-none text-muted-foreground font-display font-bold focus:ring-0">
+                  <Rocket className="h-4 w-4 mr-2 text-muted-foreground" />
                   <SelectValue placeholder="Variable Cible" />
                 </SelectTrigger>
-                <SelectContent className="glass-card border-white/10 bg-[#0A0A0B]/90 backdrop-blur-xl">
+                <SelectContent>
                   {analysisData?.detailed_stats && Object.keys(analysisData.detailed_stats).map(col => (
-                    <SelectItem key={col} value={col} className="focus:bg-brand-cotton/20 focus:text-white">{col}</SelectItem>
+                    <SelectItem key={col} value={col}>{col}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -533,15 +530,15 @@ export default function DataSciencePage() {
 
             <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
               <DialogTrigger asChild>
-                <Button className="h-14 w-14 rounded-2xl bg-brand-primary hover:bg-brand-primary/90 text-white shadow-xl shadow-brand-primary/20 transition-all hover:scale-110 active:scale-90 border-none">
+                <Button className="h-14 w-14 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground transition-all hover:scale-110 active:scale-90 border-none">
                   <Plus className="h-6 w-6" />
                 </Button>
               </DialogTrigger>
-              <DialogContent className="glass-card border-white/10 bg-[#0A0A0B]/95 backdrop-blur-2xl sm:max-w-[550px] p-8">
+              <DialogContent className="sm:max-w-[550px] p-8">
                 <DialogHeader className="mb-6">
-                  <DialogTitle className="text-3xl font-display font-black text-white">Nouveau Projet</DialogTitle>
-                  <DialogDescription className="text-white/40 font-display">
-                    Téléchargez vos données pour initier le pipeline d'intelligence artificielle.
+                  <DialogTitle className="text-3xl font-display font-black">Nouveau Projet</DialogTitle>
+                  <DialogDescription>
+                    Telechargez vos donnees pour initier le pipeline d'intelligence artificielle.
                   </DialogDescription>
                 </DialogHeader>
                 <FileUpload onFileUploaded={() => {
@@ -557,9 +554,9 @@ export default function DataSciencePage() {
         <div className="relative px-4 py-6 overflow-x-auto scrollbar-hide">
           <div className="relative flex justify-between min-w-[700px]">
             {/* Progress Line */}
-            <div className="absolute top-1/2 left-0 w-full h-[2px] bg-white/5 -translate-y-1/2 -z-10" />
+            <div className="absolute top-1/2 left-0 w-full h-[2px] bg-border -translate-y-1/2 -z-10" />
             <div
-              className="absolute top-1/2 left-0 h-[3px] bg-brand-primary -translate-y-1/2 -z-10 transition-all duration-700 shadow-[0_0_15px_rgba(255,105,180,0.5)]"
+              className="absolute top-1/2 left-0 h-[3px] bg-primary -translate-y-1/2 -z-10 transition-all duration-700"
               style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
             />
 
@@ -574,29 +571,24 @@ export default function DataSciencePage() {
                   onClick={() => step.id <= currentStep && setCurrentStep(step.id)}
                 >
                   <div className={cn(
-                    "w-16 h-16 rounded-2xl flex items-center justify-center border transition-all duration-500",
+                    "w-16 h-16 rounded-xl flex items-center justify-center border transition-all duration-500",
                     isActive
-                      ? "bg-brand-primary border-brand-primary text-white scale-110 shadow-[0_0_30px_rgba(255,105,180,0.3)]"
+                      ? "bg-primary border-primary text-primary-foreground scale-110"
                       : isCompleted
-                        ? "bg-brand-cotton border-brand-cotton text-[#0A0A0B] shadow-[0_0_20px_rgba(255,255,255,0.2)]"
-                        : "bg-[#0A0A0B] border-white/10 text-white/30 hover:border-white/30"
+                        ? "bg-muted border-border text-foreground"
+                        : "bg-background border-border text-muted-foreground/70 hover:border-muted-foreground"
                   )}>
                     <step.icon className={cn("h-7 w-7", isActive ? "animate-pulse" : "")} />
-
-                    {/* Status Glow */}
-                    {isActive && (
-                      <div className="absolute inset-0 bg-brand-primary/20 blur-xl animate-pulse rounded-full -z-10" />
-                    )}
                   </div>
                   <div className="flex flex-col items-center">
                     <span className={cn(
                       "text-[10px] font-black uppercase tracking-[0.2em] transition-colors",
-                      isActive ? "text-brand-primary" : isCompleted ? "text-brand-cotton" : "text-white/20"
+                      isActive ? "text-primary" : isCompleted ? "text-foreground" : "text-muted-foreground/50"
                     )}>
                       {step.title}
                     </span>
                     {isActive && (
-                      <div className="h-1 w-6 bg-brand-primary rounded-full mt-1 animate-in slide-in-from-top-2 duration-300" />
+                      <div className="h-1 w-6 bg-primary rounded-full mt-1 animate-in slide-in-from-top-2 duration-300" />
                     )}
                   </div>
                 </div>
@@ -609,26 +601,23 @@ export default function DataSciencePage() {
         <div className="min-h-[500px] relative">
           {!selectedDataset ? (
             <div className="space-y-12 animate-in fade-in slide-in-from-bottom-10 duration-1000">
-              <div className="glass-card p-20 text-center rounded-[3rem] border-white/5 bg-white/5 relative overflow-hidden group">
-                <div className="absolute -top-40 -left-40 w-96 h-96 bg-brand-primary/5 rounded-full blur-[100px] group-hover:bg-brand-primary/10 transition-all duration-1000" />
-                <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-brand-cotton/5 rounded-full blur-[100px] group-hover:bg-brand-cotton/10 transition-all duration-1000" />
-
+              <Card className="p-20 text-center relative overflow-hidden group">
                 <div className="max-w-2xl mx-auto space-y-8 relative z-10">
                   <div className="relative inline-flex">
-                    <div className="w-24 h-24 rounded-[2rem] bg-black/40 border border-white/10 flex items-center justify-center shadow-2xl">
-                      <Database className="h-12 w-12 text-white group-hover:scale-110 transition-transform duration-500" />
+                    <div className="w-24 h-24 rounded-xl bg-muted border border-border flex items-center justify-center">
+                      <Database className="h-12 w-12 text-muted-foreground group-hover:scale-110 transition-transform duration-500" />
                     </div>
-                    <div className="absolute -top-4 -right-4 w-12 h-12 rounded-2xl bg-brand-primary border border-brand-primary/50 flex items-center justify-center animate-bounce shadow-lg shadow-brand-primary/40">
-                      <Sparkles className="h-6 w-6 text-white" />
+                    <div className="absolute -top-4 -right-4 w-12 h-12 rounded-xl bg-primary border border-primary/50 flex items-center justify-center animate-bounce">
+                      <Sparkles className="h-6 w-6 text-primary-foreground" />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <h3 className="text-2xl md:text-3xl font-display font-black tracking-tight text-white leading-tight">
-                      Prêt pour l'Excellence <br /><span className="text-brand-primary">Algorithmique ?</span>
+                    <h3 className="text-2xl md:text-3xl font-display font-black tracking-tight text-foreground leading-tight">
+                      Pret pour l'Excellence <br /><span className="text-primary">Algorithmique ?</span>
                     </h3>
-                    <p className="text-white/40 font-display font-medium text-base leading-relaxed">
-                      Lancez le workflow Senior Data Scientist pour transformer vos données brutes en insights prédictifs de haute précision.
+                    <p className="text-muted-foreground font-display font-medium text-base leading-relaxed">
+                      Lancez le workflow Senior Data Scientist pour transformer vos donnees brutes en insights predictifs de haute precision.
                     </p>
                   </div>
 
@@ -640,32 +629,31 @@ export default function DataSciencePage() {
                     }} />
                   </div>
                 </div>
-              </div>
+              </Card>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
-                  { title: "Statistiques Avancées", desc: "Skewness, Kurtosis et détection d'outliers automatique.", icon: BarChart3 },
-                  { title: "Visualisation Cible", desc: "Analyse des distributions corrélées à votre variable cible.", icon: Eye },
-                  { title: "Interprétabilité AI", desc: "Comprenez les décisions du modèle grâce aux valeurs SHAP.", icon: Brain }
+                  { title: "Statistiques Avancees", desc: "Skewness, Kurtosis et detection d'outliers automatique.", icon: BarChart3 },
+                  { title: "Visualisation Cible", desc: "Analyse des distributions correlees a votre variable cible.", icon: Eye },
+                  { title: "Interpretabilite AI", desc: "Comprenez les decisions du modele grace aux valeurs SHAP.", icon: Brain }
                 ].map((feature, i) => (
-                  <div key={i} className="glass-card p-8 rounded-[2rem] border-white/5 bg-white/5 hover:bg-white/10 transition-all group">
-                    <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mb-6 group-hover:border-brand-primary/40 transition-colors">
-                      <feature.icon className="h-6 w-6 text-brand-primary" />
+                  <Card key={i} className="p-8 hover:bg-accent transition-all group">
+                    <div className="w-12 h-12 rounded-xl bg-muted border border-border flex items-center justify-center mb-6 group-hover:border-primary/40 transition-colors">
+                      <feature.icon className="h-6 w-6 text-primary" />
                     </div>
-                    <h4 className="text-xl font-display font-black text-white mb-2">{feature.title}</h4>
-                    <p className="text-sm text-white/40 leading-relaxed">{feature.desc}</p>
-                  </div>
+                    <h4 className="text-xl font-display font-black text-foreground mb-2">{feature.title}</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{feature.desc}</p>
+                  </Card>
                 ))}
               </div>
             </div>
           ) : loading || loadingIntelligence ? (
             <div className="py-40 text-center animate-pulse">
               <div className="relative inline-flex mb-10">
-                <Loader2 className="h-20 w-20 text-brand-primary animate-spin" />
-                <div className="absolute inset-0 bg-brand-primary/20 blur-2xl rounded-full" />
+                <Loader2 className="h-20 w-20 text-primary animate-spin" />
               </div>
-              <h3 className="text-3xl font-display font-black text-white mb-2 tracking-tight">Analyse en cours...</h3>
-              <p className="text-white/40 font-display font-black uppercase tracking-[0.3em] text-[10px]">Le moteur cognitif traite vos données</p>
+              <h3 className="text-3xl font-display font-black text-foreground mb-2 tracking-tight">Analyse en cours...</h3>
+              <p className="text-muted-foreground font-display font-black uppercase tracking-[0.3em] text-[10px]">Le moteur cognitif traite vos donnees</p>
             </div>
           ) : (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-12">
@@ -680,7 +668,7 @@ export default function DataSciencePage() {
                       currentTarget={targetColumn}
                       onSelectTarget={(col) => {
                         setTargetColumn(col)
-                        toast.success(`Cible sélectionnée : ${col}`)
+                        toast.success(`Cible selectionnee : ${col}`)
                       }}
                     />
                   </div>
@@ -731,12 +719,12 @@ export default function DataSciencePage() {
         {/* Dynamic Navigation Dock */}
         {selectedDataset && !loading && (
           <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50">
-            <div className="glass-card h-20 px-4 rounded-[2rem] border-white/10 bg-[#0A0A0B]/80 backdrop-blur-3xl flex items-center gap-6 shadow-2xl ring-1 ring-white/20">
+            <div className="bg-card/95 backdrop-blur-sm border border-border h-20 px-4 rounded-xl flex items-center gap-6 shadow-lg">
               <Button
                 variant="ghost"
                 onClick={() => setCurrentStep(prev => Math.max(prev - 1, 1))}
                 disabled={currentStep === 1}
-                className="h-12 w-12 rounded-xl hover:bg-white/5 text-white/40 hover:text-white disabled:opacity-20 transition-all"
+                className="h-12 w-12 rounded-xl hover:bg-accent text-muted-foreground hover:text-foreground disabled:opacity-20 transition-all"
               >
                 <ChevronLeft className="h-6 w-6" />
               </Button>
@@ -747,7 +735,7 @@ export default function DataSciencePage() {
                     key={s.id}
                     className={cn(
                       "h-1.5 transition-all duration-500 rounded-full",
-                      currentStep === s.id ? 'bg-brand-primary w-10 shadow-[0_0_10px_rgba(255,105,180,0.5)]' : 'bg-white/10 w-3'
+                      currentStep === s.id ? 'bg-primary w-10' : 'bg-muted-foreground/20 w-3'
                     )}
                   />
                 ))}
@@ -756,14 +744,14 @@ export default function DataSciencePage() {
               {currentStep < 5 ? (
                 <Button
                   onClick={nextStep}
-                  className="h-14 px-10 rounded-xl bg-brand-primary hover:bg-brand-primary/90 text-white font-display font-black uppercase tracking-widest text-[11px] shadow-lg shadow-brand-primary/20 transition-all hover:scale-105"
+                  className="h-14 px-10 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-display font-black uppercase tracking-widest text-[11px] transition-all hover:scale-105"
                 >
                   Suivant
                   <ChevronRight className="h-5 w-5 ml-2" />
                 </Button>
               ) : (
                 <Button
-                  className="h-14 px-10 rounded-xl bg-gradient-to-r from-brand-primary to-brand-cotton text-black font-display font-black uppercase tracking-widest text-[11px] shadow-lg shadow-brand-primary/20 transition-all hover:scale-105"
+                  className="h-14 px-10 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-display font-black uppercase tracking-widest text-[11px] transition-all hover:scale-105"
                   onClick={() => window.location.href = '/dashboard/audits'}
                 >
                   <FileBarChart2 className="h-5 w-5 mr-3" />

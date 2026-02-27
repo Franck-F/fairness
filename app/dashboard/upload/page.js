@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { DashboardShell } from '@/components/dashboard/shell'
+import { PageHeader } from '@/components/dashboard/page-header'
 import { FileUpload } from '@/components/dashboard/file-upload'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -38,33 +39,33 @@ import { useAuth } from '@/lib/auth-context'
 
 // AI Domains with specific models for each domain
 const AI_DOMAINS = [
-  { value: 'tabular', label: 'Données Tabulaires', models: ['XGBoost', 'LightGBM', 'Random Forest', 'CatBoost', 'Neural Network', 'Logistic Regression'] },
+  { value: 'tabular', label: 'Donnees Tabulaires', models: ['XGBoost', 'LightGBM', 'Random Forest', 'CatBoost', 'Neural Network', 'Logistic Regression'] },
   { value: 'nlp', label: 'Traitement du Langage Naturel', models: ['BERT', 'GPT', 'T5', 'RoBERTa', 'LLaMA', 'DistilBERT', 'ALBERT'] },
   { value: 'computer_vision', label: 'Vision par Ordinateur', models: ['ResNet', 'YOLO', 'EfficientNet', 'Vision Transformer', 'MobileNet', 'Inception'] },
-  { value: 'time_series', label: 'Séries Temporelles', models: ['LSTM', 'GRU', 'Prophet', 'ARIMA', 'Transformer', 'TCN'] },
-  { value: 'recommender', label: 'Systèmes de Recommandation', models: ['Collaborative Filtering', 'Content-Based', 'Matrix Factorization', 'Neural CF', 'LightFM', 'DeepFM'] },
+  { value: 'time_series', label: 'Series Temporelles', models: ['LSTM', 'GRU', 'Prophet', 'ARIMA', 'Transformer', 'TCN'] },
+  { value: 'recommender', label: 'Systemes de Recommandation', models: ['Collaborative Filtering', 'Content-Based', 'Matrix Factorization', 'Neural CF', 'LightFM', 'DeepFM'] },
   { value: 'speech_recognition', label: 'Reconnaissance Vocale', models: ['Wav2Vec', 'Whisper', 'DeepSpeech', 'Conformer', 'Jasper', 'QuartzNet'] },
   { value: 'reinforcement_learning', label: 'Apprentissage par Renforcement', models: ['DQN', 'PPO', 'A3C', 'SAC', 'DDPG', 'TD3'] },
-  { value: 'anomaly_detection', label: 'Détection d\'Anomalies', models: ['Isolation Forest', 'One-Class SVM', 'Autoencoder', 'LOF', 'DBSCAN', 'COPOD'] },
-  { value: 'generative_ai', label: 'IA Générative', models: ['GANs', 'VAE', 'Diffusion Models', 'StyleGAN', 'Stable Diffusion', 'DALL-E'] },
-  { value: 'graph_neural_networks', label: 'Réseaux de Neurones Graphiques', models: ['GCN', 'GAT', 'GraphSAGE', 'GIN', 'ChebNet', 'EdgeConv'] },
+  { value: 'anomaly_detection', label: 'Detection d\'Anomalies', models: ['Isolation Forest', 'One-Class SVM', 'Autoencoder', 'LOF', 'DBSCAN', 'COPOD'] },
+  { value: 'generative_ai', label: 'IA Generative', models: ['GANs', 'VAE', 'Diffusion Models', 'StyleGAN', 'Stable Diffusion', 'DALL-E'] },
+  { value: 'graph_neural_networks', label: 'Reseaux de Neurones Graphiques', models: ['GCN', 'GAT', 'GraphSAGE', 'GIN', 'ChebNet', 'EdgeConv'] },
   { value: 'multimodal', label: 'Multimodal', models: ['CLIP', 'DALL-E', 'Flamingo', 'BEiT', 'ViLBERT', 'ALIGN'] }
 ]
 
 // Expanded Business Use Cases
 const USE_CASES = [
-  { value: 'general', label: 'Usage Général', icon: '🌐' },
+  { value: 'general', label: 'Usage General', icon: '🌐' },
   { value: 'credit', label: 'Credit Scoring', icon: '💳' },
   { value: 'hiring', label: 'Recrutement', icon: '👥' },
-  { value: 'healthcare', label: 'Santé', icon: '🏥' },
+  { value: 'healthcare', label: 'Sante', icon: '🏥' },
   { value: 'finance', label: 'Finance & Trading', icon: '📈' },
   { value: 'retail', label: 'Commerce & Retail', icon: '🛒' },
-  { value: 'education', label: 'Éducation', icon: '🎓' },
+  { value: 'education', label: 'Education', icon: '🎓' },
   { value: 'insurance', label: 'Assurance', icon: '🛡️' },
   { value: 'automotive', label: 'Automobile', icon: '🚗' },
-  { value: 'energy', label: 'Énergie', icon: '⚡' },
+  { value: 'energy', label: 'Energie', icon: '⚡' },
   { value: 'manufacturing', label: 'Industrie', icon: '🏭' },
-  { value: 'telecommunications', label: 'Télécommunications', icon: '📡' },
+  { value: 'telecommunications', label: 'Telecommunications', icon: '📡' },
   { value: 'real_estate', label: 'Immobilier', icon: '🏢' },
   { value: 'agriculture', label: 'Agriculture', icon: '🌾' },
   { value: 'transportation', label: 'Transport & Logistique', icon: '🚚' }
@@ -72,9 +73,9 @@ const USE_CASES = [
 
 const steps = [
   { id: 1, name: 'Upload', icon: Upload, description: 'Datasets Pre/Post Processing' },
-  { id: 2, name: 'Visualisation', icon: Eye, description: 'Aperçu des Données' },
-  { id: 3, name: 'Configuration', icon: Settings, description: 'Paramètres & Modèle' },
-  { id: 4, name: 'Lancement', icon: Rocket, description: 'Démarrage de l\'analyse' },
+  { id: 2, name: 'Visualisation', icon: Eye, description: 'Apercu des Donnees' },
+  { id: 3, name: 'Configuration', icon: Settings, description: 'Parametres & Modele' },
+  { id: 4, name: 'Lancement', icon: Rocket, description: 'Demarrage de l\'analyse' },
 ]
 
 export default function UploadPage() {
@@ -82,7 +83,7 @@ export default function UploadPage() {
   const { session } = useAuth()
   const [currentStep, setCurrentStep] = useState(1)
   const [datasets, setDatasets] = useState({ pre: null, post: null })
-  const [activeDatasetTab, setActiveDatasetTab] = useState('pre') // New state for tab control
+  const [activeDatasetTab, setActiveDatasetTab] = useState('pre')
   const [launching, setLaunching] = useState(false)
 
   // Audit configuration
@@ -168,10 +169,9 @@ export default function UploadPage() {
       }
 
       const data = await response.json()
-      toast.success(' Audit synchronisé avec succès !')
+      toast.success('Audit synchronise avec succes !')
       router.push(`/dashboard/audits/${data.audit.id}`)
     } catch (error) {
-      console.error('Launch audit error:', error)
       toast.error(error.message)
     } finally {
       setLaunching(false)
@@ -191,500 +191,477 @@ export default function UploadPage() {
 
   return (
     <DashboardShell>
-      <div className="space-y-6 lg:space-y-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-8 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+      <div className="space-y-6 lg:space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-8 animate-in fade-in slide-in-from-bottom-6 duration-1000">
 
-        {/* Premium Header */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 lg:pb-8 border-b border-white/5">
-          <div className="space-y-3">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center">
-                <Sparkles className="h-5 w-5 lg:h-6 lg:w-6 text-brand-primary animate-pulse" />
-              </div>
-              <h1 className="text-3xl sm:text-4xl lg:text-6xl font-display font-black tracking-tighter text-white uppercase italic">
-                AuditIQ <span className="text-brand-primary">Forge</span>
-              </h1>
+        {/* Header */}
+        <PageHeader
+          icon={Sparkles}
+          title="Nouvel"
+          titleHighlight="Audit"
+          description="Configurez et lancez un nouvel audit d'equite algorithmique."
+          actions={
+            <div className="hidden lg:flex items-center gap-4">
+              <Card className="px-4 py-2.5 flex items-center gap-3">
+                <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                <span className="text-xs text-muted-foreground font-medium">Mode securise</span>
+              </Card>
             </div>
-            <p className="text-white/40 font-display font-medium text-lg lg:text-xl max-w-2xl leading-tight">
-              Orchestrez votre nouvel audit d'intégrité algorithmique.
-            </p>
-          </div>
-          <div className="hidden lg:flex items-center gap-4">
-            <div className="glass-card px-5 py-3 rounded-2xl border-white/5 bg-white/5 flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-brand-primary animate-pulse shadow-[0_0_10px_#FF1493]" />
-              <span className="text-[10px] text-white/60 font-black uppercase tracking-[0.2em] font-display">AuditIQ Sync v2.4</span>
-            </div>
-          </div>
-        </div>
+          }
+        />
 
-        {/* Holographic Progress Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 relative">
-          <div className="absolute top-1/2 left-0 w-full h-[2px] bg-white/5 -translate-y-1/2 hidden lg:block" />
-
+        {/* Step Progress Indicators */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
           {steps.map((step) => {
             const isActive = currentStep === step.id
             const isCompleted = currentStep > step.id
             const Icon = step.icon
 
             return (
-              <div
+              <Card
                 key={step.id}
                 className={cn(
-                  'relative flex flex-col items-center p-4 lg:p-6 rounded-2xl lg:rounded-3xl border transition-all duration-700 glass-card z-10 group',
+                  'relative flex flex-col items-center p-4 lg:p-6 transition-all duration-500',
                   isActive
-                    ? 'border-brand-primary/40 bg-brand-primary/5 shadow-[0_0_40px_rgba(255,20,147,0.1)] scale-102'
+                    ? 'border-primary bg-primary/5'
                     : isCompleted
-                      ? 'border-brand-cotton/40 bg-brand-cotton/5'
-                      : 'border-white/5 bg-white/5 opacity-40 grayscale'
+                      ? 'border-green-500/40 bg-green-500/5'
+                      : 'opacity-50'
                 )}
               >
                 <div className={cn(
-                  'w-10 h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center mb-3 lg:mb-4 transition-all duration-700 relative z-10',
+                  'w-10 h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center mb-3 lg:mb-4 transition-all',
                   isActive
-                    ? 'bg-brand-primary text-white shadow-[0_0_25px_#FF1493] rotate-3'
+                    ? 'bg-primary text-primary-foreground'
                     : isCompleted
-                      ? 'bg-brand-cotton/20 text-brand-cotton border border-brand-cotton/30'
-                      : 'bg-white/5 text-white/20 border border-white/10'
+                      ? 'bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/30'
+                      : 'bg-muted text-muted-foreground/50 border border-border'
                 )}>
-                  {isCompleted ? <CheckCircle2 className="h-5 w-5 lg:h-6 lg:w-6" /> : <Icon className={cn("h-5 w-5 lg:h-6 lg:w-6", isActive && "animate-bounce-slow")} />}
+                  {isCompleted ? <CheckCircle2 className="h-5 w-5 lg:h-6 lg:w-6" /> : <Icon className="h-5 w-5 lg:h-6 lg:w-6" />}
                 </div>
 
-                <p className={cn("text-[8px] lg:text-[9px] font-black uppercase tracking-[0.2em] lg:tracking-[0.3em] mb-1", isActive ? "text-brand-primary" : "text-white/20")}>
-                  ÉTAPE {step.id}
+                <p className={cn("text-[9px] font-medium uppercase tracking-wider mb-1", isActive ? "text-primary" : "text-muted-foreground/50")}>
+                  Etape {step.id}
                 </p>
-                <h3 className={cn("text-xs lg:text-sm font-display font-black uppercase tracking-tight text-center", isActive ? "text-white" : "text-white/40")}>
+                <h3 className={cn("text-xs lg:text-sm font-display font-semibold text-center", isActive ? "text-foreground" : "text-muted-foreground")}>
                   {step.name}
                 </h3>
-              </div>
+              </Card>
             )
           })}
         </div>
 
-        {/* Main Forge Arena */}
-        <div className="relative">
-          <div className="absolute -inset-10 bg-brand-primary/5 rounded-[6rem] blur-[100px] pointer-events-none" />
+        {/* Main Configuration Area */}
+        <Card className="overflow-hidden">
+          <div className="flex flex-col lg:flex-row min-h-[500px] lg:min-h-[600px]">
 
-          <div className="relative glass-card rounded-[4rem] border-white/5 bg-white/[0.02] backdrop-blur-3xl overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
-
-            {/* Context Sidebar (Mobile Hidden) and Body */}
-            <div className="flex flex-col lg:flex-row min-h-[500px] lg:min-h-[600px]">
-
-              {/* Left Context Panel */}
-              <div className="w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-white/5 bg-white/[0.02] p-6 lg:p-10 flex flex-col justify-between">
-                <div className="space-y-8">
-                  <div className="space-y-2">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-brand-primary">Phase Actuelle</span>
-                    <h3 className="text-3xl font-display font-black text-white">{steps[currentStep - 1].name}</h3>
-                    <p className="text-sm text-white/40 font-medium leading-relaxed">{steps[currentStep - 1].description}</p>
-                  </div>
-
-                  <div className="space-y-4 pt-8">
-                    <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
-                      <ShieldAlert className="h-4 w-4 text-brand-cotton" />
-                      <span className="text-[10px] font-black text-white/60">ENCRYPTION END-TO-END</span>
-                    </div>
-                  </div>
+            {/* Left Context Panel */}
+            <div className="w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-border bg-muted/50 p-6 lg:p-8 flex flex-col justify-between">
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <span className="text-xs font-medium text-primary uppercase tracking-wider">Phase Actuelle</span>
+                  <h3 className="text-2xl font-display font-bold text-foreground">{steps[currentStep - 1].name}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{steps[currentStep - 1].description}</p>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-brand-primary transition-all duration-1000" style={{ width: `${progress}%` }} />
-                  </div>
-                  <div className="flex justify-between text-[10px] font-black text-white/20 tracking-widest">
-                    <span>PROGRESSION</span>
-                    <span>{Math.round(progress)}%</span>
+                <div className="space-y-4 pt-6">
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-muted border border-border">
+                    <ShieldAlert className="h-4 w-4 text-primary" />
+                    <span className="text-xs text-muted-foreground font-medium">Chiffrement de bout en bout</span>
                   </div>
                 </div>
               </div>
 
-              {/* Main Content Area */}
-              <div className="flex-1 p-6 sm:p-10 lg:p-16 flex flex-col justify-between relative overflow-hidden">
+              <div className="space-y-3 mt-8">
+                <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
+                  <div className="h-full bg-primary transition-all duration-1000" style={{ width: `${progress}%` }} />
+                </div>
+                <div className="flex justify-between text-xs font-medium text-muted-foreground">
+                  <span>Progression</span>
+                  <span>{Math.round(progress)}%</span>
+                </div>
+              </div>
+            </div>
 
-                <div className="absolute top-0 right-0 w-64 h-64 bg-brand-primary/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
+            {/* Main Content Area */}
+            <div className="flex-1 p-6 sm:p-8 lg:p-12 flex flex-col justify-between relative overflow-hidden">
+              <div className="relative z-10 flex-1">
 
-                <div className="relative z-10 flex-1">
-                  {/* STEP 1: UPLOAD */}
-                  {currentStep === 1 && (
-                    <div className="h-full flex flex-col gap-8 animate-in fade-in zoom-in-95 duration-700">
-                      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12 w-full">
-                        <div className="space-y-6 lg:space-y-8">
-                          <div className="flex items-center justify-between px-2">
-                            <Label className="text-[10px] font-black text-white/30 tracking-widest uppercase">Dataset Original (Pre-processing)</Label>
-                            {datasets.pre && <Badge className="bg-green-500/20 text-green-500 border-green-500/30">UPLOADED</Badge>}
-                          </div>
-                          <FileUpload
-                            onFileUploaded={(data) => handleDatasetUploaded('pre', data)}
-                            buttonLabel="Confirmer Pre-Processing"
-                          />
-                          {datasets.pre && (
-                            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <Database className="h-4 w-4 text-brand-primary" />
-                                <span className="text-xs font-medium text-white/60 truncate max-w-[150px]">{datasets.pre.filename}</span>
-                              </div>
-                              <span className="text-[10px] font-black text-white/20">{datasets.pre.stats?.rows} RANGÉES</span>
+                {/* STEP 1: UPLOAD */}
+                {currentStep === 1 && (
+                  <div className="h-full flex flex-col gap-8 animate-in fade-in zoom-in-95 duration-700">
+                    <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-10 w-full">
+                      <div className="space-y-6">
+                        <div className="flex items-center justify-between px-1">
+                          <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Dataset Original (Pre-processing)</Label>
+                          {datasets.pre && <Badge className="bg-green-500/20 text-green-600 dark:text-green-500 border-green-500/30">UPLOADED</Badge>}
+                        </div>
+                        <FileUpload
+                          onFileUploaded={(data) => handleDatasetUploaded('pre', data)}
+                          buttonLabel="Confirmer Pre-Processing"
+                        />
+                        {datasets.pre && (
+                          <div className="p-4 rounded-xl bg-muted border border-border flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <Database className="h-4 w-4 text-primary" />
+                              <span className="text-xs font-medium text-muted-foreground truncate max-w-[150px]">{datasets.pre.filename}</span>
                             </div>
-                          )}
-                        </div>
-
-                        <div className="space-y-6 lg:space-y-8">
-                          <div className="flex items-center justify-between px-2">
-                            <Label className="text-[10px] font-black text-white/30 tracking-widest uppercase">Dataset Mitigé (Post-processing)</Label>
-                            {datasets.post && <Badge className="bg-green-500/20 text-green-500 border-green-500/30">UPLOADED</Badge>}
-                            {!datasets.post && <Badge variant="outline" className="text-[9px] opacity-40">OPTIONNEL</Badge>}
+                            <span className="text-xs font-medium text-muted-foreground/70">{datasets.pre.stats?.rows} rangees</span>
                           </div>
-                          <FileUpload
-                            onFileUploaded={(data) => handleDatasetUploaded('post', data)}
-                            buttonLabel="Confirmer Post-Processing"
-                          />
-                          {datasets.post && (
-                            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <Zap className="h-4 w-4 text-brand-cotton" />
-                                <span className="text-xs font-medium text-white/60 truncate max-w-[150px]">{datasets.post.filename}</span>
-                              </div>
-                              <span className="text-[10px] font-black text-white/20">{datasets.post.stats?.rows} RANGÉES</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {datasets.pre && (
-                        <div className="flex flex-col items-center pt-8 border-t border-white/5 mt-auto">
-                          <Button
-                            onClick={handleNextStep}
-                            className="group bg-brand-primary hover:bg-brand-primary/90 text-white font-display font-black uppercase tracking-widest px-12 py-6 rounded-2xl h-auto"
-                          >
-                            CONFIGURER L'AUDITION
-                            <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* STEP 2: VISUALIZATION */}
-                  {currentStep === 2 && (
-                    <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-700">
-                      {/* Dataset Tabs */}
-                      <div className="flex gap-3">
-                        <button
-                          onClick={() => setActiveDatasetTab('pre')}
-                          className={cn(
-                            "flex-1 px-6 py-3 rounded-2xl font-display font-black uppercase text-xs tracking-widest transition-all duration-300",
-                            activeDatasetTab === 'pre'
-                              ? "bg-brand-primary text-white shadow-lg shadow-brand-primary/20"
-                              : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/60"
-                          )}
-                        >
-                          📊 Dataset Original
-                        </button>
-                        {datasets.post && (
-                          <button
-                            onClick={() => setActiveDatasetTab('post')}
-                            className={cn(
-                              "flex-1 px-6 py-3 rounded-2xl font-display font-black uppercase text-xs tracking-widest transition-all duration-300",
-                              activeDatasetTab === 'post'
-                                ? "bg-brand-primary text-white shadow-lg shadow-brand-primary/20"
-                                : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/60"
-                            )}
-                          >
-                            ⚡ Dataset Mitigé
-                          </button>
                         )}
                       </div>
 
-                      {/* Active Dataset Preview */}
-                      {(() => {
-                        const activeData = activeDatasetTab === 'pre' ? datasets.pre : datasets.post
-                        if (!activeData) return null
-
-                        return (
-                          <div className="glass-card p-6 lg:p-8 rounded-2xl lg:rounded-3xl border-white/10 bg-white/5">
-                            <div className="flex items-center gap-4 mb-6">
-                              <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center">
-                                <Database className="h-5 w-5 lg:h-6 lg:w-6 text-brand-primary" />
-                              </div>
-                              <div className="flex-1">
-                                <h3 className="text-lg lg:text-xl font-display font-black text-white uppercase tracking-tight">
-                                  {activeDatasetTab === 'pre' ? 'Dataset Original (Pre-processing)' : 'Dataset Mitigé (Post-processing)'}
-                                </h3>
-                                <p className="text-xs lg:text-sm text-white/40 font-medium">{activeData.filename}</p>
-                              </div>
+                      <div className="space-y-6">
+                        <div className="flex items-center justify-between px-1">
+                          <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Dataset Mitige (Post-processing)</Label>
+                          {datasets.post && <Badge className="bg-green-500/20 text-green-600 dark:text-green-500 border-green-500/30">UPLOADED</Badge>}
+                          {!datasets.post && <Badge variant="outline" className="text-xs opacity-60">Optionnel</Badge>}
+                        </div>
+                        <FileUpload
+                          onFileUploaded={(data) => handleDatasetUploaded('post', data)}
+                          buttonLabel="Confirmer Post-Processing"
+                        />
+                        {datasets.post && (
+                          <div className="p-4 rounded-xl bg-muted border border-border flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <Zap className="h-4 w-4 text-primary" />
+                              <span className="text-xs font-medium text-muted-foreground truncate max-w-[150px]">{datasets.post.filename}</span>
                             </div>
+                            <span className="text-xs font-medium text-muted-foreground/70">{datasets.post.stats?.rows} rangees</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
 
-                            {/* Stats Grid */}
-                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
-                              <div className="p-3 lg:p-4 rounded-xl lg:rounded-2xl bg-white/5 border border-white/10">
-                                <p className="text-[9px] lg:text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">Lignes</p>
-                                <p className="text-xl lg:text-2xl font-display font-black text-white">{activeData.stats?.rows?.toLocaleString() || 'N/A'}</p>
-                              </div>
-                              <div className="p-3 lg:p-4 rounded-xl lg:rounded-2xl bg-white/5 border border-white/10">
-                                <p className="text-[9px] lg:text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">Colonnes</p>
-                                <p className="text-xl lg:text-2xl font-display font-black text-white">{activeData.columns?.length || 0}</p>
-                              </div>
-                              <div className="p-3 lg:p-4 rounded-xl lg:rounded-2xl bg-white/5 border border-white/10">
-                                <p className="text-[9px] lg:text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">Taille</p>
-                                <p className="text-xl lg:text-2xl font-display font-black text-white">{activeData.stats?.size || 'N/A'}</p>
-                              </div>
-                              <div className="p-3 lg:p-4 rounded-xl lg:rounded-2xl bg-white/5 border border-white/10">
-                                <p className="text-[9px] lg:text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">Format</p>
-                                <p className="text-xl lg:text-2xl font-display font-black text-white uppercase">{activeData.filename?.split('.').pop() || 'CSV'}</p>
-                              </div>
+                    {datasets.pre && (
+                      <div className="flex flex-col items-center pt-8 border-t border-border mt-auto">
+                        <Button
+                          onClick={handleNextStep}
+                          className="group bg-primary hover:bg-primary/90 text-primary-foreground font-display font-bold px-10 py-5 rounded-xl h-auto"
+                        >
+                          Configurer l'audit
+                          <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* STEP 2: VISUALIZATION */}
+                {currentStep === 2 && (
+                  <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-700">
+                    {/* Dataset Tabs */}
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setActiveDatasetTab('pre')}
+                        className={cn(
+                          "flex-1 px-5 py-3 rounded-xl font-display font-semibold text-xs tracking-wide transition-all duration-300",
+                          activeDatasetTab === 'pre'
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
+                        )}
+                      >
+                        Dataset Original
+                      </button>
+                      {datasets.post && (
+                        <button
+                          onClick={() => setActiveDatasetTab('post')}
+                          className={cn(
+                            "flex-1 px-5 py-3 rounded-xl font-display font-semibold text-xs tracking-wide transition-all duration-300",
+                            activeDatasetTab === 'post'
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
+                          )}
+                        >
+                          Dataset Mitige
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Active Dataset Preview */}
+                    {(() => {
+                      const activeData = activeDatasetTab === 'pre' ? datasets.pre : datasets.post
+                      if (!activeData) return null
+
+                      return (
+                        <Card className="p-6 lg:p-8">
+                          <div className="flex items-center gap-4 mb-6">
+                            <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                              <Database className="h-5 w-5 lg:h-6 lg:w-6 text-primary" />
                             </div>
+                            <div className="flex-1">
+                              <h3 className="text-lg font-display font-semibold text-foreground">
+                                {activeDatasetTab === 'pre' ? 'Dataset Original (Pre-processing)' : 'Dataset Mitige (Post-processing)'}
+                              </h3>
+                              <p className="text-sm text-muted-foreground">{activeData.filename}</p>
+                            </div>
+                          </div>
 
-                            {/* Columns List */}
-                            <div className="space-y-3 mb-6">
-                              <Label className="text-[10px] font-black text-white/30 tracking-[0.3em] uppercase">Colonnes Disponibles</Label>
-                              <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-3 max-h-[180px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/10">
-                                {activeData.columns?.map((col, idx) => (
-                                  <div key={idx} className="flex items-center gap-2 p-2 lg:p-3 rounded-xl bg-white/5 border border-white/10">
-                                    <div className={cn("w-2 h-2 rounded-full flex-shrink-0",
-                                      col.type === 'numerical' ? 'bg-blue-500' :
-                                        col.type === 'categorical' ? 'bg-green-500' :
-                                          'bg-purple-500'
-                                    )} />
-                                    <div className="flex-1 min-w-0">
-                                      <p className="text-xs font-display font-bold text-white truncate">{col.name}</p>
-                                      <p className="text-[9px] text-white/40 uppercase font-black tracking-wider">{col.type}</p>
-                                    </div>
+                          {/* Stats Grid */}
+                          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
+                            {[
+                              { label: 'Lignes', value: activeData.stats?.rows?.toLocaleString() || 'N/A' },
+                              { label: 'Colonnes', value: activeData.columns?.length || 0 },
+                              { label: 'Taille', value: activeData.stats?.size || 'N/A' },
+                              { label: 'Format', value: (activeData.filename?.split('.').pop() || 'CSV').toUpperCase() },
+                            ].map((stat, idx) => (
+                              <div key={idx} className="p-3 lg:p-4 rounded-xl bg-muted border border-border">
+                                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">{stat.label}</p>
+                                <p className="text-xl lg:text-2xl font-display font-bold text-foreground">{stat.value}</p>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Columns List */}
+                          <div className="space-y-3 mb-6">
+                            <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Colonnes Disponibles</Label>
+                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-3 max-h-[180px] overflow-y-auto pr-2">
+                              {activeData.columns?.map((col, idx) => (
+                                <div key={idx} className="flex items-center gap-2 p-2 lg:p-3 rounded-xl bg-muted border border-border">
+                                  <div className={cn("w-2 h-2 rounded-full flex-shrink-0",
+                                    col.type === 'numerical' ? 'bg-blue-500' :
+                                      col.type === 'categorical' ? 'bg-green-500' :
+                                        'bg-purple-500'
+                                  )} />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-display font-semibold text-foreground truncate">{col.name}</p>
+                                    <p className="text-xs text-muted-foreground">{col.type}</p>
                                   </div>
-                                ))}
-                              </div>
+                                </div>
+                              ))}
                             </div>
+                          </div>
 
-                            {/* Preview Table (first 10 rows) */}
-                            {activeData.preview && activeData.preview.length > 0 && (
-                              <div className="space-y-3">
-                                <Label className="text-[10px] font-black text-white/30 tracking-[0.3em] uppercase">Aperçu DataFrame (10 premières lignes)</Label>
-                                <div className="overflow-x-auto rounded-xl lg:rounded-2xl border border-white/10">
-                                  <Table>
-                                    <TableHeader>
-                                      <TableRow className="bg-white/5 border-white/10">
-                                        <TableHead className="text-white/60 font-black text-[9px] uppercase tracking-wider w-12">#</TableHead>
-                                        {activeData.columns?.slice(0, 6).map((col, idx) => (
-                                          <TableHead key={idx} className="text-white/60 font-black text-[9px] uppercase tracking-wider">
-                                            {col.name}
-                                          </TableHead>
+                          {/* Preview Table (first 10 rows) */}
+                          {activeData.preview && activeData.preview.length > 0 && (
+                            <div className="space-y-3">
+                              <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Apercu DataFrame (10 premieres lignes)</Label>
+                              <div className="overflow-x-auto rounded-xl border border-border">
+                                <Table>
+                                  <TableHeader>
+                                    <TableRow className="bg-muted border-border">
+                                      <TableHead className="text-muted-foreground font-medium text-xs w-12">#</TableHead>
+                                      {activeData.columns?.slice(0, 6).map((col, idx) => (
+                                        <TableHead key={idx} className="text-muted-foreground font-medium text-xs">
+                                          {col.name}
+                                        </TableHead>
+                                      ))}
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody>
+                                    {activeData.preview.slice(0, 10).map((row, rowIdx) => (
+                                      <TableRow key={rowIdx} className="border-border hover:bg-accent">
+                                        <TableCell className="text-muted-foreground text-xs">{rowIdx + 1}</TableCell>
+                                        {Object.values(row).slice(0, 6).map((value, colIdx) => (
+                                          <TableCell key={colIdx} className="text-foreground/80 text-xs">
+                                            {String(value).length > 25 ? String(value).substring(0, 25) + '...' : String(value)}
+                                          </TableCell>
                                         ))}
                                       </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                      {activeData.preview.slice(0, 10).map((row, rowIdx) => (
-                                        <TableRow key={rowIdx} className="border-white/5 hover:bg-white/5">
-                                          <TableCell className="text-white/40 text-[10px] font-black">{rowIdx + 1}</TableCell>
-                                          {Object.values(row).slice(0, 6).map((value, colIdx) => (
-                                            <TableCell key={colIdx} className="text-white/80 text-xs font-medium">
-                                              {String(value).length > 25 ? String(value).substring(0, 25) + '...' : String(value)}
-                                            </TableCell>
-                                          ))}
-                                        </TableRow>
-                                      ))}
-                                    </TableBody>
-                                  </Table>
-                                </div>
-                                {activeData.columns?.length > 6 && (
-                                  <p className="text-[10px] text-white/40 text-center font-medium italic">+ {activeData.columns.length - 6} colonnes supplémentaires...</p>
-                                )}
+                                    ))}
+                                  </TableBody>
+                                </Table>
                               </div>
-                            )}
-                          </div>
-                        )
-                      })()}
-                    </div>
-                  )}
-
-                  {/* STEP 3: CONFIGURATION */}
-                  {currentStep === 3 && (
-                    <div className="space-y-12 animate-in fade-in slide-in-from-right-8 duration-700">
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-                        <div className="space-y-8">
-                          <div className="space-y-3">
-                            <Label className="text-[10px] font-black text-white/30 tracking-[0.3em] uppercase ml-2">Désignation de l'Audit</Label>
-                            <Input
-                              value={auditConfig.name}
-                              onChange={(e) => setAuditConfig(prev => ({ ...prev, name: e.target.value }))}
-                              className="h-16 px-8 rounded-3xl bg-white/5 border-white/5 text-white font-display font-black text-xl focus:ring-brand-primary"
-                            />
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-3">
-                              <Label className="text-[10px] font-black text-white/30 tracking-[0.3em] uppercase ml-2">Domaine d'IA</Label>
-                              <Select value={auditConfig.iaType} onValueChange={(v) => setAuditConfig(prev => ({ ...prev, iaType: v, modelType: '' }))}>
-                                <SelectTrigger className="h-14 px-6 rounded-2xl bg-white/5 border-white/5 text-white font-display font-black text-[10px] uppercase">
-                                  <SelectValue placeholder="Sélectionner un domaine" />
-                                </SelectTrigger>
-                                <SelectContent className="glass-card border-white/10 bg-[#0A0A0B]/90 text-white backdrop-blur-3xl rounded-2xl max-h-[300px] overflow-y-auto">
-                                  {AI_DOMAINS.map((domain) => (
-                                    <SelectItem key={domain.value} value={domain.value} className="font-display font-black uppercase text-[10px] tracking-widest p-3 hover:bg-brand-primary/10">
-                                      {domain.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                              {activeData.columns?.length > 6 && (
+                                <p className="text-xs text-muted-foreground text-center italic">+ {activeData.columns.length - 6} colonnes supplementaires...</p>
+                              )}
                             </div>
-                            <div className="space-y-3">
-                              <Label className="text-[10px] font-black text-white/30 tracking-[0.3em] uppercase ml-2">Modèle IA</Label>
-                              <Select
-                                value={auditConfig.modelType}
-                                onValueChange={(v) => setAuditConfig(prev => ({ ...prev, modelType: v }))}
-                                disabled={!auditConfig.iaType}
-                              >
-                                <SelectTrigger className="h-14 px-6 rounded-2xl bg-white/5 border-white/5 text-white font-display font-black text-[10px] uppercase">
-                                  <SelectValue placeholder={auditConfig.iaType ? "Sélectionner un modèle" : "Sélectionner d'abord un domaine"} />
-                                </SelectTrigger>
-                                <SelectContent className="glass-card border-white/10 bg-[#0A0A0B]/90 text-white backdrop-blur-3xl rounded-2xl max-h-[300px] overflow-y-auto">
-                                  {AI_DOMAINS
-                                    .find(d => d.value === auditConfig.iaType)
-                                    ?.models.map((model) => (
-                                      <SelectItem
-                                        key={model}
-                                        value={model.toLowerCase().replace(/\s+/g, '_')}
-                                        className="font-display font-black uppercase text-[10px] tracking-widest p-3 hover:bg-brand-primary/10"
-                                      >
-                                        {model}
-                                      </SelectItem>
-                                    )) || null}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </div>
+                          )}
+                        </Card>
+                      )
+                    })()}
+                  </div>
+                )}
 
-                          <div className="space-y-3">
-                            <Label className="text-[10px] font-black text-white/30 tracking-[0.3em] uppercase ml-2">Domaine Métier</Label>
-                            <Select value={auditConfig.useCase} onValueChange={(v) => setAuditConfig(prev => ({ ...prev, useCase: v }))}>
-                              <SelectTrigger className="h-16 px-8 rounded-3xl bg-white/5 border-white/5 text-white font-display font-black">
-                                <SelectValue placeholder="Sélectionner un domaine métier" />
+                {/* STEP 3: CONFIGURATION */}
+                {currentStep === 3 && (
+                  <div className="space-y-10 animate-in fade-in slide-in-from-right-8 duration-700">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
+                      <div className="space-y-6">
+                        <div className="space-y-2">
+                          <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Designation de l'Audit</Label>
+                          <Input
+                            value={auditConfig.name}
+                            onChange={(e) => setAuditConfig(prev => ({ ...prev, name: e.target.value }))}
+                            className="h-14 px-6 rounded-xl bg-muted border-border text-foreground font-display font-bold text-lg focus:ring-primary"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Domaine d'IA</Label>
+                            <Select value={auditConfig.iaType} onValueChange={(v) => setAuditConfig(prev => ({ ...prev, iaType: v, modelType: '' }))}>
+                              <SelectTrigger className="h-12 px-4 rounded-xl bg-muted border-border text-foreground font-semibold text-sm">
+                                <SelectValue placeholder="Selectionner un domaine" />
                               </SelectTrigger>
-                              <SelectContent className="glass-card border-white/10 bg-[#0A0A0B]/90 text-white backdrop-blur-3xl rounded-2xl max-h-[400px] overflow-y-auto">
-                                {USE_CASES.map((useCase) => (
-                                  <SelectItem
-                                    key={useCase.value}
-                                    value={useCase.value}
-                                    className="font-display font-black uppercase text-[10px] tracking-widest p-3 hover:bg-brand-primary/10"
-                                  >
-                                    {useCase.icon} {useCase.label}
+                              <SelectContent className="rounded-xl">
+                                {AI_DOMAINS.map((domain) => (
+                                  <SelectItem key={domain.value} value={domain.value} className="font-medium text-sm">
+                                    {domain.label}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
                           </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Modele IA</Label>
+                            <Select
+                              value={auditConfig.modelType}
+                              onValueChange={(v) => setAuditConfig(prev => ({ ...prev, modelType: v }))}
+                              disabled={!auditConfig.iaType}
+                            >
+                              <SelectTrigger className="h-12 px-4 rounded-xl bg-muted border-border text-foreground font-semibold text-sm">
+                                <SelectValue placeholder={auditConfig.iaType ? "Selectionner un modele" : "Selectionner d'abord un domaine"} />
+                              </SelectTrigger>
+                              <SelectContent className="rounded-xl">
+                                {AI_DOMAINS
+                                  .find(d => d.value === auditConfig.iaType)
+                                  ?.models.map((model) => (
+                                    <SelectItem
+                                      key={model}
+                                      value={model.toLowerCase().replace(/\s+/g, '_')}
+                                      className="font-medium text-sm"
+                                    >
+                                      {model}
+                                    </SelectItem>
+                                  )) || null}
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
 
-                        <div className="space-y-4 flex flex-col">
-                          <Label className="text-[10px] font-black text-white/30 tracking-[0.3em] uppercase ml-2">Variable Cible (Target)</Label>
-                          <div className="grid grid-cols-1 gap-2 overflow-y-auto max-h-[350px] pr-2 scrollbar-thin scrollbar-thumb-white/10">
-                            {datasets.pre?.columns?.map((col) => (
-                              <button
-                                key={col.name}
-                                onClick={() => setAuditConfig(prev => ({ ...prev, targetColumn: col.name }))}
-                                className={cn(
-                                  "p-4 rounded-2xl border transition-all duration-500 text-left relative overflow-hidden group/target",
-                                  auditConfig.targetColumn === col.name
-                                    ? "bg-brand-primary border-brand-primary shadow-lg"
-                                    : "bg-white/5 border-white/5 hover:bg-white/10"
-                                )}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <span className={cn("text-xs font-display font-black uppercase tracking-widest", auditConfig.targetColumn === col.name ? "text-white" : "text-white/40")}>
-                                    {col.name}
-                                  </span>
-                                  {auditConfig.targetColumn === col.name && <Target className="h-4 w-4 text-white animate-pulse" />}
-                                </div>
-                              </button>
-                            ))}
-                          </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Domaine Metier</Label>
+                          <Select value={auditConfig.useCase} onValueChange={(v) => setAuditConfig(prev => ({ ...prev, useCase: v }))}>
+                            <SelectTrigger className="h-14 px-6 rounded-xl bg-muted border-border text-foreground font-semibold">
+                              <SelectValue placeholder="Selectionner un domaine metier" />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-xl max-h-[400px] overflow-y-auto">
+                              {USE_CASES.map((useCase) => (
+                                <SelectItem
+                                  key={useCase.value}
+                                  value={useCase.value}
+                                  className="font-medium text-sm"
+                                >
+                                  {useCase.icon} {useCase.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
                       </div>
 
-                      <div className="space-y-6">
-                        <Label className="text-[10px] font-black text-white/30 tracking-[0.3em] uppercase ml-2">Attributs Sensibles à Monitorer</Label>
-                        <div className="flex flex-wrap gap-3">
-                          {datasets.pre?.columns?.filter(c => c.type === 'categorical' || c.type === 'boolean' || c.name.toLowerCase().includes('gender') || c.name.toLowerCase().includes('age')).map((col) => (
+                      <div className="space-y-3 flex flex-col">
+                        <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Variable Cible (Target)</Label>
+                        <div className="grid grid-cols-1 gap-2 overflow-y-auto max-h-[350px] pr-2">
+                          {datasets.pre?.columns?.map((col) => (
                             <button
                               key={col.name}
-                              onClick={() => toggleProtectedAttribute(col.name)}
+                              onClick={() => setAuditConfig(prev => ({ ...prev, targetColumn: col.name }))}
                               className={cn(
-                                "px-6 py-4 rounded-full border transition-all duration-500 font-display font-black text-[10px] uppercase tracking-widest",
-                                auditConfig.protectedAttributes.includes(col.name)
-                                  ? "bg-brand-cotton text-brand-violet border-brand-cotton shadow-[0_0_20px_rgba(183,161,255,0.3)]"
-                                  : "bg-white/5 border-white/5 text-white/40 hover:text-white hover:bg-white/10"
+                                "p-3 rounded-xl border transition-all duration-300 text-left",
+                                auditConfig.targetColumn === col.name
+                                  ? "bg-primary border-primary text-primary-foreground"
+                                  : "bg-muted border-border hover:bg-accent text-foreground"
                               )}
                             >
-                              {col.name}
+                              <div className="flex items-center justify-between">
+                                <span className={cn("text-sm font-display font-semibold", auditConfig.targetColumn === col.name ? "text-primary-foreground" : "text-foreground")}>
+                                  {col.name}
+                                </span>
+                                {auditConfig.targetColumn === col.name && <Target className="h-4 w-4 text-primary-foreground" />}
+                              </div>
                             </button>
                           ))}
                         </div>
                       </div>
                     </div>
-                  )}
 
-                  {/* STEP 4: LAUNCH */}
-                  {currentStep === 4 && (
-                    <div className="h-full flex flex-col items-center justify-center text-center space-y-12 animate-in zoom-in-90 duration-700">
-                      <div className="relative group">
-                        <div className="absolute -inset-12 bg-brand-primary/20 rounded-full blur-[60px] animate-pulse" />
-                        <div className="relative w-40 h-40 rounded-[3rem] bg-gradient-to-br from-brand-primary to-brand-cotton flex items-center justify-center shadow-[0_0_50px_rgba(255,20,147,0.4)] group-hover:scale-110 transition-transform duration-700 cursor-pointer">
-                          <Rocket className="h-20 w-20 text-white animate-bounce-slow" />
-                        </div>
+                    <div className="space-y-4">
+                      <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Attributs Sensibles a Monitorer</Label>
+                      <div className="flex flex-wrap gap-3">
+                        {datasets.pre?.columns?.filter(c => c.type === 'categorical' || c.type === 'boolean' || c.name.toLowerCase().includes('gender') || c.name.toLowerCase().includes('age')).map((col) => (
+                          <button
+                            key={col.name}
+                            onClick={() => toggleProtectedAttribute(col.name)}
+                            className={cn(
+                              "px-5 py-3 rounded-full border transition-all duration-300 font-display font-semibold text-xs",
+                              auditConfig.protectedAttributes.includes(col.name)
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-muted border-border text-muted-foreground hover:text-foreground hover:bg-accent"
+                            )}
+                          >
+                            {col.name}
+                          </button>
+                        ))}
                       </div>
-
-                      <div className="space-y-3">
-                        <h2 className="text-4xl md:text-5xl font-display font-black text-white uppercase italic tracking-tighter">PRÊT AU <span className="text-brand-primary">LANCEMENT</span></h2>
-                        <p className="text-lg text-white/40 font-display font-medium max-w-lg mx-auto leading-tight">
-                          Tous les systèmes sont opérationnels. AuditIQ est prêt à lancer votre analyse.
-                        </p>
-                      </div>
-
-                      <Button
-                        size="xl"
-                        onClick={handleLaunchAudit}
-                        disabled={launching}
-                        className="h-20 px-20 rounded-3xl bg-brand-primary hover:bg-brand-primary/90 text-white font-display font-black text-xl uppercase tracking-[0.3em] shadow-2xl shadow-brand-primary/40 group/btn transition-all active:scale-95"
-                      >
-                        {launching ? (
-                          <>
-                            <Loader2 className="h-8 w-8 mr-4 animate-spin" />
-                            SEQUENCING...
-                          </>
-                        ) : (
-                          <>
-                            DÉPLOYER L'INSPECTION
-                            <ChevronRight className="h-6 w-6 ml-4 group-hover:translate-x-2 transition-transform" />
-                          </>
-                        )}
-                      </Button>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
 
-                {/* Navigation Bar */}
-                <div className="pt-16 border-t border-white/5 flex items-center justify-between z-10">
-                  <Button
-                    variant="ghost"
-                    onClick={handlePrevStep}
-                    disabled={currentStep === 1 || launching}
-                    className="h-14 px-10 rounded-2xl font-display font-black uppercase text-[10px] tracking-[0.3em] text-white/20 hover:text-white"
-                  >
-                    <ArrowLeft className="h-4 w-4 mr-4" />
-                    RETOUR
-                  </Button>
+                {/* STEP 4: LAUNCH */}
+                {currentStep === 4 && (
+                  <div className="h-full flex flex-col items-center justify-center text-center space-y-10 animate-in zoom-in-90 duration-700">
+                    <div className="relative">
+                      <div className="w-32 h-32 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                        <Rocket className="h-16 w-16 text-primary" />
+                      </div>
+                    </div>
 
-                  {currentStep < 4 && (
+                    <div className="space-y-3">
+                      <h2 className="text-2xl md:text-3xl font-display font-bold text-foreground">Pret a <span className="text-primary">Lancer</span></h2>
+                      <p className="text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
+                        Tous les systemes sont operationnels. AuditIQ est pret a lancer votre analyse.
+                      </p>
+                    </div>
+
                     <Button
-                      onClick={handleNextStep}
-                      className="h-14 px-12 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-display font-black uppercase text-[10px] tracking-[0.3em] shadow-2xl hover:scale-105 active:scale-95 transition-all"
+                      size="lg"
+                      onClick={handleLaunchAudit}
+                      disabled={launching}
+                      className="h-16 px-16 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-display font-bold text-lg group/btn transition-all active:scale-95"
                     >
-                      CONTINUER
-                      <ArrowRight className="h-4 w-4 ml-4" />
+                      {launching ? (
+                        <>
+                          <Loader2 className="h-6 w-6 mr-3 animate-spin" />
+                          Analyse en cours...
+                        </>
+                      ) : (
+                        <>
+                          Lancer l'audit
+                          <ChevronRight className="h-5 w-5 ml-3 group-hover/btn:translate-x-1 transition-transform" />
+                        </>
+                      )}
                     </Button>
-                  )}
-                </div>
-
+                  </div>
+                )}
               </div>
+
+              {/* Navigation Bar */}
+              <div className="pt-8 border-t border-border flex items-center justify-between z-10 mt-8">
+                <Button
+                  variant="ghost"
+                  onClick={handlePrevStep}
+                  disabled={currentStep === 1 || launching}
+                  className="h-12 px-8 rounded-xl font-display font-semibold text-sm text-muted-foreground hover:text-foreground"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-3" />
+                  Retour
+                </Button>
+
+                {currentStep < 4 && (
+                  <Button
+                    onClick={handleNextStep}
+                    className="h-12 px-10 rounded-xl bg-accent hover:bg-accent text-foreground border border-border font-display font-semibold text-sm transition-all"
+                  >
+                    Continuer
+                    <ArrowRight className="h-4 w-4 ml-3" />
+                  </Button>
+                )}
+              </div>
+
             </div>
           </div>
-        </div>
+        </Card>
       </div>
     </DashboardShell>
   )

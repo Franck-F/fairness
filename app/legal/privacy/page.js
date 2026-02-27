@@ -7,8 +7,8 @@ import { ThemeToggle } from '@/components/theme-toggle'
 import { Shield, ChevronRight, Lock, Eye, Database, Globe, Mail, User } from 'lucide-react'
 
 export const metadata = {
-  title: 'Politique de Confidentialite - AuditIQ',
-  description: 'Politique de confidentialite et protection des donnees personnelles d\'AuditIQ.',
+  title: 'Politique de Confidentialité - AuditIQ',
+  description: 'Politique de confidentialité et protection des données personnelles d\'AuditIQ.',
 }
 
 const sections = [
@@ -16,83 +16,83 @@ const sections = [
     id: 'introduction',
     title: '1. Introduction',
     icon: Shield,
-    content: `AuditIQ SAS ("nous", "notre", "AuditIQ") s'engage a proteger la vie privee de ses utilisateurs. Cette Politique de Confidentialite explique comment nous collectons, utilisons, stockons et protegeons vos informations personnelles lorsque vous utilisez notre Service.`
+    content: `AuditIQ SAS ("nous", "notre", "AuditIQ") s'engage a protéger la vie privée de ses utilisateurs. Cette Politique de Confidentialité explique comment nous collectons, utilisons, stockons et protégeons vos informations personnelles lorsque vous utilisez notre Service.`
   },
   {
     id: 'collecte',
-    title: '2. Donnees Collectees',
+    title: '2. Données Collectées',
     icon: Database,
-    content: `Nous collectons les categories de donnees suivantes :`,
+    content: `Nous collectons les catégories de données suivantes :`,
     subsections: [
       {
-        title: 'Donnees d\'identification',
-        items: ['Nom et prenom', 'Adresse email', 'Nom de l\'entreprise', 'Fonction']
+        title: 'Données d\'identification',
+        items: ['Nom et prénom', 'Adresse email', 'Nom de l\'entreprise', 'Fonction']
       },
       {
-        title: 'Donnees d\'utilisation',
-        items: ['Logs de connexion', 'Actions realisees sur la plateforme', 'Adresse IP', 'Type de navigateur']
+        title: 'Données d\'utilisation',
+        items: ['Logs de connexion', 'Actions réalisées sur la plateforme', 'Adresse IP', 'Type de navigateur']
       },
       {
-        title: 'Donnees metier',
-        items: ['Datasets uploades pour analyse', 'Configurations d\'audit', 'Resultats d\'audit']
+        title: 'Données métier',
+        items: ['Datasets uploadés pour analyse', 'Configurations d\'audit', 'Résultats d\'audit']
       }
     ]
   },
   {
     id: 'finalites',
-    title: '3. Finalites du Traitement',
+    title: '3. Finalités du Traitement',
     icon: Eye,
-    content: `Vos donnees sont traitees pour les finalites suivantes :`,
+    content: `Vos données sont traitées pour les finalités suivantes :`,
     list: [
       'Fourniture et gestion du Service',
-      'Amelioration de nos algorithmes et de l\'experience utilisateur',
+      'Amélioration de nos algorithmes et de l\'expérience utilisateur',
       'Communication relative au Service (notifications, mises a jour)',
       'Facturation et gestion des abonnements',
-      'Respect de nos obligations legales',
-      'Prevention de la fraude et securite'
+      'Respect de nos obligations légales',
+      'Prévention de la fraude et sécurité'
     ]
   },
   {
     id: 'base-legale',
-    title: '4. Base Legale du Traitement',
+    title: '4. Base Légale du Traitement',
     icon: Lock,
-    content: `Le traitement de vos donnees repose sur : l'execution du contrat de service, notre interet legitime a ameliorer nos services, votre consentement pour certaines communications, et nos obligations legales.`
+    content: `Le traitement de vos données repose sur : l'execution du contrat de service, notre intérêt légitime à améliorer nos services, votre consentement pour certaines communications, et nos obligations légales.`
   },
   {
     id: 'partage',
-    title: '5. Partage des Donnees',
+    title: '5. Partage des Données',
     icon: Globe,
-    content: `Nous ne vendons pas vos donnees personnelles. Nous pouvons partager vos donnees avec :`,
+    content: `Nous ne vendons pas vos données personnelles. Nous pouvons partager vos données avec :`,
     list: [
-      'Nos sous-traitants techniques (hebergement, emailing) sous accord de confidentialite',
-      'Les autorites competentes si la loi l\'exige',
+      'Nos sous-traitants techniques (hébergement, emailing) sous accord de confidentialité',
+      'Les autorités compétentes si la loi l\'exige',
       'En cas de fusion ou acquisition, le repreneur eventuel'
     ]
   },
   {
     id: 'securite',
-    title: '6. Securite des Donnees',
+    title: '6. Sécurité des Données',
     icon: Shield,
-    content: `Nous mettons en oeuvre des mesures de securite techniques et organisationnelles appropriees pour proteger vos donnees : chiffrement en transit (TLS) et au repos, controles d'acces, audits de securite reguliers, formation de nos employes.`
+    content: `Nous mettons en oeuvre des mesures de sécurité techniques et organisationnelles appropriées pour protéger vos données : chiffrement en transit (TLS) et au repos, controles d'acces, audits de sécurité réguliers, formation de nos employés.`
   },
   {
     id: 'conservation',
-    title: '7. Conservation des Donnees',
+    title: '7. Conservation des Données',
     icon: Database,
-    content: `Vos donnees sont conservees pendant la duree de votre utilisation du Service, puis archivees pendant les durees legales applicables (ex: 5 ans pour les donnees de facturation). Les datasets uploades sont supprimes 90 jours apres la cloture du compte.`
+    content: `Vos données sont conservées pendant la durée de votre utilisation du Service, puis archivées pendant les durées légales applicables (ex: 5 ans pour les données de facturation). Les datasets uploadés sont supprimés 90 jours après la clôture du compte.`
   },
   {
     id: 'droits',
     title: '8. Vos Droits (RGPD)',
     icon: User,
-    content: `Conformement au RGPD, vous disposez des droits suivants :`,
+    content: `Conformément au RGPD, vous disposez des droits suivants :`,
     rights: [
-      { name: 'Droit d\'acces', desc: 'obtenir une copie de vos donnees' },
-      { name: 'Droit de rectification', desc: 'corriger des donnees inexactes' },
-      { name: 'Droit a l\'effacement', desc: 'demander la suppression de vos donnees' },
-      { name: 'Droit a la portabilite', desc: 'recevoir vos donnees dans un format structure' },
+      { name: 'Droit d\'accès', desc: 'obtenir une copie de vos données' },
+      { name: 'Droit de rectification', desc: 'corriger des données inexactes' },
+      { name: 'Droit a l\'effacement', desc: 'demander la suppression de vos données' },
+      { name: 'Droit a la portabilité', desc: 'recevoir vos données dans un format structuré' },
       { name: 'Droit d\'opposition', desc: 'vous opposer a certains traitements' },
-      { name: 'Droit a la limitation', desc: 'limiter le traitement de vos donnees' }
+      { name: 'Droit a la limitation', desc: 'limiter le traitement de vos données' }
     ],
     footer: 'Pour exercer vos droits, contactez-nous a : privacy@auditiq.ai'
   },
@@ -100,26 +100,26 @@ const sections = [
     id: 'cookies',
     title: '9. Cookies',
     icon: Eye,
-    content: `Nous utilisons des cookies essentiels au fonctionnement du Service et des cookies analytiques pour comprendre l'utilisation de notre plateforme. Vous pouvez gerer vos preferences de cookies via les parametres de votre navigateur.`
+    content: `Nous utilisons des cookies essentiels au fonctionnement du Service et des cookies analytiques pour comprendre l'utilisation de notre plateforme. Vous pouvez gérer vos préférences de cookies via les paramètres de votre navigateur.`
   },
   {
     id: 'transferts',
     title: '10. Transferts Internationaux',
     icon: Globe,
-    content: `Vos donnees sont hebergees au sein de l'Union Europeenne. En cas de transfert hors UE, nous nous assurons que des garanties appropriees sont mises en place (clauses contractuelles types).`
+    content: `Vos données sont hébergées au sein de l'Union Européenne. En cas de transfert hors UE, nous nous assurons que des garanties appropriées sont mises en place (clauses contractuelles types).`
   },
   {
     id: 'modifications',
     title: '11. Modifications',
     icon: Shield,
-    content: `Nous pouvons modifier cette Politique de Confidentialite. Les modifications importantes vous seront notifiees par email ou via le Service.`
+    content: `Nous pouvons modifier cette Politique de Confidentialité. Les modifications importantes vous seront notifiées par email ou via le Service.`
   },
   {
     id: 'contact',
     title: '12. Contact DPO',
     icon: Mail,
-    content: `Pour toute question relative a la protection de vos donnees, vous pouvez contacter notre Delegue a la Protection des Donnees : dpo@auditiq.ai`,
-    footer: 'Vous disposez egalement du droit d\'introduire une reclamation aupres de la CNIL (www.cnil.fr).'
+    content: `Pour toute question relative a la protection de vos données, vous pouvez contacter notre Délégué à la Protection des Données : dpo@auditiq.ai`,
+    footer: 'Vous disposez également du droit d\'introduire une réclamation auprès de la CNIL (www.cnil.fr).'
   }
 ]
 
@@ -155,15 +155,15 @@ export default function PrivacyPage() {
             <ChevronRight className="h-4 w-4" />
             <span>Legal</span>
             <ChevronRight className="h-4 w-4" />
-            <span className="text-primary">Confidentialite</span>
+            <span className="text-primary">Confidentialité</span>
           </div>
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center">
               <Shield className="h-8 w-8 text-primary" />
             </div>
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold">Politique de Confidentialite</h1>
-              <p className="text-muted-foreground mt-2">Derniere mise a jour : 1er Janvier 2025</p>
+              <h1 className="text-4xl md:text-5xl font-bold">Politique de Confidentialité</h1>
+              <p className="text-muted-foreground mt-2">Dernière mise à jour : 1er Janvier 2025</p>
             </div>
           </div>
         </div>
@@ -176,7 +176,7 @@ export default function PrivacyPage() {
           <Card className="p-6 mb-8 bg-primary/5 border-primary/20">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Lock className="h-5 w-5 text-primary" />
-              Points Cles
+              Points Clés
             </h2>
             <div className="grid md:grid-cols-3 gap-4">
               <div className="text-center p-4 rounded-lg bg-card">
@@ -185,7 +185,7 @@ export default function PrivacyPage() {
               </div>
               <div className="text-center p-4 rounded-lg bg-card">
                 <div className="text-2xl font-bold text-primary">UE</div>
-                <div className="text-sm text-muted-foreground">Hebergement</div>
+                <div className="text-sm text-muted-foreground">Hébergement</div>
               </div>
               <div className="text-center p-4 rounded-lg bg-card">
                 <div className="text-2xl font-bold text-primary">TLS</div>
@@ -259,10 +259,10 @@ export default function PrivacyPage() {
 
           {/* Navigation vers autres pages legales */}
           <Card className="p-6 mt-12 bg-card/50">
-            <h3 className="font-semibold mb-4">Documents juridiques associes</h3>
+            <h3 className="font-semibold mb-4">Documents juridiques associés</h3>
             <div className="flex flex-wrap gap-4">
-              <Link href="/legal/terms" className="text-primary hover:underline">Conditions Generales d'Utilisation</Link>
-              <Link href="/legal/cgu" className="text-primary hover:underline">Mentions Legales</Link>
+              <Link href="/legal/terms" className="text-primary hover:underline">Conditions Générales d'Utilisation</Link>
+              <Link href="/legal/cgu" className="text-primary hover:underline">Mentions Légales</Link>
             </div>
           </Card>
         </div>

@@ -4,32 +4,41 @@
 
 @layer base {
   :root {
-    /* Light theme - inversé pour les utilisateurs qui préfèrent le mode clair */
+    /* Light theme */
     --background: 0 0% 100%;
-    --foreground: 320 7% 16%;
-    --card: 0 0% 98%;
-    --card-foreground: 320 7% 16%;
+    --foreground: 240 10% 10%;
+    --card: 0 0% 97%;
+    --card-foreground: 240 10% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 320 7% 16%;
+    --popover-foreground: 240 10% 10%;
     --primary: 313 95% 46%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 311 20% 21%;
-    --secondary-foreground: 299 48% 83%;
-    --muted: 320 4% 16%;
-    --muted-foreground: 320 7% 50%;
+    --secondary: 300 10% 93%;
+    --secondary-foreground: 240 10% 20%;
+    --muted: 240 5% 93%;
+    --muted-foreground: 240 5% 45%;
     --accent: 311 77% 65%;
     --accent-foreground: 0 0% 0%;
-    --destructive: 0 100% 50%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 311 20% 25%;
-    --input: 311 20% 25%;
+    --border: 240 6% 85%;
+    --input: 240 6% 85%;
     --ring: 313 95% 46%;
     --radius: 0.5rem;
     --chart-1: 313 95% 46%;
     --chart-2: 311 77% 65%;
     --chart-3: 299 48% 83%;
-    --chart-4: 311 20% 21%;
-    --chart-5: 0 100% 50%;
+    --chart-4: 311 20% 40%;
+    --chart-5: 0 84% 60%;
+    /* Sidebar light */
+    --sidebar-background: 240 5% 96%;
+    --sidebar-foreground: 240 10% 10%;
+    --sidebar-primary: 313 95% 46%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 300 10% 90%;
+    --sidebar-accent-foreground: 240 10% 10%;
+    --sidebar-border: 240 6% 85%;
+    --sidebar-ring: 313 95% 46%;
   }
 
   .dark {
@@ -113,49 +122,41 @@
     background: hsl(var(--primary));
   }
 
-  /* Redesign Premium Utilities from Stitch */
+  /* Legacy class kept for backwards compatibility - now theme-aware */
   .glass-card {
-    background: rgba(64, 43, 60, 0.4);
-    -webkit-backdrop-filter: blur(16px);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(226, 8, 161, 0.2);
+    @apply bg-card/80 backdrop-blur-sm border border-border;
   }
 
-  .slanted-sidebar {
-    transform: skewY(-2deg);
-    transform-origin: left top;
+  /* Skeleton loader shimmer */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 25%,
+      hsl(var(--muted) / 0.5) 50%,
+      hsl(var(--muted)) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
   }
 
-  .slanted-sidebar>* {
-    transform: skewY(2deg);
+  /* Focus-visible for accessibility */
+  .focus-ring {
+    @apply outline-none ring-2 ring-primary/50 ring-offset-2 ring-offset-background;
   }
 
-  .glow-border {
-    box-shadow: 0 0 15px rgba(226, 8, 161, 0.15);
+  /* Smooth page transitions */
+  .page-transition {
+    @apply animate-fade-in;
   }
 
-  .bg-orb {
-    position: fixed;
-    width: 600px;
-    height: 600px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(64, 43, 60, 0.3) 0%, rgba(0, 0, 0, 0) 70%);
-    z-index: -1;
-    filter: blur(60px);
-    pointer-events: none;
-  }
+  /* Status badge colors */
+  .status-pass { @apply bg-success/15 text-success border-success/30; }
+  .status-warning { @apply bg-warning/15 text-warning border-warning/30; }
+  .status-fail { @apply bg-destructive/15 text-destructive border-destructive/30; }
 
-  .animate-spin-slow {
-    animation: spin 8s linear infinite;
-  }
-
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-
-    to {
-      transform: rotate(360deg);
-    }
+  /* Skip to main content link for accessibility */
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50;
+    @apply focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-md;
   }
 }

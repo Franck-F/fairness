@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { DashboardShell } from '@/components/dashboard/shell'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { PageHeader } from '@/components/dashboard/page-header'
+import { EmptyState } from '@/components/dashboard/empty-state'
 import {
   Bell,
   CheckCircle2,
@@ -54,10 +55,10 @@ export default function NotificationsPage() {
             notifs.push({
               id: `audit-${audit.id}`,
               type: 'audit',
-              title: `Audit terminé : ${audit.audit_name}`,
+              title: `Audit termine : ${audit.audit_name}`,
               message: audit.bias_detected
-                ? `Score de ${audit.overall_score || 0}%. ${audit.critical_bias_count || 0} biais critique(s) détecté(s).`
-                : `Score de ${audit.overall_score || 0}%. Aucun biais majeur détecté.`,
+                ? `Score de ${audit.overall_score || 0}%. ${audit.critical_bias_count || 0} biais critique(s) detecte(s).`
+                : `Score de ${audit.overall_score || 0}%. Aucun biais majeur detecte.`,
               time: new Date(audit.completed_at || audit.created_at),
               read: false,
               priority: audit.bias_detected ? 'high' : 'normal',
@@ -68,8 +69,8 @@ export default function NotificationsPage() {
               notifs.push({
                 id: `compliance-${audit.id}`,
                 type: 'compliance',
-                title: `Conformité AI Act — ${audit.audit_name}`,
-                message: `Score de ${audit.overall_score || 0}% inférieur au seuil de conformité (80%). Actions recommandées.`,
+                title: `Conformite AI Act -- ${audit.audit_name}`,
+                message: `Score de ${audit.overall_score || 0}% inferieur au seuil de conformite (80%). Actions recommandees.`,
                 time: new Date(audit.completed_at || audit.created_at),
                 read: false,
                 priority: 'high',
@@ -81,8 +82,8 @@ export default function NotificationsPage() {
             notifs.push({
               id: `failed-${audit.id}`,
               type: 'info',
-              title: `Échec de l'analyse : ${audit.audit_name}`,
-              message: 'L\'analyse de fairness n\'a pas pu aboutir. Vérifiez que le backend FastAPI est accessible.',
+              title: `Echec de l'analyse : ${audit.audit_name}`,
+              message: 'L\'analyse de fairness n\'a pas pu aboutir. Verifiez que le backend FastAPI est accessible.',
               time: new Date(audit.created_at),
               read: false,
               priority: 'high',
@@ -95,7 +96,7 @@ export default function NotificationsPage() {
         setNotifications(notifs)
       }
     } catch (error) {
-      console.error('Error fetching notifications:', error)
+      // Silently handle fetch errors
     } finally {
       setLoading(false)
     }
@@ -111,12 +112,12 @@ export default function NotificationsPage() {
 
   const markAllAsRead = () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })))
-    toast.success('Toutes les notifications marquées comme lues')
+    toast.success('Toutes les notifications marquees comme lues')
   }
 
   const deleteNotification = (id) => {
     setNotifications(prev => prev.filter(n => n.id !== id))
-    toast.success('Notification supprimée')
+    toast.success('Notification supprimee')
   }
 
   const getIcon = (type) => {
@@ -135,13 +136,13 @@ export default function NotificationsPage() {
   const getIconColor = (type) => {
     switch (type) {
       case 'audit':
-        return 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+        return 'bg-blue-100 text-blue-600 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20'
       case 'compliance':
-        return 'bg-orange-500/10 text-orange-400 border-orange-500/20'
+        return 'bg-orange-100 text-orange-600 border-orange-200 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20'
       case 'info':
-        return 'bg-purple-500/10 text-purple-400 border-purple-500/20'
+        return 'bg-purple-100 text-purple-600 border-purple-200 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20'
       default:
-        return 'bg-gray-500/10 text-gray-400 border-gray-500/20'
+        return 'bg-muted text-muted-foreground border-border'
     }
   }
 
@@ -151,7 +152,7 @@ export default function NotificationsPage() {
     const hours = Math.floor(diff / (1000 * 60 * 60))
     const days = Math.floor(hours / 24)
 
-    if (hours < 1) return 'À l\'instant'
+    if (hours < 1) return 'A l\'instant'
     if (hours < 24) return `Il y a ${hours}h`
     if (days < 7) return `Il y a ${days}j`
     return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
@@ -159,67 +160,63 @@ export default function NotificationsPage() {
 
   return (
     <DashboardShell>
-      <div className="space-y-10 max-w-4xl mx-auto py-8 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+      <div className="space-y-8 max-w-4xl mx-auto py-8 animate-in fade-in slide-in-from-bottom-6 duration-1000">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-2">
-            <h1 className="text-4xl md:text-5xl font-display font-black tracking-tight text-white leading-none">
-              <span className="text-brand-primary">Notifications</span>
-            </h1>
-            <p className="text-white/40 font-display font-medium text-lg max-w-2xl">
-              Alertes et mises à jour basées sur vos audits de fairness.
-            </p>
-          </div>
-          {unreadCount > 0 && (
-            <Button
-              variant="outline"
-              className="border-white/10 bg-white/5 hover:bg-white/10 text-white rounded-xl"
-              onClick={markAllAsRead}
-            >
-              <Check className="h-4 w-4 mr-2" />
-              Tout marquer comme lu ({unreadCount})
-            </Button>
-          )}
-        </div>
+        <PageHeader
+          icon={Bell}
+          title=""
+          titleHighlight="Notifications"
+          description="Alertes et mises a jour basees sur vos audits de fairness."
+          actions={
+            unreadCount > 0 ? (
+              <Button
+                variant="outline"
+                className="border-border text-foreground rounded-xl"
+                onClick={markAllAsRead}
+              >
+                <Check className="h-4 w-4 mr-2" />
+                Tout marquer comme lu ({unreadCount})
+              </Button>
+            ) : null
+          }
+        />
 
         {/* Loading State */}
         {loading && (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         )}
 
         {/* Empty State */}
         {!loading && notifications.length === 0 && (
-          <div className="glass-card p-16 text-center rounded-[3rem] border-white/5 bg-white/[0.02]">
-            <Inbox className="h-16 w-16 text-white/10 mx-auto mb-4" />
-            <h3 className="text-xl font-display font-black text-white/40 mb-2">Aucune notification</h3>
-            <p className="text-white/20 font-display font-medium text-sm max-w-md mx-auto">
-              Les notifications apparaîtront ici lorsque vos audits seront terminés.
-            </p>
-          </div>
+          <EmptyState
+            icon={Inbox}
+            title="Aucune notification"
+            description="Les notifications apparaitront ici lorsque vos audits seront termines."
+          />
         )}
 
         {/* Notifications List */}
         {!loading && notifications.length > 0 && (
           <div className="space-y-3">
             {notifications.map((notification) => (
-              <div
+              <Card
                 key={notification.id}
                 className={cn(
-                  "glass-card rounded-2xl p-6 border transition-all duration-300 group relative overflow-hidden",
+                  "p-5 transition-all duration-300 relative overflow-hidden",
                   notification.read
-                    ? "bg-white/[0.02] border-white/5"
-                    : "bg-white/[0.05] border-brand-primary/20 shadow-lg shadow-brand-primary/5"
+                    ? "bg-card border-border"
+                    : "bg-primary/5 border-primary/20"
                 )}
               >
                 {!notification.read && (
-                  <div className="absolute top-0 left-0 w-1 h-full bg-brand-primary rounded-l-2xl" />
+                  <div className="absolute top-0 left-0 w-1 h-full bg-primary rounded-l-xl" />
                 )}
 
                 <div className="flex items-start gap-4">
                   <div className={cn(
-                    "w-10 h-10 rounded-xl border flex items-center justify-center flex-shrink-0",
+                    "w-10 h-10 rounded-lg border flex items-center justify-center flex-shrink-0",
                     getIconColor(notification.type)
                   )}>
                     {getIcon(notification.type)}
@@ -228,34 +225,34 @@ export default function NotificationsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <h4 className={cn(
-                        "font-display font-black text-sm",
-                        notification.read ? "text-white/60" : "text-white"
+                        "font-display font-semibold text-sm",
+                        notification.read ? "text-muted-foreground" : "text-foreground"
                       )}>
                         {notification.title}
                       </h4>
                       {notification.priority === 'high' && !notification.read && (
-                        <Badge className="bg-red-500/10 text-red-400 border-red-500/20 text-[9px] font-black">
+                        <Badge className="bg-red-100 text-red-800 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 text-xs font-medium">
                           URGENT
                         </Badge>
                       )}
                     </div>
                     <p className={cn(
                       "text-sm",
-                      notification.read ? "text-white/30" : "text-white/50"
+                      notification.read ? "text-muted-foreground/70" : "text-muted-foreground"
                     )}>
                       {notification.message}
                     </p>
-                    <span className="text-[10px] text-white/20 font-black uppercase tracking-widest mt-2 block">
+                    <span className="text-xs text-muted-foreground/50 font-medium mt-2 block">
                       {formatTime(notification.time)}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="flex items-center gap-1 flex-shrink-0">
                     {!notification.read && (
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-8 w-8 p-0 text-white/30 hover:text-white"
+                        className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
                         onClick={() => markAsRead(notification.id)}
                       >
                         <CheckCircle2 className="h-4 w-4" />
@@ -264,14 +261,14 @@ export default function NotificationsPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 w-8 p-0 text-white/20 hover:text-red-400"
+                      className="h-8 w-8 p-0 text-muted-foreground/50 hover:text-red-500"
                       onClick={() => deleteNotification(notification.id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         )}

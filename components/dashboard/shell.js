@@ -10,7 +10,7 @@ export function DashboardShell({ children }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
   return (
-    <div className="min-h-screen bg-background relative overflow-x-hidden">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <DashboardSidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -20,14 +20,14 @@ export function DashboardShell({ children }) {
 
       <div
         className={cn(
-          'transition-all duration-500 ease-in-out min-h-screen flex flex-col',
-          'ml-0', // Default mobile margin
-          sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-80'
+          'transition-all duration-300 min-h-screen flex flex-col',
+          'ml-0',
+          sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-72'
         )}
       >
         <DashboardHeader onMenuClick={() => setMobileSidebarOpen(true)} />
 
-        <main className="p-6">
+        <main className="flex-1 p-4 lg:p-8">
           {children}
         </main>
       </div>

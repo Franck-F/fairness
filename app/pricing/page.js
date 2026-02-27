@@ -17,13 +17,13 @@ export default function PricingPage() {
   const plans = [
     {
       name: 'Starter',
-      description: 'Pour les petites equipes qui debutent',
+      description: 'Pour les petites équipes qui débutent',
       priceMonthly: 0,
       priceAnnual: 0,
       features: [
         { name: '5 audits par mois', included: true },
         { name: '1 utilisateur', included: true },
-        { name: '6 metriques de fairness', included: true },
+        { name: '6 métriques de fairness', included: true },
         { name: 'Rapports PDF', included: true },
         { name: 'Support email', included: true },
         { name: 'API Access', included: false },
@@ -35,13 +35,13 @@ export default function PricingPage() {
     },
     {
       name: 'Pro',
-      description: 'Pour les equipes en croissance',
+      description: 'Pour les équipes en croissance',
       priceMonthly: 99,
       priceAnnual: 79,
       features: [
         { name: '50 audits par mois', included: true },
         { name: '10 utilisateurs', included: true },
-        { name: '16 metriques de fairness', included: true },
+        { name: '16 métriques de fairness', included: true },
         { name: 'Rapports PDF & Excel', included: true },
         { name: 'Support prioritaire', included: true },
         { name: 'API Access', included: true },
@@ -57,12 +57,12 @@ export default function PricingPage() {
       priceMonthly: null,
       priceAnnual: null,
       features: [
-        { name: 'Audits illimites', included: true },
-        { name: 'Utilisateurs illimites', included: true },
-        { name: '16+ metriques personnalisables', included: true },
+        { name: 'Audits illimités', included: true },
+        { name: 'Utilisateurs illimités', included: true },
+        { name: '16+ métriques personnalisables', included: true },
         { name: 'Rapports White-label', included: true },
-        { name: 'Support dedie 24/7', included: true },
-        { name: 'API Access illimite', included: true },
+        { name: 'Support dédié 24/7', included: true },
+        { name: 'API Access illimité', included: true },
         { name: 'Custom metrics', included: true },
         { name: 'SSO/SAML', included: true },
       ],
@@ -73,12 +73,12 @@ export default function PricingPage() {
 
   const faqs = [
     {
-      question: 'Puis-je changer de plan a tout moment ?',
-      answer: 'Oui, vous pouvez upgrader ou downgrader votre plan a tout moment. Les changements prennent effet immediatement et sont prorotes.',
+      question: 'Puis-je changer de plan à tout moment ?',
+      answer: 'Oui, vous pouvez upgrader ou downgrader votre plan à tout moment. Les changements prennent effet immédiatement et sont proratisés.',
     },
     {
-      question: 'Y a-t-il une periode d\'essai ?',
-      answer: 'Oui, le plan Pro inclut une periode d\'essai gratuite de 14 jours. Aucune carte bancaire requise.',
+      question: 'Y a-t-il une période d\'essai ?',
+      answer: 'Oui, le plan Pro inclut une période d\'essai gratuite de 14 jours. Aucune carte bancaire requise.',
     },
     {
       question: 'Quels modes de paiement acceptez-vous ?',
@@ -86,7 +86,7 @@ export default function PricingPage() {
     },
     {
       question: 'Proposez-vous des remises pour les startups ?',
-      answer: 'Oui, nous offrons 50% de reduction pour les startups eligibles. Contactez-nous pour en savoir plus.',
+      answer: 'Oui, nous offrons 50 % de réduction pour les startups éligibles. Contactez-nous pour en savoir plus.',
     },
   ]
 
@@ -105,7 +105,7 @@ export default function PricingPage() {
             />
           </Link>
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="/about" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">A Propos</Link>
+            <Link href="/about" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">À Propos</Link>
             <Link href="/pricing" className="text-sm font-medium text-primary">Tarifs</Link>
             <Link href="/contact" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Contact</Link>
             <Link href="/blog" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Blog</Link>
@@ -131,7 +131,7 @@ export default function PricingPage() {
             Tarifs Simples et <span className="text-primary">Transparents</span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8 text-center">
-            Choisissez le plan adapte a vos besoins. Commencez gratuitement et evoluez selon votre croissance.
+            Choisissez le plan adapté à vos besoins. Commencez gratuitement et évoluez selon votre croissance.
           </p>
           
           {/* Billing Toggle */}
@@ -165,7 +165,7 @@ export default function PricingPage() {
                       </span>
                       <span className="text-muted-foreground">/mois</span>
                       {annual && plan.priceAnnual > 0 && (
-                        <p className="text-sm text-muted-foreground">Facture annuellement</p>
+                        <p className="text-sm text-muted-foreground">Facturé annuellement</p>
                       )}
                     </>
                   ) : (
@@ -202,7 +202,7 @@ export default function PricingPage() {
       {/* FAQ Section */}
       <section className="py-16 bg-muted/30 border-y border-border">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Questions Frequentes</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Questions fréquentes</h2>
           <div className="max-w-3xl mx-auto space-y-6">
             {faqs.map((faq, index) => (
               <Card key={index} className="p-6 bg-card">
@@ -223,9 +223,9 @@ export default function PricingPage() {
       <section className="container mx-auto px-4 py-16">
         <Card className="p-12 bg-card border-2 border-border text-center">
           <h2 className="text-3xl font-bold mb-4">Des Questions sur nos Tarifs ?</h2>
-          <p className="text-lg mb-8 text-muted-foreground">Notre equipe est la pour vous aider a choisir le plan ideal</p>
+          <p className="text-lg mb-8 text-muted-foreground">Notre équipe est là pour vous aider à choisir le plan idéal</p>
           <Link href="/contact">
-            <Button size="lg">Contacter l'Equipe</Button>
+            <Button size="lg">Contacter l'équipe</Button>
           </Link>
         </Card>
       </section>
