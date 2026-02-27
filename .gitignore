@@ -4,6 +4,11 @@
 .idea/
 .vscode/
 
+# AI tools config
+.agents/
+.claude/
+skills/
+
 # Dependencies
 node_modules/
 /node_modules
@@ -35,6 +40,8 @@ dist/
 .env.development.local
 .env.test.local
 .env.production.local
+*.env
+*.env.*
 *token.json*
 *credentials.json*
 
@@ -83,19 +90,3 @@ agenthub/agents/youtube/db
 
 # Emergent
 .emergent/summary.txt
-node_modules/@next/swc-linux-arm64-gnu/next-swc.linux-arm64-gnu.node
-node_modules/@next/swc-linux-arm64-musl/next-swc.linux-arm64-musl.node
--e 
-# Environment files
-*.env
-*.env.*
-.next/cache/webpack/server-production/0.pack
-.next/cache/webpack/client-production/0.pack
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
