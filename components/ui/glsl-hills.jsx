@@ -140,8 +140,8 @@ export function GLSLHills({ width = '100%', height = '100%', cameraZ = 125, plan
               varying vec3 vPosition;
 
               void main(void) {
-                float opacity = (96.0 - length(vPosition)) / 256.0 * 0.6;
-                vec3 color = vec3(0.91, 0.02, 0.71);
+                float opacity = clamp((96.0 - length(vPosition)) / 256.0 * 1.15, 0.0, 0.9);
+                vec3 color = vec3(0.84, 0.86, 0.90);
                 gl_FragColor = vec4(color, opacity);
               }
             `,

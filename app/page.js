@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -23,11 +23,12 @@ import {
 
 import { Button } from '@/components/ui/button'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import { GLSLHills } from '@/components/ui/glsl-hills'
 import { MarketingFooter } from '@/components/ui/marketing-footer'
 
 const logoUrl = 'https://customer-assets.emergentagent.com/job_auditiq/artifacts/snxql2e8_logo%20audiot-iq%20big%20without%20bg.png.png'
 
-const trustSignals = ['AI Act prêt', 'Suivi des biais', 'Piste d audit', 'Explicabilité', 'Scoring de risque']
+const trustSignals = ['AI Act prêt', 'Suivi des biais', 'Piste d\'audit', 'Explicabilité', 'Scoring de risque']
 
 const services = [
   {
@@ -111,7 +112,7 @@ const caseStudies = [
       'Une fintech B2B utilisait plusieurs modèles de scoring sans vision unifiée de ses risques. AuditIQ a centralisé les métriques, les écarts et les preuves.',
     stats: ['68% de temps gagné', '4 équipes alignées', 'Rapport AI Act prêt'],
     image:
-      'https://images.unsplash.com/photo-1556740749-887f6717d7e4?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=900&q=80',
   },
   {
     company: 'Mediance',
@@ -120,7 +121,7 @@ const caseStudies = [
       'Une entreprise healthtech avait besoin d’une preuve continue de conformité pour ses modèles d’aide à la décision.',
     stats: ['80% moins de friction', 'Piste d audit complète', 'Alertes de dérive actives'],
     image:
-      'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80',
   },
   {
     company: 'ScaleOps',
@@ -129,7 +130,7 @@ const caseStudies = [
       'Pour une scale-up SaaS, AuditIQ a servi de centre de pilotage partagé entre produit, data et direction des risques.',
     stats: ['3x plus de visibilité', 'Plans d’action priorisés', 'Indicateurs alignés métier'],
     image:
-      'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=900&q=80',
   },
 ]
 
@@ -168,8 +169,19 @@ const benefits = [
 
 const pricingPlans = [
   {
+    name: 'Essai gratuit',
+    monthly: 0,
+    annual: 0,
+    description: 'Pour tester la plateforme sur un cas d usage réel, sans engagement.',
+    features: ['1 projet actif', 'Métriques de base', 'Rapport synthétique', 'Support communautaire'],
+    cta: 'Essayer gratuitement',
+    href: '/signup',
+    featured: false,
+  },
+  {
     name: 'Starter',
-    price: '37€',
+    monthly: 37,
+    annual: 31,
     description: 'Pour lancer vos premiers audits et structurer un socle de gouvernance.',
     features: ['3 projets actifs', 'Mesures d équité essentielles', 'Exports PDF', 'Support par e-mail'],
     cta: 'Commencer',
@@ -178,7 +190,8 @@ const pricingPlans = [
   },
   {
     name: 'Professionnel',
-    price: '75€',
+    monthly: 75,
+    annual: 62,
     description: 'Pour les équipes qui veulent industrialiser la revue des modèles à risque.',
     features: ['Automations avancées', 'Scénarios what-if', 'Collaboration équipe', 'Rapports prioritaires'],
     cta: 'Demander une démo',
@@ -187,7 +200,8 @@ const pricingPlans = [
   },
   {
     name: 'Entreprise',
-    price: 'Sur mesure',
+    monthly: null,
+    annual: null,
     description: 'Pour les organisations soumises à des exigences fortes de preuve et de gouvernance.',
     features: ['SSO & gouvernance', 'Programmes dédiés', 'Conformité continue', 'Support expert'],
     cta: 'Planifier un échange',
@@ -196,70 +210,57 @@ const pricingPlans = [
   },
 ]
 
-const testimonials = [
-  {
-    name: 'Claire Martin',
-    role: 'Chief Risk Officer, Novaly',
-    quote:
-      'Le produit donne une structure claire aux discussions entre conformité, data science et produit. Avant, chacun regardait des indicateurs différents.',
-  },
-  {
-    name: 'Rayan Belkacem',
-    role: 'Head of AI, Synthema',
-    quote:
-      'Nous avons enfin un historique propre des évaluations et des décisions prises sur nos modèles critiques.',
-  },
-  {
-    name: 'Ines Dubreuil',
-    role: 'VP Product, Orphic',
-    quote:
-      'La force d AuditIQ, c est de rendre les sujets d équité lisibles pour des équipes non techniques.',
-  },
-  {
-    name: 'David Fofana',
-    role: 'Responsable conformite, Helios Data',
-    quote:
-      'Les rapports sortent plus vite, avec un niveau de preuve nettement meilleur. Cela change la préparation des revues internes.',
-  },
-]
-
 const faqs = [
   {
     question: 'Comment AuditIQ aide-t-il pour l’AI Act ?',
     answer:
-      'La plateforme transforme les exigences de contrôle en métriques, rapports et journaux d’évidence exploitables par vos équipes.',
+      'AuditIQ convertit les exigences de gouvernance en contrôles opérationnels: métriques d’équité, seuils, journaux d’évidence et rapports prêts à partager en revue interne ou avec vos interlocuteurs conformité.',
   },
   {
     question: 'Peut-on connecter nos modèles et datasets existants ?',
     answer:
-      'Oui. L’objectif est de s’intégrer à votre environnement existant pour éviter une refonte complète des flux data.',
+      'Oui. La plateforme s’intègre à vos flux existants pour éviter une refonte lourde: vous conservez vos pipelines actuels et ajoutez une couche de pilotage, de traçabilité et de priorisation.',
   },
   {
     question: 'Les équipes non techniques peuvent-elles suivre les audits ?',
     answer:
-      'Oui. Les tableaux de bord, priorités et plans d’action sont pensés pour être lisibles par le produit, le légal et la direction.',
+      'Oui. Les tableaux de bord sont conçus pour les équipes produit, conformité et direction: statuts, risques, décisions et plans d’action sont lisibles sans expertise ML avancée.',
   },
   {
     question: 'Faut-il une équipe conformité dédiée pour démarrer ?',
     answer:
-      'Non. AuditIQ aide justement à formaliser une gouvernance progressive, même quand l’organisation est encore en structuration.',
+      'Non. Vous pouvez démarrer avec une équipe réduite. AuditIQ vous aide à poser un cadre progressif, clarifier les rôles et structurer les décisions au fur et à mesure de votre montée en maturité.',
   },
   {
     question: 'Proposez-vous un accompagnement ?',
     answer:
-      'Oui. Des parcours d’onboarding, de cadrage et d’assistance experte peuvent être ajoutés selon le niveau de maturité de votre organisation.',
+      'Oui. Nous proposons des parcours d’onboarding, de cadrage métrique et d’accompagnement expert pour accélérer la mise en place, sécuriser les premiers cycles d’audit et rendre vos équipes autonomes.',
+  },
+  {
+    question: 'Combien de temps faut-il pour un premier audit exploitable ?',
+    answer:
+      'La plupart des équipes obtiennent un premier audit actionnable en quelques jours, selon la qualité des données, la disponibilité des modèles et le niveau de gouvernance déjà en place.',
+  },
+  {
+    question: 'Peut-on prioriser les écarts par criticité métier ?',
+    answer:
+      'Oui. Vous pouvez classer les constats selon le niveau de risque, l’impact métier et l’urgence de remédiation afin de concentrer les efforts sur les écarts réellement critiques.',
+  },
+  {
+    question: 'Comment fonctionne l’essai gratuit à 0€ ?',
+    answer:
+      'L’essai gratuit permet de valider la valeur de la plateforme sur un cas réel, avec un périmètre initial clair. Vous pouvez ensuite évoluer vers une offre supérieure sans rupture de continuité.',
+  },
+  {
+    question: 'Les résultats peuvent-ils être partagés avec les parties prenantes ?',
+    answer:
+      'Oui. Les rapports et historiques d’audit sont conçus pour être partageables avec les responsables produit, la conformité, la direction et les équipes techniques, avec un niveau de preuve cohérent.',
   },
 ]
 
-function GridGlow() {
-  return (
-    <div className="pointer-events-none absolute inset-0 opacity-40">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(153,66,255,0.28),transparent_22%),radial-gradient(circle_at_50%_30%,rgba(226,8,161,0.24),transparent_18%),linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:auto,auto,44px_44px,44px_44px]" />
-    </div>
-  )
-}
-
 function MetricPanel({ title, rows }) {
+  const loopRows = [...rows, ...rows]
+
   return (
     <div className="rounded-[28px] border border-white/10 bg-[#111113] p-4 shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
       <div className="mb-4 flex items-center justify-between">
@@ -273,18 +274,64 @@ function MetricPanel({ title, rows }) {
           <span className="h-2 w-2 rounded-full bg-brand-primary" />
         </div>
       </div>
-      <div className="space-y-2">
-        {rows.map((row, index) => (
-          <div key={row} className="flex items-center justify-between rounded-2xl border border-white/6 bg-white/[0.03] px-3 py-2.5">
-            <div>
-              <p className="text-[11px] text-white/80">{row}</p>
-              <p className="text-[10px] text-white/30">Point d audit {index + 1}</p>
+      <div className="relative h-[154px] overflow-hidden">
+        <motion.div
+          animate={{ y: ['0%', '-50%'] }}
+          transition={{ duration: 8.5, repeat: Infinity, ease: 'linear' }}
+          className="space-y-2"
+        >
+          {loopRows.map((row, index) => (
+            <div key={`${row}-${index}`} className="flex items-center justify-between rounded-2xl border border-white/6 bg-white/[0.03] px-3 py-2.5">
+              <div>
+                <p className="text-[11px] text-white/80">{row}</p>
+                <p className="text-[10px] text-white/30">Point d'audit {(index % rows.length) + 1}</p>
+              </div>
+              <span className="rounded-full border border-brand-primary/30 bg-brand-primary/10 px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-brand-cotton">
+                Active
+              </span>
             </div>
-            <span className="rounded-full border border-brand-primary/30 bg-brand-primary/10 px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-brand-cotton">
-              Active
-            </span>
-          </div>
-        ))}
+          ))}
+        </motion.div>
+      </div>
+    </div>
+  )
+}
+
+function MetricPanelTicker({ title, rows }) {
+  const loopRows = [...rows, ...rows]
+
+  return (
+    <div className="rounded-[28px] border border-white/10 bg-[#111113] p-4 shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <p className="text-[11px] font-semibold text-white/85">{title}</p>
+          <p className="text-[10px] text-white/35">Couche de contrôle en direct</p>
+        </div>
+        <div className="flex gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-white/15" />
+          <span className="h-2 w-2 rounded-full bg-white/15" />
+          <span className="h-2 w-2 rounded-full bg-brand-primary" />
+        </div>
+      </div>
+
+      <div className="relative h-[152px] overflow-hidden">
+        <motion.div
+          animate={{ y: ['0%', '-50%'] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+          className="space-y-2"
+        >
+          {loopRows.map((row, index) => (
+            <div key={`${row}-${index}`} className="flex items-center justify-between rounded-2xl border border-white/6 bg-white/[0.03] px-3 py-2.5">
+              <div>
+                <p className="text-[11px] text-white/80">{row}</p>
+                <p className="text-[10px] text-white/30">Point d'audit {(index % rows.length) + 1}</p>
+              </div>
+              <span className="rounded-full border border-brand-primary/30 bg-brand-primary/10 px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-brand-cotton">
+                Active
+              </span>
+            </div>
+          ))}
+        </motion.div>
       </div>
     </div>
   )
@@ -304,6 +351,9 @@ function SectionHeading({ eyebrow, title, description, centered = false }) {
 
 export default function LandingPage() {
   const router = useRouter()
+  const helperPrompt = 'Génère un rapport AI Act et liste les écarts à corriger avant validation interne.'
+  const [typedPrompt, setTypedPrompt] = useState('')
+  const [isAnnual, setIsAnnual] = useState(true)
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -320,14 +370,49 @@ export default function LandingPage() {
     checkAuth()
   }, [router])
 
+  useEffect(() => {
+    let charIndex = 0
+    let isDeleting = false
+    let timer
+
+    const loopTyping = () => {
+      if (!isDeleting) {
+        const next = helperPrompt.slice(0, charIndex + 1)
+        setTypedPrompt(next)
+        charIndex += 1
+
+        if (charIndex >= helperPrompt.length) {
+          isDeleting = true
+          timer = setTimeout(loopTyping, 1400)
+          return
+        }
+
+        timer = setTimeout(loopTyping, 30)
+        return
+      }
+
+      const next = helperPrompt.slice(0, Math.max(0, charIndex - 1))
+      setTypedPrompt(next)
+      charIndex -= 1
+
+      if (charIndex <= 0) {
+        isDeleting = false
+        timer = setTimeout(loopTyping, 480)
+        return
+      }
+
+      timer = setTimeout(loopTyping, 18)
+    }
+
+    loopTyping()
+    return () => clearTimeout(timer)
+  }, [])
+
   return (
     <div className="bg-[#050505] text-white">
-      <div className="relative overflow-hidden">
-        <GridGlow />
-        <div className="absolute left-1/2 top-16 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(170,79,255,0.55)_0%,rgba(105,33,158,0.25)_38%,rgba(0,0,0,0)_68%)] blur-2xl" />
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+      <div className="relative">
 
-        <header className="relative z-10">
+        <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#050505]/80 backdrop-blur-xl">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-10">
             <Link href="/" className="flex items-center gap-3">
               <Image src={logoUrl} alt="AuditIQ" width={112} height={26} className="h-auto w-[104px] brightness-150" />
@@ -358,18 +443,29 @@ export default function LandingPage() {
           </div>
         </header>
 
-        <main className="relative z-10">
-          <section className="px-5 pb-14 pt-10 sm:px-8 sm:pb-16 sm:pt-16 lg:px-10 lg:pb-24 lg:pt-20">
-            <div className="mx-auto max-w-7xl">
-              <div className="mx-auto max-w-4xl text-center">
+        <main className="relative z-10 pt-20 sm:pt-24">
+          <section className="relative overflow-hidden px-5 pb-14 pt-10 sm:px-8 sm:pb-16 sm:pt-16 lg:px-10 lg:pb-24 lg:pt-20">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+
+            <div className="relative z-10 mx-auto max-w-7xl">
+              <div className="relative isolate mx-auto max-w-4xl text-center">
+                <div className="pointer-events-none absolute left-1/2 top-8 z-0 h-[460px] w-screen -translate-x-1/2 opacity-100 [mask-image:linear-gradient(to_bottom,transparent_0%,black_26%,black_78%,transparent_100%)]">
+                  <GLSLHills className="h-full w-full" speed={0.48} cameraZ={104} planeSize={256} />
+                </div>
+                <div className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-56 bg-gradient-to-b from-[#050505] via-[#050505]/70 to-transparent" />
+
+                <div className="relative z-10">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.24em] text-white/70"
+                  className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-[#140a14]/90 p-1 pr-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/85 shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_10px_30px_rgba(226,8,161,0.22)]"
                 >
-                  <Sparkles className="h-3.5 w-3.5 text-brand-cotton" />
-                  Plateforme de gouvernance IA
+                  <span className="inline-flex items-center gap-1 rounded-full bg-brand-primary px-2.5 py-1 text-[10px] tracking-[0.08em] text-white">
+                    <Sparkles className="h-3 w-3" />
+                    Nouveau
+                  </span>
+                  Workflow d'audit automatisé
                 </motion.div>
 
                 <motion.h1
@@ -378,7 +474,7 @@ export default function LandingPage() {
                   transition={{ duration: 0.6, delay: 0.1 }}
                   className="mx-auto mt-8 max-w-3xl text-4xl font-semibold leading-[1.02] text-white sm:text-5xl md:text-6xl lg:text-7xl"
                 >
-                  Pilotez la conformité de vos modèles IA avec une clarté opérationnelle.
+                  Pilotez la conformité IA en toute clarté.
                 </motion.h1>
 
                 <motion.p
@@ -411,6 +507,7 @@ export default function LandingPage() {
                     Voir une démo
                   </Button>
                 </motion.div>
+                </div>
               </div>
 
               <div className="mt-14 grid gap-6 lg:mt-20 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
@@ -429,44 +526,98 @@ export default function LandingPage() {
                     </span>
                   </div>
                   <div className="mt-6 grid gap-4 md:grid-cols-[1fr_1.15fr]">
-                    <div className="rounded-[24px] border border-white/8 bg-black/30 p-4">
-                      <p className="text-[11px] font-semibold text-white/85">Toutes les taches</p>
+                    <motion.div
+                      initial={{ opacity: 0, x: -16 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.45, delay: 0.52 }}
+                      className="rounded-[24px] border border-white/8 bg-black/30 p-4"
+                    >
+                      <p className="text-[11px] font-semibold text-white/85">Toutes les tâches</p>
                       <div className="mt-4 space-y-3">
                         {[
-                          ['Seuil de biais depasse', 'Revue en attente'],
-                          ['Revue de derive du modele', '2 jours restants'],
-                          ['Workflow de validation', 'Signature legale'],
-                          ['Cartographie AI Act UE', 'Pret'],
-                        ].map(([title, meta]) => (
-                          <div key={title} className="flex items-center justify-between rounded-2xl border border-white/6 bg-white/[0.03] px-3 py-3">
+                          ['Seuil de biais dépassé', 'Revue en attente'],
+                          ['Revue de dérive du modèle', '2 jours restants'],
+                          ['Workflow de validation', 'Signature légale'],
+                          ['Cartographie AI Act (UE)', 'Prêt'],
+                        ].map(([title, meta], index) => (
+                          <motion.div
+                            key={title}
+                            initial={{ opacity: 0, y: 14 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3, delay: 0.58 + index * 0.07 }}
+                            whileHover={{ y: -2, borderColor: 'rgba(255,255,255,0.16)' }}
+                            className="flex items-center justify-between rounded-2xl border border-white/6 bg-white/[0.03] px-3 py-3"
+                          >
                             <div>
                               <p className="text-[11px] text-white/85">{title}</p>
                               <p className="text-[10px] text-white/35">{meta}</p>
                             </div>
-                            <div className="h-2 w-2 rounded-full bg-brand-primary" />
-                          </div>
+                            <motion.span
+                              className="h-2 w-2 rounded-full bg-brand-primary"
+                              animate={{ opacity: [0.55, 1, 0.55], scale: [1, 1.35, 1] }}
+                              transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut', delay: index * 0.16 }}
+                            />
+                          </motion.div>
                         ))}
                       </div>
-                    </div>
+                    </motion.div>
                     <div className="grid gap-4">
-                      <MetricPanel title="Vue d equite" rows={['Parite de validation', 'Ecart de faux positifs', 'Equilibre de population']} />
-                      <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] p-4">
+                      <MetricPanelTicker title="Vue d\'équité" rows={['Parité de validation', 'Écart de faux positifs', 'Équilibre de population']} />
+                      <motion.div
+                        initial={{ opacity: 0, x: 14 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.4, delay: 0.64 }}
+                        whileHover={{ y: -3 }}
+                        className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] p-4"
+                      >
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-[11px] font-semibold text-white/85">Comment puis-je aider ?</p>
-                            <p className="text-[10px] text-white/35">Assistant conformite</p>
+                            <p className="text-[10px] text-white/35">Assistant conformité</p>
                           </div>
-                          <Sparkles className="h-4 w-4 text-brand-cotton" />
+                          <motion.div
+                            animate={{ rotate: [0, 10, -8, 0], scale: [1, 1.08, 1] }}
+                            transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+                          >
+                            <Sparkles className="h-4 w-4 text-brand-cotton" />
+                          </motion.div>
                         </div>
-                        <div className="mt-5 rounded-2xl border border-brand-primary/20 bg-brand-primary/10 px-4 py-3 text-sm text-white/85">
-                          Génère un rapport AI Act et liste les écarts à corriger avant validation interne.
-                        </div>
+                        <motion.div
+                          className="mt-5 rounded-2xl border border-brand-primary/20 bg-brand-primary/10 text-sm text-white/85"
+                          animate={{ boxShadow: ['0 0 0 rgba(226,8,161,0)', '0 0 24px rgba(226,8,161,0.2)', '0 0 0 rgba(226,8,161,0)'] }}
+                          transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
+                        >
+                          <div className="relative min-h-[96px] px-4 py-3">
+                            <span aria-hidden className="invisible block leading-7">
+                              {helperPrompt}
+                            </span>
+                            <span className="absolute inset-0 px-4 py-3 leading-7">
+                              {typedPrompt}
+                              <motion.span
+                                aria-hidden
+                                className="ml-0.5 inline-block text-brand-cotton"
+                                animate={{ opacity: [1, 0, 1] }}
+                                transition={{ duration: 0.9, repeat: Infinity, ease: 'linear' }}
+                              >
+                                |
+                              </motion.span>
+                            </span>
+                          </div>
+                        </motion.div>
                         <div className="mt-4 flex flex-wrap gap-2 text-[10px] text-white/55">
-                          {['Analyser', 'Brouillon rapport', 'Assigner responsable'].map((item) => (
-                            <span key={item} className="rounded-full border border-white/10 px-3 py-1">{item}</span>
+                          {['Analyser', 'Brouillon de rapport', 'Assigner un responsable'].map((item, index) => (
+                            <motion.span
+                              key={item}
+                              initial={{ opacity: 0, y: 8 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.25, delay: 0.72 + index * 0.05 }}
+                              className="rounded-full border border-white/10 px-3 py-1"
+                            >
+                              {item}
+                            </motion.span>
                           ))}
                         </div>
-                      </div>
+                      </motion.div>
                     </div>
                   </div>
                 </motion.div>
@@ -478,16 +629,29 @@ export default function LandingPage() {
                   className="space-y-4"
                 >
                   <div className="rounded-[30px] border border-white/10 bg-white/[0.03] p-5">
-                    <p className="text-[10px] uppercase tracking-[0.24em] text-white/45">Plus de 50 equipes font confiance a une supervision IA structuree</p>
+                    <p className="text-[10px] uppercase tracking-[0.24em] text-white/45">Plus de 50 équipes font confiance à une supervision IA structurée</p>
                     <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                      {trustSignals.map((signal) => (
-                        <div key={signal} className="rounded-2xl border border-white/8 bg-black/25 px-4 py-3 text-[11px] font-medium text-white/75">
+                      {trustSignals.map((signal, index) => (
+                        <motion.div
+                          key={signal}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.28, delay: 0.58 + index * 0.06 }}
+                          whileHover={{ y: -2, borderColor: 'rgba(255,255,255,0.18)' }}
+                          className="rounded-2xl border border-white/8 bg-black/25 px-4 py-3 text-[11px] font-medium text-white/75"
+                        >
                           {signal}
-                        </div>
+                        </motion.div>
                       ))}
                     </div>
                   </div>
-                  <div className="rounded-[30px] border border-white/10 bg-[linear-gradient(135deg,rgba(226,8,161,0.14),rgba(119,55,255,0.08)_45%,rgba(255,255,255,0.03))] p-6">
+                  <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.7 }}
+                    whileHover={{ y: -4 }}
+                    className="rounded-[30px] border border-white/10 bg-[linear-gradient(135deg,rgba(226,8,161,0.14),rgba(119,55,255,0.08)_45%,rgba(255,255,255,0.03))] p-6"
+                  >
                     <div className="flex items-center gap-3">
                       <div className="rounded-2xl bg-black/30 p-3">
                         <FileCheck2 className="h-5 w-5 text-brand-cotton" />
@@ -500,18 +664,18 @@ export default function LandingPage() {
                     <p className="mt-5 text-sm leading-7 text-white/70">
                       Chaque audit alimente un historique traçable, avec statut, responsable, justification et plan de remédiation associé.
                     </p>
-                  </div>
+                  </motion.div>
                 </motion.div>
               </div>
             </div>
           </section>
 
-          <section className="border-t border-white/8 px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
+          <section className="px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
             <div className="mx-auto max-w-7xl">
               <SectionHeading
                 eyebrow="Nos services"
-                title="Une architecture de contrôle inspirée du template, mais pensée pour AuditIQ"
-                description="On reprend la logique visuelle des captures Framer : grands blocs alternés, panneaux produit sombres, hiérarchie simple et CTA visibles."
+                title="Des services concrets pour cadrer, auditer et fiabiliser vos modèles IA"
+                description="De la cartographie des risques à la remédiation continue, chaque service vous aide à industrialiser la conformité sans alourdir vos équipes."
                 centered
               />
 
@@ -534,12 +698,18 @@ export default function LandingPage() {
                       </span>
                       <h3 className="mt-5 max-w-xl text-2xl font-semibold leading-tight text-white sm:text-3xl">{service.title}</h3>
                       <p className="mt-4 max-w-xl text-sm leading-7 text-white/60">{service.description}</p>
-                      <div className="mt-6 flex flex-wrap gap-2.5">
-                        {service.bullets.map((bullet) => (
-                          <span key={bullet} className="rounded-full border border-white/10 bg-black/25 px-3 py-1.5 text-[11px] text-white/72">
-                            {bullet}
-                          </span>
-                        ))}
+                      <div className="mt-6 overflow-hidden">
+                        <motion.div
+                          animate={{ x: ['0%', '-50%'] }}
+                          transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+                          className="flex w-max gap-2.5"
+                        >
+                          {[...service.bullets, ...service.bullets].map((bullet, bulletIndex) => (
+                            <span key={`${bullet}-${bulletIndex}`} className="rounded-full border border-white/10 bg-black/25 px-3 py-1.5 text-[11px] text-white/72">
+                              {bullet}
+                            </span>
+                          ))}
+                        </motion.div>
                       </div>
                     </div>
                   </motion.div>
@@ -552,8 +722,8 @@ export default function LandingPage() {
             <div className="mx-auto max-w-7xl">
               <SectionHeading
                 eyebrow="Notre process"
-                title="Un processus simple, visible et industrialisable"
-                description="La landing Framer met beaucoup l’accent sur le déroulé opérationnel. Ici on garde cette logique, mais on l’ancre dans la réalité d’un audit de conformité IA."
+                title="Un processus clair pour piloter vos audits de conformité IA"
+                description="De l’analyse initiale à l’optimisation continue, chaque étape structure la décision, accélère la remédiation et renforce la traçabilité."
                 centered
               />
 
@@ -593,12 +763,12 @@ export default function LandingPage() {
             </div>
           </section>
 
-          <section className="border-y border-white/8 bg-white/[0.015] px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
+          <section className="bg-white/[0.015] px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
             <div className="mx-auto max-w-7xl">
               <SectionHeading
                 eyebrow="Etudes de cas"
-                title="Comment une discipline d’audit plus visible change le pilotage"
-                description="Les captures Framer utilisent des études de cas visuelles pour créer de la preuve. On garde ce rôle, mais avec des récits cohérents pour AuditIQ."
+                title="Des études de cas qui montrent l’impact concret d’une gouvernance IA maîtrisée"
+                description="Découvrez comment nos clients réduisent les risques, accélèrent la remédiation et renforcent leur capacité de preuve auprès des parties prenantes."
                 centered
               />
 
@@ -642,7 +812,7 @@ export default function LandingPage() {
               <SectionHeading
                 eyebrow="Benefices"
                 title="Les bénéfices clés d’une gouvernance IA réellement exploitable"
-                description="Même rythme visuel que le template : une grille dense et lisible, sans chercher à surdécorer."
+                description="Une vision claire de l’impact opérationnel, avec des bénéfices mesurables pour les équipes data, conformité et produit."
                 centered
               />
 
@@ -655,9 +825,10 @@ export default function LandingPage() {
                       key={benefit.title}
                       initial={{ opacity: 0, y: 24 }}
                       whileInView={{ opacity: 1, y: 0 }}
+                      whileHover={{ y: -6 }}
                       viewport={{ once: true, margin: '-100px' }}
                       transition={{ duration: 0.4, delay: index * 0.05 }}
-                      className="rounded-[26px] border border-white/10 bg-[#0d0d0f] p-5"
+                      className="rounded-[26px] border border-white/10 bg-[#0d0d0f] p-5 transition-colors hover:border-white/20"
                     >
                       <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-brand-primary/20 bg-brand-primary/10">
                         <Icon className="h-4 w-4 text-brand-cotton" />
@@ -671,29 +842,49 @@ export default function LandingPage() {
             </div>
           </section>
 
-          <section className="border-y border-white/8 bg-white/[0.015] px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
+          <section className="bg-white/[0.015] px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
             <div className="mx-auto max-w-7xl">
               <SectionHeading
                 eyebrow="Tarification"
-                title="Une grille tarifaire inspirée du template, mais orientée déploiement AuditIQ"
-                description="Je garde la logique Starter / Professional / Enterprise vue dans Framer pour rester cohérent avec les captures, tout en l’adaptant au produit actuel."
+                title="Une tarification claire pour déployer la gouvernance IA à votre rythme"
+                description="Choisissez le niveau d’accompagnement adapté à votre maturité, de l’audit initial au pilotage multi-modèles à l’échelle."
                 centered
               />
 
               <div className="mt-8 flex justify-center">
                 <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-[#0d0d0f] px-4 py-2 text-sm text-white/70">
-                  <span>Mensuel</span>
-                  <span className="relative h-6 w-11 rounded-full bg-brand-primary/90">
-                    <span className="absolute right-1 top-1 h-4 w-4 rounded-full bg-white" />
+                  <button
+                    type="button"
+                    onClick={() => setIsAnnual(false)}
+                    className={`rounded-full px-3 py-1 transition-colors ${isAnnual ? 'text-white/55' : 'bg-white/10 text-white'}`}
+                  >
+                    Mensuel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsAnnual(true)}
+                    className={`rounded-full px-3 py-1 transition-colors ${isAnnual ? 'bg-brand-primary text-white' : 'text-white/55'}`}
+                  >
+                    Annuel
+                  </button>
+                  <span className="rounded-full border border-brand-primary/25 bg-brand-primary/10 px-2 py-1 text-[10px] uppercase tracking-[0.15em] text-brand-cotton">
+                    -17%
                   </span>
-                  <span>Annuel</span>
                 </div>
               </div>
 
-              <div className="mt-12 grid gap-5 lg:grid-cols-3">
-                {pricingPlans.map((plan) => (
-                  <div
+              <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+                {pricingPlans.map((plan, index) => {
+                  const price = isAnnual ? plan.annual : plan.monthly
+
+                  return (
+                  <motion.div
                     key={plan.name}
+                    initial={{ opacity: 0, y: 26 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    whileHover={{ y: -8 }}
+                    viewport={{ once: true, margin: '-100px' }}
+                    transition={{ duration: 0.45, delay: index * 0.06 }}
                     className={`rounded-[30px] border p-6 ${
                       plan.featured
                         ? 'border-brand-primary/35 bg-[linear-gradient(180deg,rgba(226,8,161,0.18),rgba(15,15,17,0.98)_28%)] shadow-[0_18px_50px_rgba(226,8,161,0.18)]'
@@ -703,11 +894,14 @@ export default function LandingPage() {
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <p className="text-sm font-semibold text-white">{plan.name}</p>
-                        <p className="mt-4 text-3xl font-semibold text-white">{plan.price}</p>
+                        <p className="mt-4 text-3xl font-semibold text-white">
+                          {price === null ? 'Sur mesure' : `${price}€`}
+                        </p>
+                        {price !== null ? <p className="mt-1 text-xs text-white/45">/mois</p> : null}
                       </div>
                       {plan.featured ? (
                         <span className="rounded-full border border-brand-primary/25 bg-brand-primary/10 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-brand-cotton">
-                          Recommande
+                              Recommandé
                         </span>
                       ) : null}
                     </div>
@@ -726,43 +920,9 @@ export default function LandingPage() {
                         </div>
                       ))}
                     </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          <section className="px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
-            <div className="mx-auto max-w-7xl">
-              <SectionHeading
-                eyebrow="Temoignages"
-                title="Pourquoi les équipes aiment cette approche"
-                description="Le template d’origine mise sur des témoignages courts, nombreux et très cadrés. Même principe ici pour garder le rythme visuel des captures."
-                centered
-              />
-
-              <div className="mt-14 grid gap-4 md:grid-cols-2">
-                {testimonials.map((testimonial, index) => (
-                  <motion.div
-                    key={testimonial.name}
-                    initial={{ opacity: 0, y: 24 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: '-100px' }}
-                    transition={{ duration: 0.4, delay: index * 0.05 }}
-                    className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(113,38,129,0.18))] p-5"
-                  >
-                    <div className="flex gap-1 text-brand-cotton">
-                      {Array.from({ length: 5 }).map((_, starIndex) => (
-                        <Sparkles key={starIndex} className="h-3.5 w-3.5 fill-current" />
-                      ))}
-                    </div>
-                    <p className="mt-4 text-sm leading-7 text-white/78">“{testimonial.quote}”</p>
-                    <div className="mt-6">
-                      <p className="text-sm font-semibold text-white">{testimonial.name}</p>
-                      <p className="text-xs text-white/50">{testimonial.role}</p>
-                    </div>
                   </motion.div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           </section>
@@ -771,12 +931,18 @@ export default function LandingPage() {
             <div className="mx-auto max-w-5xl">
               <SectionHeading
                 eyebrow="FAQ"
-                title="Les réponses utiles avant de lancer la refonte complète de votre gouvernance IA"
-                description="On garde le pattern d’accordéon large et sobre du template Framer, avec un contenu centré sur le produit réel."
+                title="Les réponses clés pour lancer une gouvernance IA solide"
+                description="Un cadre clair pour démarrer vite, prioriser les bons chantiers et aligner produit, data et conformité dès les premières décisions."
                 centered
               />
 
-              <div className="mt-12 rounded-[30px] border border-white/10 bg-[#0d0d0f] p-4 sm:p-5">
+              <motion.div
+                initial={{ opacity: 0, y: 22 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-100px' }}
+                transition={{ duration: 0.45 }}
+                className="mt-12 rounded-[30px] border border-white/10 bg-[#0d0d0f] p-4 sm:p-5"
+              >
                 <Accordion type="single" collapsible className="w-full">
                   {faqs.map((item, index) => (
                     <AccordionItem key={item.question} value={`faq-${index}`} className="border-white/8 px-2">
@@ -789,30 +955,36 @@ export default function LandingPage() {
                     </AccordionItem>
                   ))}
                 </Accordion>
-              </div>
+              </motion.div>
             </div>
           </section>
 
           <section className="px-5 pb-12 sm:px-8 lg:px-10 lg:pb-16">
             <div className="mx-auto max-w-7xl">
-              <div className="overflow-hidden rounded-[34px] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.04),rgba(117,45,177,0.22)_55%,rgba(226,8,161,0.22))] px-6 py-10 text-center sm:px-10 sm:py-14">
-                <p className="text-[10px] uppercase tracking-[0.24em] text-white/55">Dernier appel a action</p>
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-100px' }}
+                transition={{ duration: 0.5 }}
+                className="overflow-hidden rounded-[34px] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.04),rgba(117,45,177,0.22)_55%,rgba(226,8,161,0.22))] px-6 py-10 text-center sm:px-10 sm:py-14"
+              >
+                <p className="text-[10px] uppercase tracking-[0.24em] text-white/55">Passer a l action</p>
                 <h2 className="mx-auto mt-5 max-w-3xl text-3xl font-semibold leading-tight text-white sm:text-4xl md:text-5xl">
-                  Laissez AuditIQ faire le travail de structuration pour que vos équipes avancent plus vite.
+                  Transformez vos obligations de gouvernance IA en execution claire et mesurable.
                 </h2>
                 <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/65 sm:text-base">
-                  Passez d’une conformité fragmentée à un système de contrôle clair, partageable et crédible pour vos parties prenantes.
+                  Centralisez vos controles, priorisez les remediations critiques et partagez des preuves solides avec vos equipes et vos instances de decision.
                 </p>
                 <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                   <Button className="rounded-full bg-brand-primary px-6 text-white hover:bg-brand-primary/90" onClick={() => router.push('/contact')}>
-                    Reserver un appel gratuit
+                    Planifier une demo
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                   <Button variant="ghost" className="rounded-full border border-white/12 bg-white/[0.03] px-6 text-white hover:bg-white/[0.06]" onClick={() => router.push('/pricing')}>
-                    Voir les tarifs
+                    Comparer les offres
                   </Button>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </section>
         </main>

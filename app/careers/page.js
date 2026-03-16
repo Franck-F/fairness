@@ -4,6 +4,7 @@ import { ArrowRight, Briefcase, Building2, ChevronRight, Clock3, Globe2, Heart, 
 
 import { Button } from '@/components/ui/button'
 import { MarketingFooter } from '@/components/ui/marketing-footer'
+import { RevealOnScroll } from '@/components/ui/reveal-on-scroll'
 
 const logoUrl = 'https://customer-assets.emergentagent.com/job_auditiq/artifacts/snxql2e8_logo%20audiot-iq%20big%20without%20bg.png.png'
 
@@ -81,7 +82,7 @@ export default function CareersPage() {
         <GridGlow />
         <div className="absolute left-1/2 top-14 h-[320px] w-[320px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(170,79,255,0.44)_0%,rgba(105,33,158,0.22)_38%,rgba(0,0,0,0)_70%)] blur-2xl" />
 
-        <header className="relative z-10">
+        <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#050505]/80 backdrop-blur-xl">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-10">
             <Link href="/" className="flex items-center gap-3">
               <Image src={logoUrl} alt="AuditIQ" width={112} height={26} className="h-auto w-[104px] brightness-150" />
@@ -103,14 +104,14 @@ export default function CareersPage() {
           </div>
         </header>
 
-        <section className="relative z-10 px-5 pb-16 pt-8 sm:px-8 lg:px-10 lg:pb-24 lg:pt-12">
+        <section className="relative z-10 px-5 pb-16 pt-28 sm:px-8 lg:px-10 lg:pb-24 lg:pt-32">
           <div className="mx-auto max-w-7xl">
             <div className="flex items-center gap-2 text-xs text-white/45">
               <Link href="/" className="hover:text-white">Accueil</Link>
               <ChevronRight className="h-3.5 w-3.5" />
               <span>Carrières</span>
             </div>
-            <div className="mt-8 max-w-4xl">
+            <RevealOnScroll className="mt-8 max-w-4xl" duration={0.65}>
               <span className="inline-flex rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-white/55">
                 Nous recrutons
               </span>
@@ -124,7 +125,7 @@ export default function CareersPage() {
                 Voir les offres
                 <ArrowRight className="h-4 w-4" />
               </Button>
-            </div>
+            </RevealOnScroll>
           </div>
         </section>
       </div>
@@ -133,16 +134,18 @@ export default function CareersPage() {
         <div className="mx-auto max-w-7xl">
           <h2 className="text-3xl font-semibold text-white sm:text-4xl">Pourquoi nous rejoindre</h2>
           <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {benefits.map((benefit) => {
+            {benefits.map((benefit, index) => {
               const Icon = benefit.icon
               return (
-                <article key={benefit.title} className="rounded-[26px] border border-white/10 bg-[#0d0d0f] p-5">
+                <RevealOnScroll key={benefit.title} delay={index * 0.05}>
+                  <article className="rounded-[26px] border border-white/10 bg-[#0d0d0f] p-5 transition-transform duration-300 hover:-translate-y-1.5 hover:border-white/20">
                   <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-brand-primary/20 bg-brand-primary/10">
                     <Icon className="h-4 w-4 text-brand-cotton" />
                   </div>
                   <h3 className="mt-5 text-lg font-semibold text-white">{benefit.title}</h3>
                   <p className="mt-3 text-sm leading-7 text-white/58">{benefit.description}</p>
-                </article>
+                  </article>
+                </RevealOnScroll>
               )
             })}
           </div>
@@ -151,7 +154,8 @@ export default function CareersPage() {
 
       <section className="border-y border-white/8 bg-white/[0.015] px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-          <div>
+          <RevealOnScroll>
+            <div>
             <span className="inline-flex rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-white/55">
               Culture
             </span>
@@ -160,18 +164,21 @@ export default function CareersPage() {
               Chez AuditIQ, nous croyons que la qualite des decisions depend autant des donnees que des discussions entre equipes.
               Nous privilegions une communication claire, des feedbacks frequents et des objectifs lisibles.
             </p>
-          </div>
+            </div>
+          </RevealOnScroll>
           <div className="grid grid-cols-2 gap-4">
             {[
               ['35', 'Collaborateurs'],
               ['12', 'Nationalites'],
               ['45%', 'Femmes dans la team'],
               ['4.8', 'Note Glassdoor'],
-            ].map(([value, label]) => (
-              <div key={label} className="rounded-[24px] border border-white/10 bg-[#0d0d0f] p-5 text-center">
+            ].map(([value, label], index) => (
+              <RevealOnScroll key={label} delay={index * 0.06}>
+                <div className="rounded-[24px] border border-white/10 bg-[#0d0d0f] p-5 text-center transition-transform duration-300 hover:-translate-y-1">
                 <p className="text-3xl font-semibold text-white">{value}</p>
                 <p className="mt-2 text-sm text-white/55">{label}</p>
-              </div>
+                </div>
+              </RevealOnScroll>
             ))}
           </div>
         </div>
@@ -183,8 +190,9 @@ export default function CareersPage() {
           <p className="mt-3 text-sm text-white/58">{jobs.length} postes disponibles actuellement.</p>
 
           <div className="mt-10 space-y-4">
-            {jobs.map((job) => (
-              <article key={job.title} className="rounded-[26px] border border-white/10 bg-[#0d0d0f] p-5">
+            {jobs.map((job, index) => (
+              <RevealOnScroll key={job.title} delay={index * 0.05}>
+                <article className="rounded-[26px] border border-white/10 bg-[#0d0d0f] p-5 transition-transform duration-300 hover:-translate-y-1 hover:border-white/20">
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
@@ -201,7 +209,8 @@ export default function CareersPage() {
                   </div>
                   <Button className="rounded-full bg-white text-black hover:bg-white/90">Postuler</Button>
                 </div>
-              </article>
+                </article>
+              </RevealOnScroll>
             ))}
           </div>
         </div>
@@ -209,7 +218,8 @@ export default function CareersPage() {
 
       <section className="px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
         <div className="mx-auto max-w-7xl">
-          <div className="overflow-hidden rounded-[34px] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.04),rgba(117,45,177,0.22)_55%,rgba(226,8,161,0.22))] px-6 py-10 text-center sm:px-10 sm:py-14">
+          <RevealOnScroll>
+            <div className="overflow-hidden rounded-[34px] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.04),rgba(117,45,177,0.22)_55%,rgba(226,8,161,0.22))] px-6 py-10 text-center sm:px-10 sm:py-14">
             <h2 className="mx-auto max-w-3xl text-3xl font-semibold leading-tight text-white sm:text-4xl">
               Vous ne trouvez pas encore votre poste ideal ?
             </h2>
@@ -222,7 +232,8 @@ export default function CareersPage() {
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
-          </div>
+            </div>
+          </RevealOnScroll>
         </div>
       </section>
 

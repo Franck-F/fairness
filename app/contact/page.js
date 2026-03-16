@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { MarketingFooter } from '@/components/ui/marketing-footer'
+import { RevealOnScroll } from '@/components/ui/reveal-on-scroll'
 import { Textarea } from '@/components/ui/textarea'
 
 const logoUrl = 'https://customer-assets.emergentagent.com/job_auditiq/artifacts/snxql2e8_logo%20audiot-iq%20big%20without%20bg.png.png'
@@ -56,7 +57,7 @@ export default function ContactPage() {
         <GridGlow />
         <div className="absolute left-1/2 top-14 h-[320px] w-[320px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(170,79,255,0.44)_0%,rgba(105,33,158,0.22)_38%,rgba(0,0,0,0)_70%)] blur-2xl" />
 
-        <header className="relative z-10">
+        <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#050505]/80 backdrop-blur-xl">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-10">
             <Link href="/" className="flex items-center gap-3">
               <Image src={logoUrl} alt="AuditIQ" width={112} height={26} className="h-auto w-[104px] brightness-150" />
@@ -78,14 +79,14 @@ export default function ContactPage() {
           </div>
         </header>
 
-        <section className="relative z-10 px-5 pb-16 pt-8 sm:px-8 lg:px-10 lg:pb-24 lg:pt-12">
+        <section className="relative z-10 px-5 pb-16 pt-28 sm:px-8 lg:px-10 lg:pb-24 lg:pt-32">
           <div className="mx-auto max-w-7xl">
             <div className="flex items-center gap-2 text-xs text-white/45">
               <Link href="/" className="hover:text-white">Accueil</Link>
               <ChevronRight className="h-3.5 w-3.5" />
               <span>Contact</span>
             </div>
-            <div className="mt-8 max-w-4xl">
+            <RevealOnScroll className="mt-8 max-w-4xl" duration={0.65}>
               <span className="inline-flex rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-white/55">
                 Contact
               </span>
@@ -95,7 +96,7 @@ export default function ContactPage() {
               <p className="mt-5 max-w-2xl text-sm leading-7 text-white/60 sm:text-base">
                 Une question, un cadrage, un besoin de démonstration : notre équipe vous accompagne pour structurer un déploiement solide.
               </p>
-            </div>
+            </RevealOnScroll>
           </div>
         </section>
       </div>
@@ -103,16 +104,18 @@ export default function ContactPage() {
       <section className="px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
         <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <aside className="space-y-4">
-            <div className="rounded-[28px] border border-white/10 bg-[#0d0d0f] p-5">
+            <RevealOnScroll>
+              <div className="rounded-[28px] border border-white/10 bg-[#0d0d0f] p-5">
               <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
                 <Building2 className="h-4 w-4 text-brand-cotton" />
                 Informations de contact
               </h2>
               <div className="mt-5 space-y-4">
-                {contactInfo.map((item) => {
+                {contactInfo.map((item, index) => {
                   const Icon = item.icon
                   return (
-                    <div key={item.label} className="flex items-start gap-3 rounded-2xl border border-white/8 bg-white/[0.02] p-3">
+                    <RevealOnScroll key={item.label} delay={index * 0.05} y={18}>
+                      <div className="flex items-start gap-3 rounded-2xl border border-white/8 bg-white/[0.02] p-3 transition-transform duration-300 hover:-translate-y-0.5 hover:border-white/20">
                       <div className="rounded-xl border border-white/10 bg-black/30 p-2">
                         <Icon className="h-4 w-4 text-brand-cotton" />
                       </div>
@@ -126,13 +129,16 @@ export default function ContactPage() {
                           <p className="text-sm text-white/82">{item.value}</p>
                         )}
                       </div>
-                    </div>
+                      </div>
+                    </RevealOnScroll>
                   )
                 })}
               </div>
-            </div>
+              </div>
+            </RevealOnScroll>
 
-            <div className="rounded-[28px] border border-white/10 bg-[linear-gradient(135deg,rgba(226,8,161,0.18),rgba(117,45,177,0.18)_55%,rgba(255,255,255,0.03))] p-5">
+            <RevealOnScroll delay={0.1}>
+              <div className="rounded-[28px] border border-white/10 bg-[linear-gradient(135deg,rgba(226,8,161,0.18),rgba(117,45,177,0.18)_55%,rgba(255,255,255,0.03))] p-5 framer-float">
               <p className="text-[10px] uppercase tracking-[0.2em] text-white/55">Support client</p>
               <p className="mt-3 text-sm leading-7 text-white/78">
                 Deja client ? Accedez a votre dashboard pour suivre vos tickets et partager vos retours d audit avec nos experts.
@@ -140,10 +146,12 @@ export default function ContactPage() {
               <Button asChild className="mt-5 rounded-full bg-white text-black hover:bg-white/90">
                 <Link href="/login">Acceder au support</Link>
               </Button>
-            </div>
+              </div>
+            </RevealOnScroll>
           </aside>
 
-          <div className="rounded-[30px] border border-white/10 bg-[#0d0d0f] p-5 sm:p-6">
+          <RevealOnScroll delay={0.1}>
+            <div className="rounded-[30px] border border-white/10 bg-[#0d0d0f] p-5 sm:p-6">
             <h2 className="text-xl font-semibold text-white">Envoyez-nous un message</h2>
             <p className="mt-2 text-sm text-white/58">Nous vous repondons rapidement avec des recommandations concretes.</p>
 
@@ -219,13 +227,15 @@ export default function ContactPage() {
                 )}
               </Button>
             </form>
-          </div>
+            </div>
+          </RevealOnScroll>
         </div>
       </section>
 
       <section className="border-t border-white/8 px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
         <div className="mx-auto max-w-7xl">
-          <div className="overflow-hidden rounded-[34px] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.04),rgba(117,45,177,0.22)_55%,rgba(226,8,161,0.22))] px-6 py-10 text-center sm:px-10 sm:py-14">
+          <RevealOnScroll>
+            <div className="overflow-hidden rounded-[34px] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.04),rgba(117,45,177,0.22)_55%,rgba(226,8,161,0.22))] px-6 py-10 text-center sm:px-10 sm:py-14">
             <h2 className="mx-auto max-w-3xl text-3xl font-semibold leading-tight text-white sm:text-4xl">
               Besoin d accélérer votre feuille de route de conformité IA ?
             </h2>
@@ -243,7 +253,8 @@ export default function ContactPage() {
                 <Link href="/pricing">Voir les tarifs</Link>
               </Button>
             </div>
-          </div>
+            </div>
+          </RevealOnScroll>
         </div>
       </section>
 

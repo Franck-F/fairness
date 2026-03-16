@@ -18,43 +18,43 @@ export function MarketingFooter() {
             <input
               type="email"
               placeholder="name@email.com"
-              className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white outline-none placeholder:text-white/25"
+              className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition-all duration-300 placeholder:text-white/25 focus:border-brand-primary/45 focus:bg-white/[0.05]"
             />
-            <Button className="rounded-full bg-brand-primary px-5 text-white hover:bg-brand-primary/90">S abonner</Button>
+            <Button className="rounded-full bg-brand-primary px-5 text-white shadow-[0_12px_30px_rgba(226,8,161,0.22)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-primary/90">S abonner</Button>
           </div>
         </div>
 
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/40">Liens</p>
           <div className="mt-4 space-y-3 text-sm text-white/62">
-            <Link href="/about" className="block hover:text-white">À propos</Link>
-            <Link href="/pricing" className="block hover:text-white">Tarifs</Link>
-            <Link href="/contact" className="block hover:text-white">Contact</Link>
+            <Link href="/about" className="block transition-all duration-300 hover:translate-x-1 hover:text-white">À propos</Link>
+            <Link href="/pricing" className="block transition-all duration-300 hover:translate-x-1 hover:text-white">Tarifs</Link>
+            <Link href="/contact" className="block transition-all duration-300 hover:translate-x-1 hover:text-white">Contact</Link>
           </div>
         </div>
 
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/40">Pages</p>
           <div className="mt-4 space-y-3 text-sm text-white/62">
-            <Link href="/" className="block hover:text-white">Accueil</Link>
-            <Link href="/blog" className="block hover:text-white">Blog</Link>
-            <Link href="/legal/privacy" className="block hover:text-white">Confidentialité</Link>
-            <Link href="/legal/terms" className="block hover:text-white">CGU</Link>
+            <Link href="/" className="block transition-all duration-300 hover:translate-x-1 hover:text-white">Accueil</Link>
+            <Link href="/blog" className="block transition-all duration-300 hover:translate-x-1 hover:text-white">Blog</Link>
+            <Link href="/legal/privacy" className="block transition-all duration-300 hover:translate-x-1 hover:text-white">Confidentialité</Link>
+            <Link href="/legal/terms" className="block transition-all duration-300 hover:translate-x-1 hover:text-white">CGU</Link>
           </div>
         </div>
 
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/40">Réseaux</p>
           <div className="mt-4 space-y-3 text-sm text-white/62">
-            <a href="https://www.linkedin.com" target="_blank" rel="noreferrer" className="block hover:text-white">LinkedIn</a>
-            <a href="https://x.com" target="_blank" rel="noreferrer" className="block hover:text-white">Twitter</a>
-            <a href="https://www.instagram.com" target="_blank" rel="noreferrer" className="block hover:text-white">Instagram</a>
+            <a href="https://www.linkedin.com" target="_blank" rel="noreferrer" className="block transition-all duration-300 hover:translate-x-1 hover:text-white">LinkedIn</a>
+            <a href="https://x.com" target="_blank" rel="noreferrer" className="block transition-all duration-300 hover:translate-x-1 hover:text-white">Twitter</a>
+            <a href="https://www.instagram.com" target="_blank" rel="noreferrer" className="block transition-all duration-300 hover:translate-x-1 hover:text-white">Instagram</a>
           </div>
         </div>
       </div>
 
       <div className="mx-auto mt-10 flex max-w-7xl flex-col gap-3 border-t border-white/8 pt-5 text-xs text-white/35 sm:flex-row sm:items-center sm:justify-between">
-        <p>Inspiré du template Framer, adapté pour AuditIQ.</p>
+        <p>AuditIQ, plateforme de gouvernance IA pensée pour la conformité et la performance opérationnelle.</p>
         <p>Copyright 2026 AuditIQ. Tous droits réservés.</p>
       </div>
     </footer>

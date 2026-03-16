@@ -108,7 +108,7 @@ export default function TermsPage() {
         <GridGlow />
         <div className="absolute left-1/2 top-14 h-[320px] w-[320px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(170,79,255,0.44)_0%,rgba(105,33,158,0.22)_38%,rgba(0,0,0,0)_70%)] blur-2xl" />
 
-        <header className="relative z-10">
+        <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#050505]/80 backdrop-blur-xl">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-10">
             <Link href="/" className="flex items-center gap-3">
               <Image src={logoUrl} alt="AuditIQ" width={112} height={26} className="h-auto w-[104px] brightness-150" />
@@ -130,7 +130,7 @@ export default function TermsPage() {
           </div>
         </header>
 
-        <section className="relative z-10 px-5 pb-16 pt-8 sm:px-8 lg:px-10 lg:pb-24 lg:pt-12">
+        <section className="relative z-10 px-5 pb-16 pt-28 sm:px-8 lg:px-10 lg:pb-24 lg:pt-32">
           <div className="mx-auto max-w-7xl">
             <div className="flex items-center gap-2 text-xs text-white/45">
               <Link href="/" className="hover:text-white">Accueil</Link>

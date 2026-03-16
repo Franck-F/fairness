@@ -103,6 +103,102 @@
 
 /* Scrollbar personnalisée pour le thème sombre */
 @layer utilities {
+  @keyframes hero-grid-drift {
+    0% {
+      background-position:
+        0 0,
+        0 0,
+        0 0,
+        0 0;
+    }
+
+    50% {
+      background-position:
+        0 0,
+        0 0,
+        -18px 24px,
+        24px -18px;
+    }
+
+    100% {
+      background-position:
+        0 0,
+        0 0,
+        0 0,
+        0 0;
+    }
+  }
+
+  .hero-grid-animated {
+    animation: hero-grid-drift 18s ease-in-out infinite;
+    will-change: background-position;
+  }
+
+  @keyframes hero-aurora-sweep {
+    0% {
+      transform: translateX(-16%) translateY(0%) scale(1);
+      opacity: 0.32;
+    }
+
+    50% {
+      transform: translateX(14%) translateY(3%) scale(1.04);
+      opacity: 0.56;
+    }
+
+    100% {
+      transform: translateX(-16%) translateY(0%) scale(1);
+      opacity: 0.32;
+    }
+  }
+
+  .hero-aurora-sweep {
+    background: radial-gradient(circle at 18% 30%, rgba(226, 8, 161, 0.24), transparent 34%),
+      radial-gradient(circle at 74% 22%, rgba(153, 66, 255, 0.2), transparent 38%);
+    animation: hero-aurora-sweep 7s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+
+  @keyframes hero-fallback-pan {
+    0% {
+      background-position: 0% 0%, 100% 50%, 50% 100%;
+      transform: scale(1);
+    }
+
+    50% {
+      background-position: 25% 10%, 80% 40%, 55% 90%;
+      transform: scale(1.04);
+    }
+
+    100% {
+      background-position: 0% 0%, 100% 50%, 50% 100%;
+      transform: scale(1);
+    }
+  }
+
+  .hero-fallback-animated {
+    background:
+      radial-gradient(circle at 22% 24%, rgba(226, 8, 161, 0.26), transparent 36%),
+      radial-gradient(circle at 72% 20%, rgba(153, 66, 255, 0.22), transparent 40%),
+      radial-gradient(circle at 50% 72%, rgba(117, 45, 177, 0.16), transparent 44%);
+    animation: hero-fallback-pan 6s ease-in-out infinite;
+    will-change: transform, background-position;
+  }
+
+  @keyframes framer-float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  .framer-float {
+    animation: framer-float 6s ease-in-out infinite;
+  }
+
   .scrollbar-thin::-webkit-scrollbar {
     width: 4px;
     height: 4px;
