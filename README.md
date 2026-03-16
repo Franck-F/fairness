@@ -114,6 +114,24 @@ cp .env.example .env.local
 yarn dev
 ```
 
+### Démarrage one-shot (frontend + backend)
+
+Sous Windows (PowerShell), vous pouvez démarrer le projet en une seule commande :
+
+```bash
+npm run dev:all
+```
+
+Ce script :
+- lance le backend FastAPI dans une nouvelle fenêtre PowerShell (port `8000`)
+- lance le frontend Next.js dans le terminal courant (port `3000`)
+
+Frontend uniquement :
+
+```bash
+npm run dev:frontend
+```
+
 ---
 
 ## Déploiement sur Netlify
