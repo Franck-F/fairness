@@ -51,10 +51,22 @@ yarn-error.log*
 .pnpm-debug.log*
 dump.rdb
 
-# Debug files
+# Debug / utility scripts
 debug-fetch.js
 debug_api.py
 test_supabase_connection.js
+test_result.md
+image.png
+.gitconfig
+
+# Backend utility/migration scripts (not for production)
+backend/fix_db*.py
+backend/check_*.py
+backend/diagnose_*.py
+backend/introspect_*.py
+backend/apply_ds_migration*.py
+backend/models_debug.txt
+backend/.python-version
 
 # System files
 .DS_Store
