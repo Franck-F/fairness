@@ -1,63 +1,49 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form, BackgroundTasks, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, StreamingResponse, JSONResponse
-from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
-import pandas as pd
-import numpy as np
-import json
-import os
-import io
-import uuid
-from datetime import datetime
-from dotenv import load_dotenv
-load_dotenv()
+"""
+AuditIQ ML Backend - FastAPI Application
+Modular, secure, with structured logging and rate limiting.
+"""
 
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from datetime import datetime
+
+from config import logger, ALLOWED_ORIGINS
+from middleware import RequestLoggingMiddleware
 
 # LLM Service import
 from llm_service import LLMAnalyzer
 from ds_engine import SeniorDataScientistEngine
 
-# ... (existing imports)
-
-# Initialize LLM Analyzer
-try:
-    llm_analyzer = LLMAnalyzer()
-    logger.info("✅ LLM Analyzer initialized with Gemini")
-except Exception as e:
-    logger.warning(f"LLM Analyzer warning: {e}")
-    llm_analyzer = None
-
-# ... (existing imports)
+import os
+import io
+import uuid
+import numpy as np
+import pandas as pd
 
 def to_json_safe(obj):
     """Recursively convert NaN/Inf/-Inf to None for JSON compliance."""
-    # Handle scalar NaN first for speed and to avoid recursion on simple floats
     try:
         if obj is None: return None
         if isinstance(obj, (float, np.floating)):
             if np.isnan(obj) or np.isinf(obj) or str(obj).lower() == 'nan':
                 return None
             return float(obj)
-            
         if isinstance(obj, dict):
             return {k: to_json_safe(v) for k, v in obj.items()}
         if isinstance(obj, (list, tuple, np.ndarray, pd.Index, pd.Series)):
             if hasattr(obj, "tolist"):
                 return [to_json_safe(i) for i in obj.tolist()]
             return [to_json_safe(i) for i in obj]
-        
         if isinstance(obj, (int, np.integer)):
             return int(obj)
-            
-        # Last resort for other NA types
         if pd.isna(obj): return None
     except:
         pass
     return obj
-
-
-
 
 # ML imports
 from sklearn.model_selection import train_test_split
@@ -78,21 +64,24 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 
+from fastapi import HTTPException, UploadFile, File, Form, BackgroundTasks
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
+from typing import Dict, List, Any, Optional
 
-import logging
+# --- Rate Limiter ---
+limiter = Limiter(key_func=get_remote_address)
 
-# ── Structured Logger ──
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-logger = logging.getLogger("auditiq")
-
+# --- FastAPI App ---
 app = FastAPI(
     title="AuditIQ ML Backend",
-    description="Backend API for ML training, fairness calculation, and report generation",
-    version="1.0.0"
+    description=(
+        "Backend API for ML training, fairness calculation, "
+        "bias detection, and AI-powered insights"
+    ),
+    version="2.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
 
 # ── Internal API Key for service-to-service auth ──
@@ -102,11 +91,9 @@ INTERNAL_API_KEY = os.getenv("BACKEND_API_KEY", "")
 @app.middleware("http")
 async def verify_internal_auth(request: Request, call_next):
     """Verify that requests come from the Next.js frontend via internal API key."""
-    # Allow health check and OPTIONS (CORS preflight) without auth
     if request.url.path in ("/", "/health") or request.method == "OPTIONS":
         return await call_next(request)
 
-    # In production, require internal API key
     if INTERNAL_API_KEY:
         provided_key = request.headers.get("x-internal-key", "")
         if provided_key != INTERNAL_API_KEY:
@@ -122,11 +109,11 @@ async def verify_internal_auth(request: Request, call_next):
 
     return await call_next(request)
 
-# ── CORS ──
-ALLOWED_ORIGINS = os.getenv(
-    "CORS_ORIGINS",
-    "http://localhost:3000,https://ai-auditiq.netlify.app"
-).split(",")
+# Rate limiting
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# CORS - restricted origins
 ALLOWED_ORIGIN_REGEX = r"https://.*\.vercel\.app"
 
 app.add_middleware(
@@ -137,442 +124,80 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=[
         "Content-Type", "Authorization",
-        "X-API-Key", "X-Internal-Key",
+        "X-API-Key", "X-Internal-Key", "X-Request-ID",
     ],
 )
+
+# Request logging middleware
+app.add_middleware(RequestLoggingMiddleware)
 
 # ── In-memory storage (isolated by user namespace) ──
 models_store = {}
 datasets_store = {}
 
-# Pydantic models
-class TrainRequest(BaseModel):
-    dataset_id: str
-    target_column: str
-    algorithm: str = "logistic_regression"  # or "xgboost"
-    test_size: float = 0.2
-    feature_columns: Optional[List[str]] = None
 
-class TrainResponse(BaseModel):
-    model_id: str
-    algorithm: str
-    metrics: Dict[str, float]
-    feature_importance: Optional[Dict[str, float]] = None
-    training_time: float
 
-class FairnessRequest(BaseModel):
-    dataset_id: Any  # This is the pre-processing dataset
-    dataset_id_post: Optional[Any] = None  # This is the post-processing dataset
-    model_id: Optional[Any] = None
-    target_column: str
-    prediction_column: Optional[str] = None
-    sensitive_attributes: List[str]
-    favorable_outcome: Any = 1
-    metrics: Optional[List[str]] = None
-    model_type: Optional[str] = None
-    ia_type: Optional[str] = None
-    enable_llm: bool = True  # New flag to enable/disable LLM
+def _init_llm():
+    """Initialize LLM analyzer safely."""
+    try:
+        from llm_service import LLMAnalyzer  # noqa: E402
+        analyzer = LLMAnalyzer()
+        logger.info("LLM Analyzer initialized with Gemini")
+        return analyzer
+    except Exception as e:
+        logger.warning(f"LLM Analyzer init warning: {e}")
+        return None
 
-class FairnessMetric(BaseModel):
-    name: str
-    value: float
-    description: str
-    threshold: float
-    status: str  # "pass", "warning", "fail"
 
-class FairnessResponse(BaseModel):
-    audit_id: str
-    overall_score: float
-    risk_level: str
-    bias_detected: bool
-    metrics_by_attribute: Dict[str, List[FairnessMetric]]
-    recommendations: List[str]
-    comparison_results: Optional[Dict[str, Any]] = None
+def _register_routers():
+    """Import and register all routers."""
+    from routers.datasets import router as datasets_router  # noqa: E402
+    from routers.ml import router as ml_router  # noqa: E402
+    from routers.fairness import router as fairness_router  # noqa: E402
+    from routers.reports import router as reports_router  # noqa: E402
+    from routers.datascience import router as ds_router  # noqa: E402
+    from routers.fairness import set_llm_analyzer as set_fairness_llm  # noqa: E402
+    from routers.datascience import set_llm_analyzer as set_ds_llm  # noqa: E402
 
-class ReportRequest(BaseModel):
-    audit_id: str
-    dataset_name: str
-    fairness_results: Dict[str, Any]
-    model_metrics: Optional[Dict[str, float]] = None
-    format: str = "pdf"  # or "txt"
-
-# New Data Science Models
-class DSAnalyzeRequest(BaseModel):
-    dataset_id: str
-    target_column: Optional[str] = None
-
-class DSEdaRequest(BaseModel):
-    dataset_id: str
-    project_id: Optional[str] = None
-    target_column: Optional[str] = None
-    n_components: int = 2
-
-class DSAgentChatRequest(BaseModel):
-    prompt: str
-    dataset_id: str
-    target_column: Optional[str] = None
-    n_components: int = 2
-
-class DSFeatureEngRequest(BaseModel):
-    dataset_id: str
-    project_id: Optional[str] = None
-    target_column: Optional[str] = None
-    date_column: Optional[str] = None
-    lags: List[int] = [1, 3, 7]
-    windows: List[int] = [3, 7]
-
-class DSModelingRequest(BaseModel):
-    dataset_id: str
-    project_id: Optional[str] = None
-    target_column: str
-    algorithm: str = "logistic_regression"  # "logistic_regression", "xgboost", "random_forest"
-    test_size: float = 0.2
-    feature_columns: Optional[List[str]] = None
-
-class DSIntelligenceRequest(BaseModel):
-    dataset_id: str
-    project_id: Optional[str] = None
-
-class DSInterpretRequest(BaseModel):
-    model_id: str
-    dataset_id: str
-    project_id: Optional[str] = None
-
-class DataBiasRequest(BaseModel):
-    dataset_id: Optional[str] = None
-    target_column: Optional[str] = None
-    sensitive_attributes: Any = []
-    favorable_outcome: Any = 1
-
-# Health check
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy", "timestamp": datetime.now().isoformat()}
-
-# Utility to ensure directory exists
-UPLOAD_DIR = "uploads"
-if not os.path.exists(UPLOAD_DIR):
-    os.makedirs(UPLOAD_DIR, exist_ok=True)
-
-# Helper to load dataset from store or disk
-def load_dataset(dataset_id: Any):
-    import re as _re
-    # Ensure ID is a string for dictionary lookup
-    sid = str(dataset_id)
-
-    # Validate ID format (UUID or alphanumeric only - prevent path traversal)
-    if not _re.match(r'^[a-zA-Z0-9_-]{1,64}$', sid):
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid dataset ID format"
-        )
-
-    # 1. Check if already in memory
-    if sid in datasets_store:
-        return datasets_store[sid]["df"].copy(), datasets_store[sid]["filename"]
-
-    # 2. Try to reload from local disk (safe path construction)
-    for ext in ['.csv', '.xlsx']:
-        safe_path = os.path.join(UPLOAD_DIR, f"{sid}{ext}")
-        # Ensure resolved path stays within UPLOAD_DIR
-        resolved = os.path.realpath(safe_path)
-        if not resolved.startswith(os.path.realpath(UPLOAD_DIR)):
-            continue
-        if os.path.exists(resolved):
-            try:
-                if ext == '.csv':
-                    df = pd.read_csv(resolved)
-                else:
-                    df = pd.read_excel(resolved)
-                filename = f"{sid}{ext}"
-                datasets_store[sid] = {
-                    "df": df,
-                    "filename": filename,
-                    "name": filename,
-                    "uploaded_at": datetime.now().isoformat(),
-                    "rows": len(df),
-                    "columns": len(df.columns)
-                }
-                logger.info(f"Restored dataset {sid} from disk.")
-                return df.copy(), filename
-            except Exception as e:
-                logger.error(f"Failed to restore {sid}: {str(e)}")
-
-    # 3. Not found
-    logger.warning(f"Dataset ID {sid} not found.")
-    raise HTTPException(
-        status_code=404,
-        detail="Dataset non trouve - Veuillez re-uploader le fichier."
+    return (
+        datasets_router, ml_router, fairness_router,
+        reports_router, ds_router,
+        set_fairness_llm, set_ds_llm,
     )
 
-MAX_UPLOAD_SIZE = 50 * 1024 * 1024  # 50MB
 
-@app.post("/api/datasets/upload")
-async def upload_dataset(
-    file: UploadFile = File(...),
-    dataset_name: str = Form(None),
-    dataset_id: str = Form(None)
-):
-    try:
-        # Use provided ID or generate a new one - sanitize dataset_id
-        if dataset_id:
-            # Only allow UUID-like or alphanumeric IDs
-            import re
-            if not re.match(r'^[a-zA-Z0-9_-]{1,64}$', dataset_id):
-                raise HTTPException(status_code=400, detail="Invalid dataset_id format")
-        active_id = dataset_id if dataset_id else str(uuid.uuid4())
+llm_analyzer = _init_llm()
 
-        # Read file content with size limit
-        content = await file.read()
-        if len(content) > MAX_UPLOAD_SIZE:
-            raise HTTPException(status_code=413, detail=f"Fichier trop volumineux. Maximum: {MAX_UPLOAD_SIZE // (1024*1024)}MB")
-        if len(content) == 0:
-            raise HTTPException(status_code=400, detail="Fichier vide")
+(
+    datasets_router, ml_router, fairness_router,
+    reports_router, ds_router,
+    set_fairness_llm, set_ds_llm,
+) = _register_routers()
 
-        # Validate file extension
-        allowed_ext = ('.csv', '.xlsx', '.xls')
-        filename_lower = (file.filename or 'data.csv').lower()
-        if not filename_lower.endswith(allowed_ext):
-            raise HTTPException(status_code=400, detail=f"Format non supporte. Extensions acceptees: {', '.join(allowed_ext)}")
+set_fairness_llm(llm_analyzer)
+set_ds_llm(llm_analyzer)
 
-        # Sanitize filename for disk storage
-        file_ext = ".csv" if filename_lower.endswith('.csv') else ".xlsx"
-        safe_id = re.sub(r'[^a-zA-Z0-9_-]', '', active_id)
-        save_path = os.path.join(UPLOAD_DIR, f"{safe_id}{file_ext}")
-        with open(save_path, "wb") as f:
-            f.write(content)
-        
-        # Determine file type and parse
-        filename = file.filename.lower()
-        logger.debug(f"Parsing file {filename}")
-        if filename.endswith('.csv'):
-            df = pd.read_csv(io.BytesIO(content))
-        elif filename.endswith(('.xlsx', '.xls')):
-            df = pd.read_excel(io.BytesIO(content))
-        else:
-            raise HTTPException(status_code=400, detail="Format de fichier non supporte. Utilisez CSV ou Excel.")
-        
-        logger.debug(f"File parsed. Columns: {list(df.columns)}")
-        # Detect column types
-        columns_info = []
-        for col in df.columns:
-            dtype = df[col].dtype
-            if pd.api.types.is_numeric_dtype(dtype):
-                col_type = "numerical"
-            elif pd.api.types.is_datetime64_any_dtype(dtype):
-                col_type = "datetime"
-            elif isinstance(dtype, pd.CategoricalDtype) or (not pd.api.types.is_numeric_dtype(dtype) and df[col].nunique() < 20):
-                col_type = "categorical"
-            else:
-                col_type = "text"
-            
-            columns_info.append({
-                "name": col,
-                "type": col_type
-            })
-        
-        # Calculate file size
-        file_size_bytes = len(content)
-        if file_size_bytes < 1024:
-            size_str = f"{file_size_bytes} B"
-        elif file_size_bytes < 1024 * 1024:
-            size_str = f"{file_size_bytes / 1024:.2f} KB"
-        else:
-            size_str = f"{file_size_bytes / (1024 * 1024):.2f} MB"
-        
-        # Data Profiling (GIGO Principle)
-        logger.info("DEBUG: Calculating profiling stats")
-        profiling = {
-            "missing_values": df.isnull().sum().to_dict(),
-            "data_types": {col: str(dtype) for col, dtype in df.dtypes.items()},
-            "summary_stats": df.describe(include=[np.number]).to_dict() if not df.select_dtypes(include=[np.number]).empty else {},
-        }
-        
-        logger.info("DEBUG: Profiling completed")
-        # Add a "quality_alert" if too many missing values
-        total_missing = sum(profiling["missing_values"].values())
-        quality_score = max(0, 100 - (total_missing / (len(df) * len(df.columns)) * 100))
-        logger.debug(f"Quality score: {quality_score}")
-        
-        # Add to store
-        datasets_store[active_id] = {
-            "df": df,
-            "filename": filename,
-            "name": dataset_name if dataset_name else filename,
-            "uploaded_at": datetime.now().isoformat(),
-            "rows": len(df),
-            "columns": len(df.columns),
-            "columns_info": columns_info,
-            "profiling": profiling,
-            "quality_score": round(quality_score, 2)
-        }
-        
-        logger.info(f"Dataset {active_id} uploaded. Rows: {len(df)}, Quality Score: {quality_score}")
-        
-        return to_json_safe({
-            "dataset_id": active_id,
-            "filename": file.filename,
-            "rows": len(df),
-            "columns": len(df.columns),
-            "columns_info": columns_info,
-            "stats": {
-                "rows": len(df),
-                "cols": len(df.columns)
-            },
-            "profiling": profiling,
-            "quality_score": round(quality_score, 2)
-        })
-    except Exception as e:
-        import traceback
-        logger.error(f"Upload Error: {str(e)}")
-        logger.error(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=str(e))
+app.include_router(datasets_router)
+app.include_router(ml_router)
+app.include_router(fairness_router)
+app.include_router(reports_router)
+app.include_router(ds_router)
 
-# Get dataset info
-@app.get("/api/datasets/{dataset_id}")
-async def get_dataset(dataset_id: str):
-    if dataset_id not in datasets_store:
-        raise HTTPException(status_code=404, detail="Dataset non trouve")
-    
-    dataset = datasets_store[dataset_id]
-    df = dataset["df"]
-    
+
+# --- Health Check ---
+@app.get("/health", tags=["System"])
+async def health_check():
+    """Health check endpoint with service status."""
     return {
-        "dataset_id": dataset_id,
-        "filename": dataset["filename"],
-        "name": dataset["name"],
-        "rows": dataset["rows"],
-        "columns": dataset["columns"],
-        "column_names": dataset["column_names"],
-        "dtypes": dataset["dtypes"],
-        "missing_values": dataset["missing_values"],
-        "preview": df.head(10).to_dict(orient="records"),
-        "statistics": df.describe().to_dict()
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "version": "2.0.0",
+        "services": {
+            "llm": "available" if llm_analyzer else "unavailable",
+            "api": "running",
+        },
     }
 
-# ML Training endpoint
-@app.post("/api/ml/train", response_model=TrainResponse)
-async def train_model(request: TrainRequest):
-    import time
-    start_time = time.time()
-    
-    try:
-        # Get dataset
-        if request.dataset_id not in datasets_store:
-            raise HTTPException(status_code=404, detail="Dataset non trouve")
-        
-        df = datasets_store[request.dataset_id]["df"].copy()
-        
-        # Validate target column
-        if request.target_column not in df.columns:
-            raise HTTPException(status_code=400, detail=f"Colonne cible '{request.target_column}' non trouvee")
-        
-        # Prepare features
-        if request.feature_columns:
-            feature_cols = [c for c in request.feature_columns if c in df.columns and c != request.target_column]
-        else:
-            feature_cols = [c for c in df.columns if c != request.target_column]
-        
-        # Handle missing values
-        df = df.dropna(subset=[request.target_column])
-        
-        # Encode categorical features
-        label_encoders = {}
-        for col in feature_cols:
-            if df[col].dtype == 'object':
-                le = LabelEncoder()
-                df[col] = df[col].fillna('Unknown')
-                df[col] = le.fit_transform(df[col].astype(str))
-                label_encoders[col] = le
-            else:
-                df[col] = df[col].fillna(df[col].median())
-        
-        # Encode target if categorical
-        y = df[request.target_column]
-        if y.dtype == 'object':
-            le = LabelEncoder()
-            y = le.fit_transform(y.astype(str))
-            label_encoders['target'] = le
-        else:
-            y = y.values
-        
-        X = df[feature_cols].values
-        
-        # Scale features
-        scaler = StandardScaler()
-        X = scaler.fit_transform(X)
-        
-        # Split data
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=request.test_size, random_state=42
-        )
-        
-        # Train model
-        feature_importance = None
-        
-        if request.algorithm == "xgboost" and XGBOOST_AVAILABLE:
-            model = xgb.XGBClassifier(
-                n_estimators=100,
-                max_depth=5,
-                learning_rate=0.1,
-                random_state=42,
-                use_label_encoder=False,
-                eval_metric='logloss'
-            )
-            model.fit(X_train, y_train)
-            feature_importance = dict(zip(feature_cols, model.feature_importances_.tolist()))
-        else:
-            model = LogisticRegression(max_iter=1000, random_state=42)
-            model.fit(X_train, y_train)
-            if hasattr(model, 'coef_'):
-                importance = np.abs(model.coef_[0]) if len(model.coef_.shape) > 1 else np.abs(model.coef_)
-                feature_importance = dict(zip(feature_cols, importance.tolist()))
-        
-        # Predictions
-        y_pred = model.predict(X_test)
-        y_pred_proba = model.predict_proba(X_test)[:, 1] if hasattr(model, 'predict_proba') else None
-        
-        # Calculate metrics
-        metrics = {
-            "accuracy": float(accuracy_score(y_test, y_pred)),
-            "precision": float(precision_score(y_test, y_pred, average='weighted', zero_division=0)),
-            "recall": float(recall_score(y_test, y_pred, average='weighted', zero_division=0)),
-            "f1_score": float(f1_score(y_test, y_pred, average='weighted', zero_division=0))
-        }
-        
-        if y_pred_proba is not None:
-            try:
-                metrics["auc_roc"] = float(roc_auc_score(y_test, y_pred_proba))
-            except:
-                pass
-        
-        # Store model
-        model_id = str(uuid.uuid4())
-        models_store[model_id] = {
-            "model": model,
-            "scaler": scaler,
-            "label_encoders": label_encoders,
-            "feature_columns": feature_cols,
-            "target_column": request.target_column,
-            "algorithm": request.algorithm,
-            "metrics": metrics,
-            "dataset_id": request.dataset_id
-        }
-        
-        training_time = time.time() - start_time
-        
-        return TrainResponse(
-            model_id=model_id,
-            algorithm=request.algorithm if request.algorithm == "xgboost" and XGBOOST_AVAILABLE else "logistic_regression",
-            metrics=metrics,
-            feature_importance=feature_importance,
-            training_time=training_time
-        )
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur d'entrainement: {str(e)}")
 
 def _calculate_metrics_for_df(df, target_column, sensitive_attributes, favorable_outcome=1, predictions=None):
     """Helper to calculate fairness metrics for a dataframe."""
@@ -1368,13 +993,28 @@ async def ds_agent_chat(request: DSAgentChatRequest):
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
 
+# --- Global Exception Handler ---
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled exception: {str(exc)}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": "Internal server error",
+            "detail": (
+                str(exc) if app.debug
+                else "An unexpected error occurred"
+            ),
+        },
+    )
 
-class DSProjectCreateRequest(BaseModel):
-    user_id: int
-    dataset_id: Optional[int] = None
-    project_name: str
-    target_column: Optional[str] = None
-    problem_type: Optional[str] = None
+
+# --- Startup / Shutdown ---
+@app.on_event("startup")
+async def startup_event():
+    logger.info("AuditIQ Backend v2.0.0 starting up")
+    logger.info(f"CORS origins: {ALLOWED_ORIGINS}")
+    logger.info(f"LLM status: {'enabled' if llm_analyzer else 'disabled'}")
 
 @app.post("/api/ds/projects")
 async def create_ds_project(request: DSProjectCreateRequest):
@@ -1386,10 +1026,10 @@ async def create_ds_project(request: DSProjectCreateRequest):
             "problem_type": request.problem_type,
             "status": "active"
         }
-        
+
         if request.dataset_id:
             payload["dataset_id"] = request.dataset_id
-        
+
         res = supabase.table("ds_projects").insert(payload).execute()
         if hasattr(res, 'data') and len(res.data) > 0:
             return {"status": "success", "project": res.data[0]}
@@ -1398,43 +1038,10 @@ async def create_ds_project(request: DSProjectCreateRequest):
         logger.info(f"Error creating DS project: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# EDA endpoint
-@app.get("/api/eda/{dataset_id}")
-async def get_eda(dataset_id: str):
-    if dataset_id not in datasets_store:
-        raise HTTPException(status_code=404, detail="Dataset non trouve")
-    
-    df = datasets_store[dataset_id]["df"]
-    
-    # Basic statistics
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
-    
-    stats = {
-        "shape": {"rows": len(df), "columns": len(df.columns)},
-        "missing_values": df.isnull().sum().to_dict(),
-        "missing_percentage": (df.isnull().sum() / len(df) * 100).round(2).to_dict(),
-        "dtypes": df.dtypes.astype(str).to_dict(),
-        "numeric_columns": numeric_cols,
-        "categorical_columns": categorical_cols
-    }
-    
-    # Numeric statistics
-    if numeric_cols:
-        stats["numeric_stats"] = df[numeric_cols].describe().to_dict()
-        stats["correlations"] = df[numeric_cols].corr().round(3).to_dict()
-    
-    # Categorical statistics
-    if categorical_cols:
-        stats["categorical_stats"] = {}
-        for col in categorical_cols[:10]:  # Limit to 10 columns
-            value_counts = df[col].value_counts().head(20).to_dict()
-            stats["categorical_stats"][col] = {
-                "unique_values": int(df[col].nunique()),
-                "top_values": value_counts
-            }
-    
-    return to_json_safe(stats)
+@app.on_event("shutdown")
+async def shutdown_event():
+    logger.info("AuditIQ Backend shutting down")
+
 
 if __name__ == "__main__":
     import uvicorn
@@ -1708,5 +1315,3 @@ async def generate_counterfactuals(req: CounterfactualRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 # End of file
-
-

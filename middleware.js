@@ -1,18 +1,10 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-// Routes that don't require authentication
-const PUBLIC_API_ROUTES = [
-  '/api/auth/signin',
-  '/api/auth/signup',
-  '/api/auth/google',
-  '/api/auth/forgot-password',
-  '/api/auth/send-verification',
-  '/api/auth/verify-email',
-  '/api/auth/signout',
-]
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-const PUBLIC_PAGES = [
+const PUBLIC_ROUTES = [
   '/',
   '/login',
   '/signup',
@@ -25,9 +17,15 @@ const PUBLIC_PAGES = [
   '/contact',
   '/pricing',
   '/onboarding',
+  '/legal',
   '/legal/cgu',
   '/legal/privacy',
   '/legal/terms',
+]
+
+const PUBLIC_API_ROUTES = [
+  '/api/auth',
+  '/api/health',
 ]
 
 // Allowed origins for CSRF check
@@ -47,17 +45,23 @@ function isAllowedOrigin(origin) {
   return false
 }
 
+function isPublicRoute(pathname) {
+  if (PUBLIC_ROUTES.some(route => pathname === route || pathname.startsWith(route + '/'))) {
+    return true
+  }
+  if (pathname.startsWith('/api/')) {
+    return PUBLIC_API_ROUTES.some(route => pathname.startsWith(route))
+  }
+  return false
+}
+
 export async function middleware(request) {
   const { pathname } = request.nextUrl
   const method = request.method
 
-  // Allow public pages
-  if (PUBLIC_PAGES.some(route => pathname === route)) {
+  if (isPublicRoute(pathname)) {
     return NextResponse.next()
   }
-
-  // Allow public API routes (still subject to CSRF check below)
-  const isPublicApi = PUBLIC_API_ROUTES.some(route => pathname.startsWith(route))
 
   // Allow static files and Next.js internals
   if (
@@ -103,68 +107,81 @@ export async function middleware(request) {
     }
   }
 
-  // Public API routes pass CSRF but skip auth
-  if (isPublicApi) {
-    return NextResponse.next()
-  }
-
   // Public API v1 routes - authenticated via X-API-Key (handled in route handlers)
   if (pathname.startsWith('/api/v1/')) {
     return NextResponse.next()
   }
 
-  // Protected API routes - verify Bearer token
-  if (pathname.startsWith('/api/')) {
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+  // Token extraction: Authorization header first, then cookies
+  const authHeader = request.headers.get('authorization')
+  let token = null
 
-    const token = authHeader.replace('Bearer ', '')
-    if (!token || token.length < 20) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
-    }
+  if (authHeader?.startsWith('Bearer ')) {
+    token = authHeader.replace('Bearer ', '')
+  }
 
-    // Verify token with Supabase
-    try {
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-      )
-      const { data: { user }, error } = await supabase.auth.getUser(token)
+  if (!token) {
+    const supabaseAuthToken = request.cookies.get('sb-access-token')?.value
+      || request.cookies.get(`sb-${new URL(supabaseUrl).hostname.split('.')[0]}-auth-token`)?.value
 
-      if (error || !user) {
-        return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 })
+    if (supabaseAuthToken) {
+      try {
+        const parsed = JSON.parse(supabaseAuthToken)
+        token = parsed?.access_token || parsed?.[0]?.access_token
+      } catch {
+        token = supabaseAuthToken
       }
-
-      // Add user info to headers for downstream routes
-      const requestHeaders = new Headers(request.headers)
-      requestHeaders.set('x-user-id', user.id)
-      requestHeaders.set('x-user-email', user.email)
-
-      return NextResponse.next({
-        request: { headers: requestHeaders },
-      })
-    } catch {
-      return NextResponse.json({ error: 'Authentication failed' }, { status: 401 })
     }
   }
 
-  // Protected dashboard pages
-  if (pathname.startsWith('/dashboard')) {
-    const response = NextResponse.next()
-    response.headers.set('X-Frame-Options', 'DENY')
-    response.headers.set('X-Content-Type-Options', 'nosniff')
-    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-    return response
+  if (!token) {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      )
+    }
+    const loginUrl = new URL('/login', request.url)
+    loginUrl.searchParams.set('redirect', pathname)
+    return NextResponse.redirect(loginUrl)
   }
 
-  return NextResponse.next()
+  try {
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: `Bearer ${token}` } },
+    })
+    const { data: { user }, error } = await supabase.auth.getUser(token)
+
+    if (error || !user) {
+      if (pathname.startsWith('/api/')) {
+        return NextResponse.json(
+          { error: 'Invalid or expired token' },
+          { status: 401 }
+        )
+      }
+      const loginUrl = new URL('/login', request.url)
+      loginUrl.searchParams.set('redirect', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+
+    const response = NextResponse.next()
+    response.headers.set('x-user-id', user.id)
+    return response
+  } catch {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json(
+        { error: 'Authentication error' },
+        { status: 500 }
+      )
+    }
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
 }
 
 export const config = {
   matcher: [
     '/dashboard/:path*',
-    '/api/:path*',
+    '/api/((?!auth|health).*)',
+    '/onboarding/:path*',
   ],
 }

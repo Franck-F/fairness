@@ -2,89 +2,120 @@
 
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { Home, ArrowLeft, Search } from 'lucide-react'
+import { Home } from 'lucide-react'
 
 export default function NotFound() {
   const router = useRouter()
 
   return (
-    <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 via-purple-600 to-purple-700">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-center">
-          <div className="w-full max-w-2xl text-center">
-            {/* Logo */}
-            <Link href="/" className="inline-block mb-8">
-              <Image
-                src="https://customer-assets.emergentagent.com/job_auditiq/artifacts/snxql2e8_logo%20audiot-iq%20big%20without%20bg.png.png"
-                alt="AuditIQ Logo"
-                width={180}
-                height={72}
-                className="object-contain mx-auto"
-              />
-            </Link>
+    <div className="min-h-screen flex items-center justify-center bg-background text-foreground relative overflow-hidden">
+      {/* Animated gradient orbs - CSS only */}
+      <div
+        className="absolute w-[500px] h-[500px] rounded-full opacity-30 blur-[100px] pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle, #e208a1 0%, transparent 70%)',
+          top: '-10%',
+          left: '-10%',
+          animation: 'orb-float-1 8s ease-in-out infinite',
+        }}
+        aria-hidden="true"
+      />
+      <div
+        className="absolute w-[400px] h-[400px] rounded-full opacity-20 blur-[100px] pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle, #EA60D1 0%, transparent 70%)',
+          bottom: '-5%',
+          right: '-5%',
+          animation: 'orb-float-2 10s ease-in-out infinite',
+        }}
+        aria-hidden="true"
+      />
+      <div
+        className="absolute w-[300px] h-[300px] rounded-full opacity-15 blur-[80px] pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle, #e208a1 0%, #EA60D1 50%, transparent 70%)',
+          top: '50%',
+          left: '60%',
+          animation: 'orb-float-3 12s ease-in-out infinite',
+        }}
+        aria-hidden="true"
+      />
 
-            {/* 404 Animation */}
-            <div 
-              className="bg-[url(https://cdn.dribbble.com/users/285475/screenshots/2083086/dribbble_1.gif)] h-[250px] sm:h-[350px] md:h-[400px] bg-center bg-no-repeat bg-contain"
-              aria-hidden="true"
-            >
-              <h1 className="text-center text-white text-7xl sm:text-8xl md:text-9xl font-bold pt-6 sm:pt-8 drop-shadow-lg">
-                404
-              </h1>
-            </div>
+      {/* Content */}
+      <div className="relative z-10 text-center px-6 max-w-lg mx-auto">
+        {/* Large 404 with gradient */}
+        <h1
+          className="text-[10rem] sm:text-[12rem] md:text-[14rem] font-extrabold leading-none select-none tracking-tighter"
+          style={{
+            background: 'linear-gradient(135deg, #e208a1 0%, #EA60D1 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}
+        >
+          404
+        </h1>
 
-            <div className="mt-[-30px] bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-              <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-white">
-                Page introuvable
-              </h2>
-              <p className="mb-8 text-white/80 text-lg">
-                Oups ! La page que vous recherchez n'existe pas ou a ete deplacee.
-              </p>
+        {/* Heading */}
+        <h2 className="text-2xl sm:text-3xl font-bold text-foreground mt-2 mb-3">
+          Page introuvable
+        </h2>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  onClick={() => router.back()}
-                  className="gap-2"
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                  Page precedente
-                </Button>
-                <Button
-                  size="lg"
-                  onClick={() => router.push('/')}
-                  className="gap-2 bg-white text-primary hover:bg-white/90"
-                >
-                  <Home className="h-5 w-5" />
-                  Retour a l'accueil
-                </Button>
-              </div>
+        {/* Description */}
+        <p className="text-muted-foreground text-base sm:text-lg mb-10 max-w-md mx-auto leading-relaxed">
+          La page que vous recherchez n&apos;existe pas ou a&nbsp;été déplacée.
+        </p>
 
-              {/* Suggested links */}
-              <div className="mt-8 pt-6 border-t border-white/20">
-                <p className="text-white/60 text-sm mb-4">Pages populaires :</p>
-                <div className="flex flex-wrap gap-3 justify-center">
-                  <Link href="/dashboard" className="text-white/80 hover:text-white text-sm underline underline-offset-4">
-                    Dashboard
-                  </Link>
-                  <Link href="/pricing" className="text-white/80 hover:text-white text-sm underline underline-offset-4">
-                    Tarifs
-                  </Link>
-                  <Link href="/about" className="text-white/80 hover:text-white text-sm underline underline-offset-4">
-                    A propos
-                  </Link>
-                  <Link href="/contact" className="text-white/80 hover:text-white text-sm underline underline-offset-4">
-                    Contact
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Button */}
+        <Button
+          size="lg"
+          onClick={() => router.push('/')}
+          className="gap-2"
+          asChild
+        >
+          <Link href="/">
+            <Home className="h-5 w-5" />
+            Retour à l&apos;accueil
+          </Link>
+        </Button>
       </div>
-    </section>
+
+      {/* Keyframes for animated orbs */}
+      <style jsx global>{`
+        @keyframes orb-float-1 {
+          0%, 100% {
+            transform: translate(0, 0) scale(1);
+          }
+          33% {
+            transform: translate(60px, 40px) scale(1.1);
+          }
+          66% {
+            transform: translate(-30px, 60px) scale(0.95);
+          }
+        }
+
+        @keyframes orb-float-2 {
+          0%, 100% {
+            transform: translate(0, 0) scale(1);
+          }
+          33% {
+            transform: translate(-50px, -30px) scale(1.05);
+          }
+          66% {
+            transform: translate(40px, -50px) scale(0.9);
+          }
+        }
+
+        @keyframes orb-float-3 {
+          0%, 100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(-70px, 40px) scale(1.15);
+          }
+        }
+      `}</style>
+    </div>
   )
 }

@@ -1,6 +1,5 @@
 const nextConfig = {
   images: {
-    unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: 'customer-assets.emergentagent.com' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
@@ -8,6 +7,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 'upload.wikimedia.org' },
       { protocol: 'https', hostname: 'www.gstatic.com' },
       { protocol: 'https', hostname: 'github.com' },
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
       { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
     ],
   },
@@ -29,12 +29,25 @@ const nextConfig = {
     return config;
   },
   onDemandEntries: {
-    maxInactiveAge: 10000,
-    pagesBufferLength: 2,
+    maxInactiveAge: 60 * 1000,
+    pagesBufferLength: 8,
   },
   async headers() {
     // On Vercel, API routes are same-origin (no CORS needed for frontend).
     // CORS headers here are only for the public API v1 (external consumers).
+    const cspDirectives = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net https://accounts.google.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com",
+      "img-src 'self' data: blob: https://images.unsplash.com https://cdn.jsdelivr.net https://upload.wikimedia.org https://www.gstatic.com https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://customer-assets.emergentagent.com",
+      "font-src 'self' https://fonts.gstatic.com",
+      `connect-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL || ''} ${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'} https://generativelanguage.googleapis.com https://accounts.google.com`,
+      "frame-src 'self' https://accounts.google.com",
+      "frame-ancestors 'self'",
+      "base-uri 'self'",
+      "form-action 'self'",
+    ].join('; ');
+
     return [
       {
         // Public API v1 - allow external consumers
@@ -69,7 +82,8 @@ const nextConfig = {
           { key: "X-XSS-Protection", value: "1; mode=block" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
-          { key: "Content-Security-Policy", value: "frame-ancestors 'self';" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          { key: "Content-Security-Policy", value: cspDirectives },
         ],
       },
     ];

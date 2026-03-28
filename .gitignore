@@ -4,6 +4,11 @@
 .idea/
 .vscode/
 
+# AI tools config
+.agents/
+.claude/
+skills/
+
 # Dependencies
 node_modules/
 /.pnp
@@ -34,6 +39,7 @@ dist/
 .env.development.local
 .env.test.local
 .env.production.local
+*.env
 *.env.*
 *token.json*
 *credentials.json*
@@ -88,3 +94,6 @@ agenthub/agents/youtube/db
 
 # Temp files
 temp/
+
+# Emergent
+.emergent/summary.txt

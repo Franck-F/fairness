@@ -2,126 +2,130 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { FaLinkedin, FaTwitter, FaGithub, FaYoutube } from 'react-icons/fa'
+import { Linkedin, Twitter, Github } from 'lucide-react'
 
 const sections = [
   {
-    title: 'Produit',
+    title: 'Fonctionnalités',
     links: [
-      { name: 'Fonctionnalites', href: '/#features' },
-      { name: 'Tarifs', href: '/pricing' },
-      { name: 'Demo', href: '/contact' },
-      { name: 'Changelog', href: '/blog' },
+      { name: 'Audit Fairness', href: '/dashboard/upload' },
+      { name: 'Analyse What-If', href: '/dashboard/whatif' },
+      { name: 'Dé-biaisage', href: '/dashboard/audits' },
+      { name: 'Assistant IA', href: '/dashboard/chat' },
     ],
   },
   {
     title: 'Entreprise',
     links: [
-      { name: 'A propos', href: '/about' },
-      { name: 'Blog', href: '/blog' },
-      { name: 'Carrieres', href: '/careers' },
+      { name: 'À propos', href: '/about' },
+      { name: 'Tarifs', href: '/pricing' },
+      { name: 'Carrières', href: '/careers' },
       { name: 'Contact', href: '/contact' },
     ],
   },
   {
     title: 'Ressources',
     links: [
-      { name: 'Documentation', href: '/blog' },
-      { name: 'API Reference', href: '/blog' },
-      { name: 'Support', href: '/contact' },
-      { name: 'Statut', href: '/contact' },
+      { name: 'Documentation', href: '/about' },
+      { name: 'API Alpha', href: '/dashboard/connections' },
+      { name: 'Status', href: '/api/health' },
+      { name: 'Blog', href: '/blog' },
     ],
   },
 ]
 
 const socialLinks = [
-  { icon: FaLinkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
-  { icon: FaTwitter, href: 'https://twitter.com', label: 'Twitter' },
-  { icon: FaGithub, href: 'https://github.com', label: 'GitHub' },
-  { icon: FaYoutube, href: 'https://youtube.com', label: 'YouTube' },
+  { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
+  { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
+  { icon: Github, href: 'https://github.com', label: 'GitHub' },
 ]
 
 const legalLinks = [
-  { name: 'Conditions Generales', href: '/legal/terms' },
-  { name: 'Politique de Confidentialite', href: '/legal/privacy' },
-  { name: 'Mentions Legales', href: '/legal/cgu' },
+  { name: 'CGU', href: '/legal/terms' },
+  { name: 'Confidentialité', href: '/legal/privacy' },
+  { name: 'Mentions légales', href: '/legal/cgu' },
 ]
 
 export function AuditIQFooter() {
   return (
-    <footer className="bg-card border-t border-border">
-      <div className="container mx-auto px-4 py-16">
-        <div className="flex w-full flex-col justify-between gap-10 lg:flex-row lg:items-start">
-          {/* Logo & Description */}
-          <div className="flex w-full flex-col gap-6 lg:max-w-sm">
-            <Link href="/" className="flex items-center gap-2">
+    <footer className="bg-background text-foreground border-t border-border">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        {/* Main footer grid */}
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-5">
+          {/* Left section - Logo, description, socials */}
+          <div className="lg:col-span-2 flex flex-col gap-5">
+            <Link href="/" className="inline-block">
               <Image
                 src="https://customer-assets.emergentagent.com/job_auditiq/artifacts/snxql2e8_logo%20audiot-iq%20big%20without%20bg.png.png"
                 alt="AuditIQ Logo"
                 width={140}
                 height={56}
+                style={{ width: 'auto', height: 'auto' }}
                 className="object-contain"
               />
             </Link>
-            <p className="text-sm text-muted-foreground">
-              La plateforme SaaS leader pour l'audit de fairness et la detection de biais 
-              dans les systemes d'Intelligence Artificielle. Conforme AI Act 2024.
+            <p className="text-sm leading-relaxed text-muted-foreground max-w-sm">
+              Plateforme SaaS d&apos;audit de fairness et de détection de biais
+              dans les systèmes d&apos;IA.
             </p>
-            <ul className="flex items-center space-x-4">
-              {socialLinks.map((social, idx) => (
-                <li key={idx}>
-                  <a 
-                    href={social.href} 
-                    aria-label={social.label}
+            <div className="flex items-center gap-3">
+              {socialLinks.map((social) => {
+                const Icon = social.icon
+                return (
+                  <a
+                    key={social.label}
+                    href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block p-2 rounded-lg transition-colors text-muted-foreground hover:text-primary hover:bg-primary/10"
+                    aria-label={social.label}
+                    className="flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-primary hover:bg-primary/10"
                   >
-                    <social.icon className="size-5" />
+                    <Icon className="h-5 w-5" />
                   </a>
-                </li>
-              ))}
-            </ul>
+                )
+              })}
+            </div>
           </div>
 
-          {/* Navigation Sections */}
-          <div className="grid w-full gap-8 sm:grid-cols-3 lg:gap-16">
-            {sections.map((section, sectionIdx) => (
-              <div key={sectionIdx}>
-                <h3 className="mb-4 font-bold text-foreground">
-                  {section.title}
-                </h3>
-                <ul className="space-y-3">
-                  {section.links.map((link, linkIdx) => (
-                    <li key={linkIdx}>
-                      <Link 
-                        href={link.href}
-                        className="text-sm transition-colors text-muted-foreground hover:text-primary"
-                      >
-                        {link.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+          {/* 3 link columns */}
+          {sections.map((section) => (
+            <div key={section.title}>
+              <h3 className="mb-4 text-sm font-semibold tracking-wide text-foreground">
+                {section.title}
+              </h3>
+              <ul className="space-y-3">
+                {section.links.map((link) => (
+                  <li key={link.name}>
+                    <Link
+                      href={link.href}
+                      className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                    >
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
-        {/* Bottom Bar */}
-        <div className="mt-12 flex flex-col justify-between gap-4 border-t border-border pt-8 text-xs md:flex-row md:items-center">
-          <p className="order-2 lg:order-1 text-muted-foreground">
-            2026 AuditIQ SaaS. Tous droits reserves.
+        {/* Bottom bar */}
+        <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 sm:flex-row">
+          <p className="text-sm text-muted-foreground">
+            &copy; 2026 AuditIQ SAS. Tous droits réservés.
           </p>
-          <ul className="order-1 flex flex-wrap gap-4 md:order-2">
+          <ul className="flex flex-wrap items-center gap-5">
             {legalLinks.map((link, idx) => (
-              <li key={idx}>
-                <Link 
+              <li key={link.name} className="flex items-center gap-5">
+                <Link
                   href={link.href}
-                  className="transition-colors text-muted-foreground hover:text-primary"
+                  className="text-sm text-foreground/70 underline underline-offset-2 decoration-foreground/30 transition-colors hover:text-primary hover:decoration-primary"
                 >
                   {link.name}
                 </Link>
+                {idx < legalLinks.length - 1 && (
+                  <span className="text-foreground/20">|</span>
+                )}
               </li>
             ))}
           </ul>

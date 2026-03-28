@@ -3,16 +3,32 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { ArrowRight, Building2, ChevronRight, Clock3, Mail, MapPin, Phone, Send } from 'lucide-react'
+import { toast } from 'sonner'
+
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { MarketingFooter } from '@/components/ui/marketing-footer'
+import { RevealOnScroll } from '@/components/ui/reveal-on-scroll'
 import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { AuditIQFooter } from '@/components/ui/auditiq-footer'
-import { ThemeToggle } from '@/components/theme-toggle'
-import { Mail, Phone, MapPin, Clock, Send, MessageSquare, Building2, ChevronRight } from 'lucide-react'
-import { toast } from 'sonner'
+
+const logoUrl = 'https://customer-assets.emergentagent.com/job_auditiq/artifacts/snxql2e8_logo%20audiot-iq%20big%20without%20bg.png.png'
+
+const contactInfo = [
+  { icon: Mail, label: 'Email', value: 'contact@auditiq.ai', href: 'mailto:contact@auditiq.ai' },
+  { icon: Phone, label: 'Telephone', value: '+33 1 23 45 67 89', href: 'tel:+33123456789' },
+  { icon: MapPin, label: 'Adresse', value: '42 Rue de l Innovation, 75008 Paris', href: '' },
+  { icon: Clock3, label: 'Horaires', value: 'Lun-Ven: 9h-18h', href: '' },
+]
+
+function GridGlow() {
+  return (
+    <div className="pointer-events-none absolute inset-0 opacity-45">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(153,66,255,0.22),transparent_22%),linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:auto,42px_42px,42px_42px]" />
+    </div>
+  )
+}
 
 export default function ContactPage() {
   const [loading, setLoading] = useState(false)
@@ -24,221 +40,225 @@ export default function ContactPage() {
     message: '',
   })
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = async (event) => {
+    event.preventDefault()
     setLoading(true)
-    
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    toast.success('Message envoye avec succes ! Nous vous repondrons sous 24h.')
+
+    await new Promise((resolve) => setTimeout(resolve, 1200))
+
+    toast.success('Message envoyé. Notre équipe vous répond sous 24h.')
     setFormData({ name: '', email: '', company: '', subject: '', message: '' })
     setLoading(false)
   }
 
-  const contactInfo = [
-    { icon: Mail, label: 'Email', value: 'contact@auditiq.ai', href: 'mailto:contact@auditiq.ai' },
-    { icon: Phone, label: 'Telephone', value: '+33 1 23 45 67 89', href: 'tel:+33123456789' },
-    { icon: MapPin, label: 'Adresse', value: '42 Rue de l\'Innovation, 75008 Paris', href: null },
-    { icon: Clock, label: 'Horaires', value: 'Lun-Ven: 9h-18h', href: null },
-  ]
-
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-2">
-            <Image
-              src="https://customer-assets.emergentagent.com/job_auditiq/artifacts/snxql2e8_logo%20audiot-iq%20big%20without%20bg.png.png"
-              alt="AuditIQ Logo"
-              width={140}
-              height={56}
-              className="object-contain"
-            />
-          </Link>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="/about" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">A Propos</Link>
-            <Link href="/pricing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Tarifs</Link>
-            <Link href="/contact" className="text-sm font-medium text-primary">Contact</Link>
-            <Link href="/blog" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Blog</Link>
-          </nav>
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <Link href="/login"><Button variant="ghost">Connexion</Button></Link>
-            <Link href="/signup"><Button>Commencer</Button></Link>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[#050505] text-white">
+      <div className="relative overflow-hidden border-b border-white/8">
+        <GridGlow />
+        <div className="absolute left-1/2 top-14 h-[320px] w-[320px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(170,79,255,0.44)_0%,rgba(105,33,158,0.22)_38%,rgba(0,0,0,0)_70%)] blur-2xl" />
 
-      {/* Hero */}
-      <section className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10" />
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-            <Link href="/" className="hover:text-primary transition-colors">Accueil</Link>
-            <ChevronRight className="h-4 w-4" />
-            <span className="text-primary">Contact</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Contactez <span className="text-primary">Notre Equipe</span>
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl">
-            Une question ? Un projet ? Notre equipe est la pour vous accompagner dans votre demarche d'IA responsable.
-          </p>
-        </div>
-      </section>
-
-      {/* Contact Content */}
-      <section className="container mx-auto px-4 pb-16">
-        <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {/* Contact Info */}
-          <div className="space-y-6">
-            <Card className="p-6 bg-card">
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <Building2 className="h-5 w-5 text-primary" />
-                Informations de Contact
-              </h3>
-              <div className="space-y-4">
-                {contactInfo.map((info, index) => (
-                  <div key={index} className="flex items-start gap-3">
-                    <info.icon className="h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">{info.label}</p>
-                      {info.href ? (
-                        <a href={info.href} className="font-medium hover:text-primary transition-colors">{info.value}</a>
-                      ) : (
-                        <p className="font-medium">{info.value}</p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            <Card className="p-6 bg-primary/10 border-primary/20">
-              <MessageSquare className="h-8 w-8 mb-4 text-primary" />
-              <h3 className="font-semibold mb-2">Support Client</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Deja client ? Accedez a notre support prioritaire via votre dashboard.
-              </p>
-              <Link href="/login">
-                <Button variant="outline" size="sm">Acceder au Support</Button>
-              </Link>
-            </Card>
-          </div>
-
-          {/* Contact Form */}
-          <Card className="lg:col-span-2 bg-card">
-            <CardHeader>
-              <CardTitle>Envoyez-nous un Message</CardTitle>
-              <CardDescription>
-                Remplissez le formulaire ci-dessous et nous vous repondrons dans les plus brefs delais.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Nom complet *</Label>
-                    <Input
-                      id="name"
-                      placeholder="Jean Dupont"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      required
-                      className="bg-background"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="jean@entreprise.com"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      required
-                      className="bg-background"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="company">Entreprise</Label>
-                    <Input
-                      id="company"
-                      placeholder="Nom de votre entreprise"
-                      value={formData.company}
-                      onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                      className="bg-background"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="subject">Sujet *</Label>
-                    <Select
-                      value={formData.subject}
-                      onValueChange={(value) => setFormData({ ...formData, subject: value })}
-                    >
-                      <SelectTrigger className="bg-background">
-                        <SelectValue placeholder="Selectionnez un sujet" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="demo">Demande de demo</SelectItem>
-                        <SelectItem value="pricing">Question sur les tarifs</SelectItem>
-                        <SelectItem value="partnership">Partenariat</SelectItem>
-                        <SelectItem value="support">Support technique</SelectItem>
-                        <SelectItem value="other">Autre</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="message">Message *</Label>
-                  <Textarea
-                    id="message"
-                    placeholder="Decrivez votre projet ou votre question..."
-                    rows={6}
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    required
-                    className="bg-background"
-                  />
-                </div>
-
-                <Button type="submit" className="w-full md:w-auto" disabled={loading}>
-                  {loading ? (
-                    'Envoi en cours...'
-                  ) : (
-                    <>
-                      <Send className="h-4 w-4 mr-2" />
-                      Envoyer le Message
-                    </>
-                  )}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Map placeholder */}
-      <section className="container mx-auto px-4 pb-16">
-        <Card className="overflow-hidden bg-card">
-          <div className="h-64 bg-muted/30 flex items-center justify-center">
-            <div className="text-center">
-              <MapPin className="h-12 w-12 text-primary mx-auto mb-2" />
-              <p className="font-medium">42 Rue de l'Innovation</p>
-              <p className="text-muted-foreground">75008 Paris, France</p>
+        <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#050505]/80 backdrop-blur-xl">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-10">
+            <Link href="/" className="flex items-center gap-3">
+              <Image src={logoUrl} alt="AuditIQ" width={112} height={26} className="h-auto w-[104px] brightness-150" />
+            </Link>
+            <nav className="hidden items-center gap-8 text-[11px] font-medium text-white/65 md:flex">
+              <Link href="/about" className="transition-colors hover:text-white">À propos</Link>
+              <Link href="/pricing" className="transition-colors hover:text-white">Tarifs</Link>
+              <Link href="/contact" className="text-white">Contact</Link>
+              <Link href="/blog" className="transition-colors hover:text-white">Blog</Link>
+            </nav>
+            <div className="flex items-center gap-3">
+              <Button asChild variant="ghost" className="hidden rounded-full px-4 text-white/70 hover:bg-white/5 hover:text-white sm:inline-flex">
+                <Link href="/login">Connexion</Link>
+              </Button>
+              <Button asChild className="rounded-full border border-brand-primary/40 bg-brand-primary px-4 text-white hover:bg-brand-primary/90">
+                <Link href="/signup">Essai gratuit</Link>
+              </Button>
             </div>
           </div>
-        </Card>
+        </header>
+
+        <section className="relative z-10 px-5 pb-16 pt-28 sm:px-8 lg:px-10 lg:pb-24 lg:pt-32">
+          <div className="mx-auto max-w-7xl">
+            <div className="flex items-center gap-2 text-xs text-white/45">
+              <Link href="/" className="hover:text-white">Accueil</Link>
+              <ChevronRight className="h-3.5 w-3.5" />
+              <span>Contact</span>
+            </div>
+            <RevealOnScroll className="mt-8 max-w-4xl" duration={0.65}>
+              <span className="inline-flex rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-white/55">
+                Contact
+              </span>
+              <h1 className="mt-5 text-4xl font-semibold leading-tight text-white sm:text-5xl md:text-6xl">
+                Parlons de votre gouvernance IA et de vos besoins de conformité.
+              </h1>
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-white/60 sm:text-base">
+                Une question, un cadrage, un besoin de démonstration : notre équipe vous accompagne pour structurer un déploiement solide.
+              </p>
+            </RevealOnScroll>
+          </div>
+        </section>
+      </div>
+
+      <section className="px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
+        <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+          <aside className="space-y-4">
+            <RevealOnScroll>
+              <div className="rounded-[28px] border border-white/10 bg-[#0d0d0f] p-5">
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
+                <Building2 className="h-4 w-4 text-brand-cotton" />
+                Informations de contact
+              </h2>
+              <div className="mt-5 space-y-4">
+                {contactInfo.map((item, index) => {
+                  const Icon = item.icon
+                  return (
+                    <RevealOnScroll key={item.label} delay={index * 0.05} y={18}>
+                      <div className="flex items-start gap-3 rounded-2xl border border-white/8 bg-white/[0.02] p-3 transition-transform duration-300 hover:-translate-y-0.5 hover:border-white/20">
+                      <div className="rounded-xl border border-white/10 bg-black/30 p-2">
+                        <Icon className="h-4 w-4 text-brand-cotton" />
+                      </div>
+                      <div>
+                        <p className="text-[11px] uppercase tracking-[0.12em] text-white/45">{item.label}</p>
+                        {item.href ? (
+                          <a href={item.href} className="text-sm text-white/82 hover:text-white">
+                            {item.value}
+                          </a>
+                        ) : (
+                          <p className="text-sm text-white/82">{item.value}</p>
+                        )}
+                      </div>
+                      </div>
+                    </RevealOnScroll>
+                  )
+                })}
+              </div>
+              </div>
+            </RevealOnScroll>
+
+            <RevealOnScroll delay={0.1}>
+              <div className="rounded-[28px] border border-white/10 bg-[linear-gradient(135deg,rgba(226,8,161,0.18),rgba(117,45,177,0.18)_55%,rgba(255,255,255,0.03))] p-5 framer-float">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-white/55">Support client</p>
+              <p className="mt-3 text-sm leading-7 text-white/78">
+                Deja client ? Accedez a votre dashboard pour suivre vos tickets et partager vos retours d audit avec nos experts.
+              </p>
+              <Button asChild className="mt-5 rounded-full bg-white text-black hover:bg-white/90">
+                <Link href="/login">Acceder au support</Link>
+              </Button>
+              </div>
+            </RevealOnScroll>
+          </aside>
+
+          <RevealOnScroll delay={0.1}>
+            <div className="rounded-[30px] border border-white/10 bg-[#0d0d0f] p-5 sm:p-6">
+            <h2 className="text-xl font-semibold text-white">Envoyez-nous un message</h2>
+            <p className="mt-2 text-sm text-white/58">Nous vous repondons rapidement avec des recommandations concretes.</p>
+
+            <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-white/78">Nom complet</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(event) => setFormData({ ...formData, name: event.target.value })}
+                    placeholder="Jean Dupont"
+                    required
+                    className="border-white/10 bg-white/[0.03] text-white placeholder:text-white/25"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-white/78">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(event) => setFormData({ ...formData, email: event.target.value })}
+                    placeholder="jean@entreprise.com"
+                    required
+                    className="border-white/10 bg-white/[0.03] text-white placeholder:text-white/25"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="company" className="text-white/78">Entreprise</Label>
+                  <Input
+                    id="company"
+                    value={formData.company}
+                    onChange={(event) => setFormData({ ...formData, company: event.target.value })}
+                    placeholder="Nom de votre entreprise"
+                    className="border-white/10 bg-white/[0.03] text-white placeholder:text-white/25"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="subject" className="text-white/78">Sujet</Label>
+                  <Input
+                    id="subject"
+                    value={formData.subject}
+                    onChange={(event) => setFormData({ ...formData, subject: event.target.value })}
+                    placeholder="Demo, pricing, support..."
+                    className="border-white/10 bg-white/[0.03] text-white placeholder:text-white/25"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="message" className="text-white/78">Message</Label>
+                <Textarea
+                  id="message"
+                  value={formData.message}
+                  onChange={(event) => setFormData({ ...formData, message: event.target.value })}
+                  placeholder="Decrivez votre contexte, vos objectifs et vos contraintes..."
+                  rows={7}
+                  required
+                  className="border-white/10 bg-white/[0.03] text-white placeholder:text-white/25"
+                />
+              </div>
+
+              <Button type="submit" disabled={loading} className="rounded-full bg-brand-primary px-6 text-white hover:bg-brand-primary/90">
+                {loading ? 'Envoi en cours...' : (
+                  <>
+                    <Send className="mr-2 h-4 w-4" />
+                    Envoyer le message
+                  </>
+                )}
+              </Button>
+            </form>
+            </div>
+          </RevealOnScroll>
+        </div>
       </section>
 
-      {/* Footer */}
-      <AuditIQFooter />
+      <section className="border-t border-white/8 px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
+        <div className="mx-auto max-w-7xl">
+          <RevealOnScroll>
+            <div className="overflow-hidden rounded-[34px] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.04),rgba(117,45,177,0.22)_55%,rgba(226,8,161,0.22))] px-6 py-10 text-center sm:px-10 sm:py-14">
+            <h2 className="mx-auto max-w-3xl text-3xl font-semibold leading-tight text-white sm:text-4xl">
+              Besoin d accélérer votre feuille de route de conformité IA ?
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/65 sm:text-base">
+              On peut commencer par un cadrage rapide puis prioriser les actions les plus impactantes.
+            </p>
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Button asChild className="rounded-full bg-brand-primary px-6 text-white hover:bg-brand-primary/90">
+                <Link href="/signup">
+                  Tester la plateforme
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" className="rounded-full border border-white/12 bg-white/[0.03] px-6 text-white hover:bg-white/[0.06]">
+                <Link href="/pricing">Voir les tarifs</Link>
+              </Button>
+            </div>
+            </div>
+          </RevealOnScroll>
+        </div>
+      </section>
+
+      <MarketingFooter />
     </div>
   )
 }

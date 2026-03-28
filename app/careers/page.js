@@ -1,213 +1,243 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { ArrowRight, Briefcase, Building2, ChevronRight, Clock3, Globe2, Heart, MapPin, Users, Zap } from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { MapPin, Briefcase, Clock, Users, Heart, Zap, Globe, Coffee } from 'lucide-react'
+import { MarketingFooter } from '@/components/ui/marketing-footer'
+import { RevealOnScroll } from '@/components/ui/reveal-on-scroll'
+
+const logoUrl = 'https://customer-assets.emergentagent.com/job_auditiq/artifacts/snxql2e8_logo%20audiot-iq%20big%20without%20bg.png.png'
 
 export const metadata = {
-  title: 'Carrieres - AuditIQ',
-  description: 'Rejoignez l\'equipe AuditIQ et participez a construire l\'avenir de l\'IA responsable.',
+  title: 'Carrières - AuditIQ',
+  description: 'Rejoignez AuditIQ et contribuez a une gouvernance IA responsable.',
+}
+
+const benefits = [
+  { icon: Heart, title: 'Sante', description: 'Mutuelle premium et couverture complete.' },
+  { icon: Clock3, title: 'Flexibilite', description: 'Organisation hybride et horaires souples.' },
+  { icon: Zap, title: 'Formation', description: 'Budget formation continue pour progresser vite.' },
+  { icon: Globe2, title: 'International', description: 'Équipe multiculturelle et pratique de l anglais.' },
+  { icon: Users, title: 'Culture équipe', description: 'Rituels de partage, feedback et apprentissage.' },
+  { icon: Building2, title: 'Impact réel', description: 'Travail au coeur des enjeux IA et conformité.' },
+]
+
+const jobs = [
+  {
+    title: 'Senior ML Engineer',
+    department: 'Engineering',
+    location: 'Paris / Remote',
+    type: 'CDI',
+    description: 'Développez les moteurs d évaluation d équité et les flux d audit automatisé.',
+  },
+  {
+    title: 'Full Stack Engineer',
+    department: 'Engineering',
+    location: 'Paris / Remote',
+    type: 'CDI',
+    description: 'Concevez les surfaces produit qui relient data, produit et conformité.',
+  },
+  {
+    title: 'Product Manager',
+    department: 'Product',
+    location: 'Paris',
+    type: 'CDI',
+    description: 'Pilotez la roadmap de gouvernance IA et les parcours de remediation.',
+  },
+  {
+    title: 'Data Scientist Équité',
+    department: 'Research',
+    location: 'Paris / Remote',
+    type: 'CDI',
+    description: 'Renforcez les methodes d analyse de biais et la robustesse des recommandations.',
+  },
+  {
+    title: 'Customer Success Manager',
+    department: 'Customer Success',
+    location: 'Paris',
+    type: 'CDI',
+    description: 'Accompagnez les clients dans le deploiement de leur gouvernance continue.',
+  },
+  {
+    title: 'DevOps Engineer',
+    department: 'Engineering',
+    location: 'Paris / Remote',
+    type: 'CDI',
+    description: 'Fiabilisez l infrastructure produit et la qualite de service a grande echelle.',
+  },
+]
+
+function GridGlow() {
+  return (
+    <div className="pointer-events-none absolute inset-0 opacity-45">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(153,66,255,0.22),transparent_22%),linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:auto,42px_42px,42px_42px]" />
+    </div>
+  )
 }
 
 export default function CareersPage() {
-  const benefits = [
-    { icon: Heart, title: 'Sante', description: 'Mutuelle premium 100% prise en charge' },
-    { icon: Clock, title: 'Flexibilite', description: 'Teletravail 3j/semaine, horaires flexibles' },
-    { icon: Zap, title: 'Formation', description: 'Budget formation 2000EUR/an' },
-    { icon: Globe, title: 'International', description: 'Equipe multinationale, anglais courant' },
-    { icon: Coffee, title: 'Bien-etre', description: 'Tickets resto, abonnement sport' },
-    { icon: Users, title: 'Team Building', description: 'Evenements mensuels, offsite annuel' },
-  ]
-
-  const jobs = [
-    {
-      title: 'Senior ML Engineer',
-      department: 'Engineering',
-      location: 'Paris / Remote',
-      type: 'CDI',
-      description: 'Developpez et optimisez nos algorithmes de detection de biais et nos metriques de fairness.',
-    },
-    {
-      title: 'Full Stack Developer (React/Node)',
-      department: 'Engineering',
-      location: 'Paris / Remote',
-      type: 'CDI',
-      description: 'Construisez et ameliorez notre plateforme SaaS utilisee par des centaines d\'entreprises.',
-    },
-    {
-      title: 'Product Manager',
-      department: 'Product',
-      location: 'Paris',
-      type: 'CDI',
-      description: 'Definissez la roadmap produit et travaillez avec les equipes tech pour livrer des fonctionnalites impactantes.',
-    },
-    {
-      title: 'Data Scientist - Fairness Research',
-      department: 'Research',
-      location: 'Paris / Remote',
-      type: 'CDI',
-      description: 'Menez des recherches sur les nouvelles metriques de fairness et publiez dans des conferences academiques.',
-    },
-    {
-      title: 'Customer Success Manager',
-      department: 'Customer Success',
-      location: 'Paris',
-      type: 'CDI',
-      description: 'Accompagnez nos clients entreprises dans leur adoption d\'AuditIQ et leur demarche d\'IA responsable.',
-    },
-    {
-      title: 'DevOps Engineer',
-      department: 'Engineering',
-      location: 'Paris / Remote',
-      type: 'CDI',
-      description: 'Gerez notre infrastructure cloud et assurez la scalabilite et la securite de notre plateforme.',
-    },
-  ]
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Header */}
-      <header className="container mx-auto px-4 py-6 flex justify-between items-center">
-        <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="https://customer-assets.emergentagent.com/job_auditiq/artifacts/snxql2e8_logo%20audiot-iq%20big%20without%20bg.png.png"
-            alt="AuditIQ Logo"
-            width={150}
-            height={60}
-            className="object-contain"
-          />
-        </Link>
-        <nav className="hidden md:flex items-center gap-6">
-          <Link href="/about" className="text-sm font-medium hover:text-primary">A Propos</Link>
-          <Link href="/pricing" className="text-sm font-medium hover:text-primary">Tarifs</Link>
-          <Link href="/contact" className="text-sm font-medium hover:text-primary">Contact</Link>
-          <Link href="/careers" className="text-sm font-medium text-primary">Carrieres</Link>
-        </nav>
-        <div className="flex gap-3">
-          <Link href="/login"><Button variant="ghost">Connexion</Button></Link>
-          <Link href="/signup"><Button>Commencer</Button></Link>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[#050505] text-white">
+      <div className="relative overflow-hidden border-b border-white/8">
+        <GridGlow />
+        <div className="absolute left-1/2 top-14 h-[320px] w-[320px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(170,79,255,0.44)_0%,rgba(105,33,158,0.22)_38%,rgba(0,0,0,0)_70%)] blur-2xl" />
 
-      {/* Hero */}
-      <section className="container mx-auto px-4 py-16 text-center">
-        <Badge className="mb-4">Nous recrutons</Badge>
-        <h1 className="text-4xl md:text-5xl font-bold mb-6">
-          Construisez l'Avenir de <span className="text-primary">l'IA Responsable</span>
-        </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-          Rejoignez une equipe passionnee qui travaille a rendre l'intelligence artificielle plus equitable pour tous.
-        </p>
-        <Button size="lg">Voir les Offres</Button>
-      </section>
-
-      {/* Why Join Us */}
-      <section className="container mx-auto px-4 py-16">
-        <h2 className="text-3xl font-bold text-center mb-12">Pourquoi Rejoindre AuditIQ ?</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {benefits.map((benefit, index) => (
-            <Card key={index} className="p-6">
-              <benefit.icon className="h-10 w-10 text-primary mb-4" />
-              <h3 className="font-bold mb-2">{benefit.title}</h3>
-              <p className="text-muted-foreground text-sm">{benefit.description}</p>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* Culture */}
-      <section className="container mx-auto px-4 py-16 bg-white/50">
-        <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
-          <div>
-            <h2 className="text-3xl font-bold mb-6">Notre Culture</h2>
-            <p className="text-muted-foreground mb-4">
-              Chez AuditIQ, nous croyons que la diversite des perspectives est essentielle pour construire 
-              des outils qui detectent les biais. Notre equipe reunit des talents de 12 nationalites differentes.
-            </p>
-            <p className="text-muted-foreground mb-4">
-              Nous valorisons l'autonomie, la transparence et l'apprentissage continu. Chaque membre de l'equipe 
-              a la liberte de proposer des idees et de les mettre en oeuvre.
-            </p>
-            <p className="text-muted-foreground">
-              Nos rituels incluent des "Fairness Fridays" ou nous discutons des dernieres recherches en IA ethique, 
-              et des hackathons trimestriels pour explorer de nouvelles idees.
-            </p>
+        <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#050505]/80 backdrop-blur-xl">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-10">
+            <Link href="/" className="flex items-center gap-3">
+              <Image src={logoUrl} alt="AuditIQ" width={112} height={26} className="h-auto w-[104px] brightness-150" />
+            </Link>
+            <nav className="hidden items-center gap-8 text-[11px] font-medium text-white/65 md:flex">
+              <Link href="/about" className="transition-colors hover:text-white">À propos</Link>
+              <Link href="/pricing" className="transition-colors hover:text-white">Tarifs</Link>
+              <Link href="/contact" className="transition-colors hover:text-white">Contact</Link>
+              <Link href="/careers" className="text-white">Carrières</Link>
+            </nav>
+            <div className="flex items-center gap-3">
+              <Button asChild variant="ghost" className="hidden rounded-full px-4 text-white/70 hover:bg-white/5 hover:text-white sm:inline-flex">
+                <Link href="/login">Connexion</Link>
+              </Button>
+              <Button asChild className="rounded-full border border-brand-primary/40 bg-brand-primary px-4 text-white hover:bg-brand-primary/90">
+                <Link href="/signup">Essai gratuit</Link>
+              </Button>
+            </div>
           </div>
+        </header>
+
+        <section className="relative z-10 px-5 pb-16 pt-28 sm:px-8 lg:px-10 lg:pb-24 lg:pt-32">
+          <div className="mx-auto max-w-7xl">
+            <div className="flex items-center gap-2 text-xs text-white/45">
+              <Link href="/" className="hover:text-white">Accueil</Link>
+              <ChevronRight className="h-3.5 w-3.5" />
+              <span>Carrières</span>
+            </div>
+            <RevealOnScroll className="mt-8 max-w-4xl" duration={0.65}>
+              <span className="inline-flex rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-white/55">
+                Nous recrutons
+              </span>
+              <h1 className="mt-5 text-4xl font-semibold leading-tight text-white sm:text-5xl md:text-6xl">
+                Rejoignez l équipe qui rend la gouvernance IA vraiment opérationnelle.
+              </h1>
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-white/60 sm:text-base">
+                Nous construisons des outils qui relient rigueur technique, adoption métier et exigences de conformité.
+              </p>
+              <Button className="mt-8 rounded-full bg-brand-primary px-6 text-white hover:bg-brand-primary/90">
+                Voir les offres
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </RevealOnScroll>
+          </div>
+        </section>
+      </div>
+
+      <section className="px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
+        <div className="mx-auto max-w-7xl">
+          <h2 className="text-3xl font-semibold text-white sm:text-4xl">Pourquoi nous rejoindre</h2>
+          <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {benefits.map((benefit, index) => {
+              const Icon = benefit.icon
+              return (
+                <RevealOnScroll key={benefit.title} delay={index * 0.05}>
+                  <article className="rounded-[26px] border border-white/10 bg-[#0d0d0f] p-5 transition-transform duration-300 hover:-translate-y-1.5 hover:border-white/20">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-brand-primary/20 bg-brand-primary/10">
+                    <Icon className="h-4 w-4 text-brand-cotton" />
+                  </div>
+                  <h3 className="mt-5 text-lg font-semibold text-white">{benefit.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-white/58">{benefit.description}</p>
+                  </article>
+                </RevealOnScroll>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-y border-white/8 bg-white/[0.015] px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
+        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <RevealOnScroll>
+            <div>
+            <span className="inline-flex rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-white/55">
+              Culture
+            </span>
+            <h2 className="mt-5 text-3xl font-semibold leading-tight text-white sm:text-4xl">Une culture d execution, de transparence et d apprentissage.</h2>
+            <p className="mt-4 text-sm leading-7 text-white/60 sm:text-base">
+              Chez AuditIQ, nous croyons que la qualite des decisions depend autant des donnees que des discussions entre equipes.
+              Nous privilegions une communication claire, des feedbacks frequents et des objectifs lisibles.
+            </p>
+            </div>
+          </RevealOnScroll>
           <div className="grid grid-cols-2 gap-4">
-            <Card className="p-6 text-center">
-              <div className="text-3xl font-bold text-primary">35</div>
-              <div className="text-sm text-muted-foreground">Employes</div>
-            </Card>
-            <Card className="p-6 text-center">
-              <div className="text-3xl font-bold text-primary">12</div>
-              <div className="text-sm text-muted-foreground">Nationalites</div>
-            </Card>
-            <Card className="p-6 text-center">
-              <div className="text-3xl font-bold text-primary">45%</div>
-              <div className="text-sm text-muted-foreground">Femmes</div>
-            </Card>
-            <Card className="p-6 text-center">
-              <div className="text-3xl font-bold text-primary">4.8</div>
-              <div className="text-sm text-muted-foreground">Note Glassdoor</div>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Open Positions */}
-      <section className="container mx-auto px-4 py-16">
-        <h2 className="text-3xl font-bold text-center mb-4">Postes Ouverts</h2>
-        <p className="text-center text-muted-foreground mb-12">{jobs.length} postes disponibles</p>
-        
-        <div className="max-w-4xl mx-auto space-y-4">
-          {jobs.map((job, index) => (
-            <Card key={index} className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="font-bold text-lg">{job.title}</h3>
-                    <Badge variant="outline">{job.type}</Badge>
-                  </div>
-                  <p className="text-muted-foreground text-sm mb-2">{job.description}</p>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Briefcase className="h-4 w-4" />{job.department}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />{job.location}
-                    </span>
-                  </div>
+            {[
+              ['35', 'Collaborateurs'],
+              ['12', 'Nationalites'],
+              ['45%', 'Femmes dans la team'],
+              ['4.8', 'Note Glassdoor'],
+            ].map(([value, label], index) => (
+              <RevealOnScroll key={label} delay={index * 0.06}>
+                <div className="rounded-[24px] border border-white/10 bg-[#0d0d0f] p-5 text-center transition-transform duration-300 hover:-translate-y-1">
+                <p className="text-3xl font-semibold text-white">{value}</p>
+                <p className="mt-2 text-sm text-white/55">{label}</p>
                 </div>
-                <Button>Postuler</Button>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-12 text-center text-white">
-          <h2 className="text-3xl font-bold mb-4">Vous ne Trouvez pas le Poste Ideal ?</h2>
-          <p className="text-lg mb-8 opacity-90">Envoyez-nous une candidature spontanee, nous sommes toujours a la recherche de talents</p>
-          <Link href="/contact">
-            <Button size="lg" variant="secondary">Candidature Spontanee</Button>
-          </Link>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="container mx-auto px-4 py-8 border-t">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-muted-foreground text-sm">2025 AuditIQ. Tous droits reserves.</p>
-          <div className="flex gap-6 text-sm">
-            <Link href="/legal/terms" className="text-muted-foreground hover:text-primary">CGU</Link>
-            <Link href="/legal/privacy" className="text-muted-foreground hover:text-primary">Confidentialite</Link>
-            <Link href="/contact" className="text-muted-foreground hover:text-primary">Contact</Link>
+              </RevealOnScroll>
+            ))}
           </div>
         </div>
-      </footer>
+      </section>
+
+      <section className="px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
+        <div className="mx-auto max-w-7xl">
+          <h2 className="text-3xl font-semibold text-white sm:text-4xl">Postes ouverts</h2>
+          <p className="mt-3 text-sm text-white/58">{jobs.length} postes disponibles actuellement.</p>
+
+          <div className="mt-10 space-y-4">
+            {jobs.map((job, index) => (
+              <RevealOnScroll key={job.title} delay={index * 0.05}>
+                <article className="rounded-[26px] border border-white/10 bg-[#0d0d0f] p-5 transition-transform duration-300 hover:-translate-y-1 hover:border-white/20">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-lg font-semibold text-white">{job.title}</h3>
+                      <span className="rounded-full border border-brand-primary/25 bg-brand-primary/10 px-2 py-1 text-[10px] uppercase tracking-[0.15em] text-brand-cotton">
+                        {job.type}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm leading-7 text-white/58">{job.description}</p>
+                    <div className="mt-3 flex flex-wrap gap-4 text-xs text-white/45">
+                      <span className="inline-flex items-center gap-1"><Briefcase className="h-3.5 w-3.5" />{job.department}</span>
+                      <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{job.location}</span>
+                    </div>
+                  </div>
+                  <Button className="rounded-full bg-white text-black hover:bg-white/90">Postuler</Button>
+                </div>
+                </article>
+              </RevealOnScroll>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
+        <div className="mx-auto max-w-7xl">
+          <RevealOnScroll>
+            <div className="overflow-hidden rounded-[34px] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.04),rgba(117,45,177,0.22)_55%,rgba(226,8,161,0.22))] px-6 py-10 text-center sm:px-10 sm:py-14">
+            <h2 className="mx-auto max-w-3xl text-3xl font-semibold leading-tight text-white sm:text-4xl">
+              Vous ne trouvez pas encore votre poste ideal ?
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/65 sm:text-base">
+              Envoyez-nous une candidature spontanee, nous sommes toujours a la recherche de profils forts.
+            </p>
+            <Button asChild className="mt-8 rounded-full bg-brand-primary px-6 text-white hover:bg-brand-primary/90">
+              <Link href="/contact">
+                Candidature spontanee
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+            </div>
+          </RevealOnScroll>
+        </div>
+      </section>
+
+      <MarketingFooter />
     </div>
   )
 }
