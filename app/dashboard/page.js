@@ -32,6 +32,17 @@ import {
   Download
 } from 'lucide-react'
 import { toast } from 'sonner'
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Area,
+  AreaChart,
+} from 'recharts'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -339,6 +350,67 @@ export default function DashboardPage() {
             </div>
           ))}
         </section>
+
+        {/* Evolution Temporelle des Scores */}
+        {stats.evolutionData.length > 1 && (
+          <section className="glass-card rounded-[2.5rem] lg:rounded-[3.5rem] p-6 lg:p-10 bg-white/[0.03] border-white/5 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-brand-primary/5 to-transparent pointer-events-none" />
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h4 className="text-2xl font-display font-black text-white tracking-tight">Evolution des Scores</h4>
+                  <p className="text-white/40 font-display font-medium">Tendance de fairness sur vos {stats.evolutionData.length} derniers audits</p>
+                </div>
+                <Badge className="bg-brand-primary/10 border-brand-primary/20 text-brand-primary font-black tracking-widest text-[9px] px-3 py-1">
+                  <TrendingUp className="h-3 w-3 mr-1" />
+                  TENDANCE
+                </Badge>
+              </div>
+              <ResponsiveContainer width="100%" height={280}>
+                <AreaChart data={stats.evolutionData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                  <defs>
+                    <linearGradient id="scoreGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#ec4899" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#ec4899" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
+                  <XAxis
+                    dataKey="label"
+                    tick={{ fill: '#ffffff40', fontSize: 10, fontFamily: 'Space Grotesk' }}
+                    axisLine={{ stroke: '#ffffff10' }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    domain={[0, 100]}
+                    tick={{ fill: '#ffffff40', fontSize: 10 }}
+                    axisLine={{ stroke: '#ffffff10' }}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1a1a1b',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: '12px',
+                      color: '#fff',
+                      fontSize: '12px',
+                    }}
+                    formatter={(value) => [`${value}%`, 'Score Fairness']}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="val"
+                    stroke="#ec4899"
+                    strokeWidth={2.5}
+                    fill="url(#scoreGradient)"
+                    dot={{ r: 4, fill: '#ec4899', stroke: '#0a0a0b', strokeWidth: 2 }}
+                    activeDot={{ r: 6, fill: '#ec4899', stroke: '#fff', strokeWidth: 2 }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </section>
+        )}
 
         {/* Main Analysis Hub */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">

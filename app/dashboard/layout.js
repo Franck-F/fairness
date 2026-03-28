@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { AuthProvider, useAuth } from '@/lib/auth-context'
+import { I18nProvider } from '@/lib/i18n'
 
 function DashboardContent({ children }) {
   const { user, loading } = useAuth()
@@ -32,7 +33,9 @@ function DashboardContent({ children }) {
 export default function DashboardLayout({ children }) {
   return (
     <AuthProvider>
-      <DashboardContent>{children}</DashboardContent>
+      <I18nProvider>
+        <DashboardContent>{children}</DashboardContent>
+      </I18nProvider>
     </AuthProvider>
   )
 }

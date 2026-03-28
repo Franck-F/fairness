@@ -35,6 +35,7 @@ import {
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useAuth } from '@/lib/auth-context'
+import { getTemplateForUseCase } from '@/lib/audit-templates'
 
 // AI Domains with specific models for each domain
 const AI_DOMAINS = [
@@ -53,21 +54,24 @@ const AI_DOMAINS = [
 
 // Expanded Business Use Cases
 const USE_CASES = [
-  { value: 'general', label: 'Usage Général', icon: '🌐' },
-  { value: 'credit', label: 'Credit Scoring', icon: '💳' },
-  { value: 'hiring', label: 'Recrutement', icon: '👥' },
-  { value: 'healthcare', label: 'Santé', icon: '🏥' },
-  { value: 'finance', label: 'Finance & Trading', icon: '📈' },
-  { value: 'retail', label: 'Commerce & Retail', icon: '🛒' },
-  { value: 'education', label: 'Éducation', icon: '🎓' },
-  { value: 'insurance', label: 'Assurance', icon: '🛡️' },
-  { value: 'automotive', label: 'Automobile', icon: '🚗' },
-  { value: 'energy', label: 'Énergie', icon: '⚡' },
-  { value: 'manufacturing', label: 'Industrie', icon: '🏭' },
-  { value: 'telecommunications', label: 'Télécommunications', icon: '📡' },
-  { value: 'real_estate', label: 'Immobilier', icon: '🏢' },
-  { value: 'agriculture', label: 'Agriculture', icon: '🌾' },
-  { value: 'transportation', label: 'Transport & Logistique', icon: '🚚' }
+  { value: 'general', label: 'Usage General', icon: '🌐', templateKey: null },
+  { value: 'credit', label: 'Credit Scoring', icon: '💳', templateKey: 'credit_scoring' },
+  { value: 'hiring', label: 'Recrutement', icon: '👥', templateKey: 'hiring' },
+  { value: 'healthcare', label: 'Sante', icon: '🏥', templateKey: 'healthcare' },
+  { value: 'finance', label: 'Finance & Trading', icon: '📈', templateKey: 'fraud_detection' },
+  { value: 'retail', label: 'Commerce & Retail', icon: '🛒', templateKey: null },
+  { value: 'education', label: 'Education', icon: '🎓', templateKey: 'education' },
+  { value: 'insurance', label: 'Assurance', icon: '🛡️', templateKey: 'insurance' },
+  { value: 'automotive', label: 'Automobile', icon: '🚗', templateKey: null },
+  { value: 'energy', label: 'Energie', icon: '⚡', templateKey: null },
+  { value: 'manufacturing', label: 'Industrie', icon: '🏭', templateKey: null },
+  { value: 'telecommunications', label: 'Telecommunications', icon: '📡', templateKey: null },
+  { value: 'real_estate', label: 'Immobilier', icon: '🏢', templateKey: 'housing' },
+  { value: 'agriculture', label: 'Agriculture', icon: '🌾', templateKey: null },
+  { value: 'transportation', label: 'Transport & Logistique', icon: '🚚', templateKey: null },
+  { value: 'justice', label: 'Justice / Recidive', icon: '⚖️', templateKey: 'justice' },
+  { value: 'content_moderation', label: 'Moderation de contenu', icon: '🔒', templateKey: 'content_moderation' },
+  { value: 'marketing', label: 'Marketing / Publicite', icon: '📢', templateKey: 'marketing' },
 ]
 
 const steps = [
@@ -552,7 +556,27 @@ export default function UploadPage() {
 
                           <div className="space-y-3">
                             <Label className="text-[10px] font-black text-white/30 tracking-[0.3em] uppercase ml-2">Domaine Métier</Label>
-                            <Select value={auditConfig.useCase} onValueChange={(v) => setAuditConfig(prev => ({ ...prev, useCase: v }))}>
+                            <Select value={auditConfig.useCase} onValueChange={(v) => {
+                              const useCaseDef = USE_CASES.find(uc => uc.value === v)
+                              const template = useCaseDef?.templateKey ? getTemplateForUseCase(useCaseDef.templateKey) : null
+                              setAuditConfig(prev => ({
+                                ...prev,
+                                useCase: v,
+                                ...(template ? {
+                                  protectedAttributes: template.protected_attributes.filter(attr =>
+                                    datasets.pre?.columns?.some(col => col.name.toLowerCase().includes(attr.toLowerCase()))
+                                  ),
+                                  thresholds: {
+                                    demographicParity: template.thresholds.demographic_parity ?? prev.thresholds.demographicParity,
+                                    equalizedOdds: template.thresholds.equalized_odds ?? prev.thresholds.equalizedOdds,
+                                    disparateImpact: template.thresholds.disparate_impact ?? prev.thresholds.disparateImpact,
+                                  },
+                                } : {}),
+                              }))
+                              if (template) {
+                                toast.success(`Template "${template.label}" applique. ${template.compliance_notes}`)
+                              }
+                            }}>
                               <SelectTrigger className="h-16 px-8 rounded-3xl bg-white/5 border-white/5 text-white font-display font-black">
                                 <SelectValue placeholder="Sélectionner un domaine métier" />
                               </SelectTrigger>

@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createDsProjectSchema, validate } from '@/lib/validations'
+import logger from '@/lib/logger'
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -49,7 +51,7 @@ export async function GET(request) {
 
         return NextResponse.json({ projects: projects || [] })
     } catch (error) {
-        console.error('DS Projects GET error:', error)
+        logger.error("DS", 'DS Projects GET error:', error)
         return NextResponse.json({ error: error.message }, { status: 500 })
     }
 }
@@ -65,7 +67,11 @@ export async function POST(request) {
         if (authError || !authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
         const body = await request.json()
-        const { dataset_id, project_name, target_column, problem_type } = body
+        const { success, errors, data: validated } = validate(createDsProjectSchema, body)
+        if (!success) {
+            return NextResponse.json({ error: errors.join(', ') }, { status: 400 })
+        }
+        const { dataset_id, project_name, target_column, problem_type } = validated
 
         const dbClient = isPlaceholderKey
             ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
@@ -100,7 +106,7 @@ export async function POST(request) {
 
         return NextResponse.json({ status: 'success', project })
     } catch (error) {
-        console.error('DS Projects POST error:', error)
+        logger.error("DS", 'DS Projects POST error:', error)
         return NextResponse.json({ error: error.message }, { status: 500 })
     }
 }

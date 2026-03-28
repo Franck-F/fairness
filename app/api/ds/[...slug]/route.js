@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-
-const FASTAPI_URL = process.env.FASTAPI_URL || 'http://localhost:8000'
+import { safeFetchBackend } from '@/lib/security'
+import logger from '@/lib/logger'
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -11,7 +11,7 @@ const supabase = createClient(
 // Helper to re-upload dataset to FastAPI if missing
 async function autoHealDataset(datasetId, token) {
     try {
-        console.log(`Auto-healing dataset: ${datasetId}`)
+        logger.info("DS", `Auto-healing dataset: ${datasetId}`)
         // 1. Get dataset info from Supabase (try both id and fastapi_dataset_id)
         let { data: dataset, error: dbError } = await supabase
             .from('datasets')
@@ -20,11 +20,11 @@ async function autoHealDataset(datasetId, token) {
             .single()
 
         if (dbError || !dataset) {
-            console.error('Dataset not found in Supabase:', dbError)
+            logger.error("DS", 'Dataset not found in Supabase:', dbError)
             return false
         }
 
-        console.log('Dataset found for auto-heal:', {
+        logger.info("DS", 'Dataset found for auto-heal:', {
             id: dataset.id,
             keys: Object.keys(dataset),
             file_path: dataset.file_path,
@@ -34,12 +34,12 @@ async function autoHealDataset(datasetId, token) {
 
         const storagePathRaw = dataset.file_path || dataset.storage_path || dataset.filename
         if (!storagePathRaw) {
-            console.error('No storage path found in dataset object')
+            logger.error("DS", 'No storage path found in dataset object')
             return false
         }
 
         const storagePath = String(storagePathRaw).trim()
-        console.log(`Downloading from storage: [datasets] path: "${storagePath}" (type: ${typeof storagePath})`)
+        logger.info("DS", `Downloading from storage: [datasets] path: "${storagePath}" (type: ${typeof storagePath})`)
 
         // 2. Download from Storage
         const { data: fileData, error: storageError } = await supabase.storage
@@ -47,7 +47,7 @@ async function autoHealDataset(datasetId, token) {
             .download(storagePath)
 
         if (storageError || !fileData) {
-            console.error('File not found in Storage:', storageError)
+            logger.error("DS", 'File not found in Storage:', storageError)
             return false
         }
 
@@ -57,7 +57,7 @@ async function autoHealDataset(datasetId, token) {
         formData.append('dataset_name', dataset.original_filename || 'dataset.csv')
         formData.append('dataset_id', datasetId) // Maintain the same ID!
 
-        const uploadResponse = await fetch(`${FASTAPI_URL}/api/datasets/upload`, {
+        const uploadResponse = await safeFetchBackend('/api/datasets/upload', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -66,15 +66,15 @@ async function autoHealDataset(datasetId, token) {
         })
 
         if (!uploadResponse.ok) {
-            console.error('Failed to re-upload to FastAPI:', await uploadResponse.text())
+            logger.error("DS", 'Failed to re-upload to FastAPI:', await uploadResponse.text())
             return false
         }
 
         const uploadResult = await uploadResponse.json()
-        console.log(`Dataset re-uploaded successfully: ${uploadResult.dataset_id}`)
+        logger.info("DS", `Dataset re-uploaded successfully: ${uploadResult.dataset_id}`)
         return true
     } catch (error) {
-        console.error('Auto-heal error:', error)
+        logger.error("DS", 'Auto-heal error:', error)
         return false
     }
 }
@@ -104,11 +104,11 @@ export async function POST(request, { params }) {
                 body = JSON.parse(text)
             }
         } catch (e) {
-            console.warn('Could not parse request body as JSON')
+            logger.warn("DS", 'Could not parse request body as JSON')
         }
 
         // Forward the request to FastAPI
-        let response = await fetch(`${FASTAPI_URL}/api/ds/${path}`, {
+        let response = await safeFetchBackend(`/api/ds/${path}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -122,7 +122,7 @@ export async function POST(request, { params }) {
             const healed = await autoHealDataset(body.dataset_id, token)
             if (healed) {
                 // Retry original request
-                response = await fetch(`${FASTAPI_URL}/api/ds/${path}`, {
+                response = await safeFetchBackend(`/api/ds/${path}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -145,7 +145,7 @@ export async function POST(request, { params }) {
         return NextResponse.json(data)
 
     } catch (error) {
-        console.error(`Error in /api/ds proxy:`, error)
+        logger.error("DS", `Error in /api/ds proxy:`, error)
         return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 })
     }
 }
@@ -170,9 +170,9 @@ export async function GET(request, { params }) {
         const { searchParams } = new URL(request.url)
         const datasetId = searchParams.get('dataset_id')
         const queryString = searchParams.toString()
-        const url = `${FASTAPI_URL}/api/ds/${path}${queryString ? '?' + queryString : ''}`
+        const url = `/api/ds/${path}${queryString ? '?' + queryString : ''}`
 
-        let response = await fetch(url, {
+        let response = await safeFetchBackend(url, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -182,7 +182,7 @@ export async function GET(request, { params }) {
         if (response.status === 404 && datasetId) {
             const healed = await autoHealDataset(datasetId, token)
             if (healed) {
-                response = await fetch(url, {
+                response = await safeFetchBackend(url, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -202,7 +202,7 @@ export async function GET(request, { params }) {
         return NextResponse.json(data)
 
     } catch (error) {
-        console.error(`Error in /api/ds proxy (GET):`, error)
+        logger.error("DS", `Error in /api/ds proxy (GET):`, error)
         return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 })
     }
 }

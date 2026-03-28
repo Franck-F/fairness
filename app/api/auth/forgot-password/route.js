@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import nodemailer from 'nodemailer'
+import { forgotPasswordSchema, validate } from '@/lib/validations'
+import logger from '@/lib/logger'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -14,11 +16,12 @@ const dbClient = isPlaceholderKey
 
 export async function POST(request) {
   try {
-    const { email } = await request.json()
-
-    if (!email) {
-      return NextResponse.json({ error: 'Email requis' }, { status: 400 })
+    const body = await request.json()
+    const { success, errors, data: validated } = validate(forgotPasswordSchema, body)
+    if (!success) {
+      return NextResponse.json({ error: errors.join(', ') }, { status: 400 })
     }
+    const { email } = validated
 
     // Use Supabase's built-in password reset
     const { data, error } = await dbClient.auth.resetPasswordForEmail(email, {
@@ -26,7 +29,7 @@ export async function POST(request) {
     })
 
     if (error) {
-      console.error('Supabase reset error:', error)
+      logger.error("AUTH", 'Supabase reset error:', error)
       // Don't reveal if email exists or not for security
     }
 
@@ -84,7 +87,7 @@ export async function POST(request) {
         `,
       })
     } catch (emailError) {
-      console.error('Custom email error:', emailError)
+      logger.error("AUTH", 'Custom email error:', emailError)
       // Continue even if custom email fails - Supabase will send the actual reset link
     }
 
@@ -94,7 +97,7 @@ export async function POST(request) {
       message: 'Si un compte existe avec cet email, vous recevrez un lien de reinitialisation.',
     })
   } catch (error) {
-    console.error('Forgot password error:', error)
+    logger.error("AUTH", 'Forgot password error:', error)
     return NextResponse.json(
       { error: 'Une erreur est survenue' },
       { status: 500 }

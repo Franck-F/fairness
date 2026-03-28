@@ -1,14 +1,17 @@
 import { NextResponse } from 'next/server'
 import nodemailer from 'nodemailer'
 import { supabase } from '@/lib/supabase'
+import { sendVerificationSchema, validate } from '@/lib/validations'
+import logger from '@/lib/logger'
 
 export async function POST(request) {
   try {
-    const { email } = await request.json()
-
-    if (!email) {
-      return NextResponse.json({ error: 'Email required' }, { status: 400 })
+    const body = await request.json()
+    const { success, errors, data: validated } = validate(sendVerificationSchema, body)
+    if (!success) {
+      return NextResponse.json({ error: errors.join(', ') }, { status: 400 })
     }
+    const { email } = validated
 
     // Create verification token
     const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
@@ -58,7 +61,7 @@ export async function POST(request) {
       success: true 
     })
   } catch (error) {
-    console.error('Email verification error:', error)
+    logger.error("AUTH", 'Email verification error:', error)
     return NextResponse.json({ 
       error: 'Erreur lors de l\'envoi de l\'email',
       details: error.message 

@@ -9,6 +9,10 @@ const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space
 export const metadata = {
   title: 'AuditIQ - AI Fairness Auditing Platform',
   description: 'Plateforme SaaS d\'audit de fairness et de detection de biais dans les systemes d\'IA',
+  icons: {
+    icon: '/icon.svg',
+    apple: '/icon.svg',
+  },
 }
 
 export default function RootLayout({ children }) {

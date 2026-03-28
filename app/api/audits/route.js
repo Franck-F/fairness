@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createAuditSchema, validate } from '@/lib/validations'
+import logger from '@/lib/logger'
 
 // Initialize Supabase client safely
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -12,7 +14,7 @@ try {
     supabase = createClient(supabaseUrl, supabaseServiceKey)
   }
 } catch (e) {
-  console.error('Failed to initialize Supabase service client:', e)
+  logger.error("AUDITS", 'Failed to initialize Supabase service client:', e)
 }
 
 const isPlaceholderKey = !supabaseServiceKey || supabaseServiceKey === 'your-service-role-key'
@@ -21,10 +23,10 @@ let dbClient
 if (supabase) {
   dbClient = supabase
 } else if (supabaseUrl && supabaseAnonKey) {
-  console.warn('Using Supabase Anon Client as fallback (Service key missing or invalid)')
+  logger.warn("AUDITS", 'Using Supabase Anon Client as fallback (Service key missing or invalid)')
   dbClient = createClient(supabaseUrl, supabaseAnonKey)
 } else {
-  console.error('Critical: Missing Supabase URL or Keys')
+  logger.error("AUDITS", 'Critical: Missing Supabase URL or Keys')
 }
 
 // Helper to get internal user ID from auth user
@@ -55,48 +57,54 @@ async function getInternalUserId(authUser, dbClient) {
 
 export async function GET(request) {
   try {
-    console.log('GET /api/audits - Request received')
+    logger.info("AUDITS", 'GET /api/audits - Request received')
 
     // Get auth token
     const authHeader = request.headers.get('authorization')
     if (!authHeader) {
-      console.warn('GET /api/audits - No auth header')
+      logger.warn("AUDITS", 'GET /api/audits - No auth header')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const token = authHeader.replace('Bearer ', '')
-    console.log('GET /api/audits - Verifying token...')
+    logger.info("AUDITS", 'GET /api/audits - Verifying token...')
 
     if (!dbClient) {
-      console.error('GET /api/audits - dbClient is undefined. Check env vars.')
+      logger.error("AUDITS", 'dbClient is undefined. Check env vars.')
       return NextResponse.json({
-        error: 'Database configuration error',
-        debug: {
-          hasUrl: !!supabaseUrl,
-          hasServiceKey: !!supabaseServiceKey,
-          hasAnonKey: !!supabaseAnonKey,
-          nodeEnv: process.env.NODE_ENV
-        }
+        error: 'Database configuration error'
       }, { status: 500 })
     }
 
     const { data: { user: authUser }, error: authError } = await dbClient.auth.getUser(token)
 
     if (authError || !authUser) {
-      console.error('GET /api/audits - Auth error:', authError)
+      logger.error("AUDITS", 'GET /api/audits - Auth error:', authError)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    console.log('GET /api/audits - Auth user found:', authUser.email)
+    logger.info("AUDITS", 'GET /api/audits - Auth user found:', authUser.email)
     const userId = await getInternalUserId(authUser, dbClient)
-    console.log('GET /api/audits - Internal user ID:', userId)
+    logger.info("AUDITS", 'GET /api/audits - Internal user ID:', userId)
 
     if (!userId) {
       return NextResponse.json({ audits: [] })
     }
 
-    // Fetch audits from database
-    console.log('GET /api/audits - Fetching audits for user:', userId)
+    // Parse pagination params
+    const { searchParams } = new URL(request.url)
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '20', 10)))
+    const offset = (page - 1) * limit
+
+    // Count total for pagination
+    const { count: totalCount } = await dbClient
+      .from('audits')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+
+    // Fetch audits with pagination
+    logger.info("AUDITS", 'GET /api/audits - Fetching audits for user:', userId, `(page ${page}, limit ${limit})`)
     const { data: audits, error } = await dbClient
       .from('audits')
       .select(`
@@ -117,13 +125,14 @@ export async function GET(request) {
       `)
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
 
     if (error) {
-      console.error('GET /api/audits - Supabase query error:', error)
+      logger.error("AUDITS", 'GET /api/audits - Supabase query error:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    console.log('GET /api/audits - Audits fetched:', audits?.length || 0)
+    logger.info("AUDITS", 'GET /api/audits - Audits fetched:', audits?.length || 0)
 
     // Format response
     const formattedAudits = (audits || []).map(audit => ({
@@ -131,13 +140,19 @@ export async function GET(request) {
       dataset_name: audit.datasets?.original_filename || null,
     }))
 
-    return NextResponse.json({ audits: formattedAudits })
-  } catch (error) {
-    console.error('GET /api/audits - Internal error:', error)
     return NextResponse.json({
-      error: 'Internal server error',
-      details: error.message,
-      stack: error.stack
+      audits: formattedAudits,
+      pagination: {
+        page,
+        limit,
+        total: totalCount || 0,
+        totalPages: Math.ceil((totalCount || 0) / limit),
+      },
+    })
+  } catch (error) {
+    logger.error("AUDITS", 'GET /api/audits - Internal error:', error)
+    return NextResponse.json({
+      error: 'Internal server error'
     }, { status: 500 })
   }
 }
@@ -162,7 +177,11 @@ export async function POST(request) {
     }
 
     const body = await request.json()
-    const { audit_name, use_case, dataset_id, dataset_id_post, config, model_type, ia_type, audit_type } = body
+    const { success, errors, data: validated } = validate(createAuditSchema, body)
+    if (!success) {
+      return NextResponse.json({ error: errors.join(', ') }, { status: 400 })
+    }
+    const { audit_name, use_case, dataset_id, dataset_id_post, config, model_type, ia_type, audit_type } = validated
 
     // Match the actual database schema
     const { data: audit, error } = await dbClient
@@ -187,13 +206,13 @@ export async function POST(request) {
       .single()
 
     if (error) {
-      console.error('Create audit error:', error)
+      logger.error("AUDITS", 'Create audit error:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json({ audit, success: true })
   } catch (error) {
-    console.error('Create audit error:', error)
+    logger.error("AUDITS", 'Create audit error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

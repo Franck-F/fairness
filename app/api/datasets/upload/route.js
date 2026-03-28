@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Papa from 'papaparse'
 import crypto from 'crypto'
-
-const FASTAPI_URL = process.env.FASTAPI_URL || 'http://localhost:8000'
+import { validateUploadedFile, sanitizeFilename, rateLimit, safeFetchBackend } from '@/lib/security'
+import logger from '@/lib/logger'
 
 // Use service role for server-side operations
 const supabase = createClient(
@@ -29,7 +29,7 @@ export async function POST(request) {
     const { data: { user: authUser }, error: authError } = await authClient.auth.getUser(token)
 
     if (authError || !authUser) {
-      console.error('Auth error:', authError)
+      logger.error("DATASETS", 'Auth error:', authError)
       return NextResponse.json({
         error: isPlaceholderKey ? 'Configuration Supabase incomplète (SUPABASE_SERVICE_KEY)' : 'Unauthorized'
       }, { status: 401 })
@@ -66,7 +66,7 @@ export async function POST(request) {
         .single()
 
       if (createError) {
-        console.error('Error creating internal user:', createError)
+        logger.error("DATASETS", 'Error creating internal user:', createError)
         return NextResponse.json({ error: 'Erreur lors de la creation utilisateur' }, { status: 500 })
       }
       internalUser = newUser
@@ -74,12 +74,24 @@ export async function POST(request) {
 
     const userId = internalUser.id
 
+    // Rate limiting: 10 uploads per minute per user
+    const rl = rateLimit(`upload:${userId}`, { maxRequests: 10, windowMs: 60000 })
+    if (!rl.allowed) {
+      return NextResponse.json({ error: 'Trop de fichiers uploades. Reessayez dans quelques secondes.' }, { status: 429 })
+    }
+
     // Get the file from form data
     const formData = await request.formData()
     const file = formData.get('file')
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
+    }
+
+    // Validate file (size, extension, sanitize name)
+    const fileValidation = validateUploadedFile(file)
+    if (!fileValidation.valid) {
+      return NextResponse.json({ error: fileValidation.errors.join('. ') }, { status: 400 })
     }
 
     // Read file content
@@ -163,7 +175,7 @@ export async function POST(request) {
       })
 
     if (uploadError) {
-      console.error('Storage upload error:', uploadError)
+      logger.error("DATASETS", 'Storage upload error:', uploadError)
       // Continue anyway - the file might be stored locally
     }
 
@@ -222,7 +234,7 @@ export async function POST(request) {
       .single()
 
     if (dbError) {
-      console.error('Database error:', dbError)
+      logger.error("DATASETS", 'Database error:', dbError)
       return NextResponse.json({ error: 'Erreur lors de la sauvegarde en base' }, { status: 500 })
     }
 
@@ -234,7 +246,7 @@ export async function POST(request) {
       fastApiFormData.append('file', csvBlob, file.name)
       fastApiFormData.append('dataset_name', file.name)
 
-      const fastApiResponse = await fetch(`${FASTAPI_URL}/api/datasets/upload`, {
+      const fastApiResponse = await safeFetchBackend('/api/datasets/upload', {
         method: 'POST',
         body: fastApiFormData,
       })
@@ -250,7 +262,7 @@ export async function POST(request) {
           .eq('id', dataset.id)
       }
     } catch (fastApiError) {
-      console.error('FastAPI upload error (non-blocking):', fastApiError)
+      logger.error("DATASETS", 'FastAPI upload error (non-blocking):', fastApiError)
     }
 
     return NextResponse.json({
@@ -266,7 +278,7 @@ export async function POST(request) {
       },
     })
   } catch (error) {
-    console.error('Upload error:', error)
+    logger.error("DATASETS", 'Upload error:', error)
     return NextResponse.json({ error: error.message || 'Erreur serveur' }, { status: 500 })
   }
 }

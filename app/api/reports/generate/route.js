@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-
-const FASTAPI_URL = process.env.FASTAPI_URL || 'http://localhost:8000'
+import { generateReportSchema, validate } from '@/lib/validations'
+import { safeFetchBackend } from '@/lib/security'
+import logger from '@/lib/logger'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -39,11 +40,12 @@ export async function POST(request) {
     }
 
     const userId = await getInternalUserId(authUser, dbClient)
-    const { audit_id, format } = await request.json()
-
-    if (!audit_id || !format) {
-      return NextResponse.json({ error: 'Audit ID and format required' }, { status: 400 })
+    const body = await request.json()
+    const { success, errors, data: validated } = validate(generateReportSchema, body)
+    if (!success) {
+      return NextResponse.json({ error: errors.join(', ') }, { status: 400 })
     }
+    const { audit_id, format } = validated
 
     // Get audit with full details from Supabase
     const { data: audit, error: auditError } = await dbClient
@@ -60,7 +62,7 @@ export async function POST(request) {
     // For PDF, call FastAPI backend
     if (format === 'pdf') {
       try {
-        const response = await fetch(`${FASTAPI_URL}/api/reports/generate`, {
+        const response = await safeFetchBackend('/api/reports/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -102,7 +104,7 @@ export async function POST(request) {
           })
         }
       } catch (fastApiError) {
-        console.error('FastAPI PDF generation failed, falling back to HTML:', fastApiError)
+        logger.error("REPORTS", 'FastAPI PDF generation failed, falling back to HTML:', fastApiError)
       }
     }
 
@@ -130,7 +132,7 @@ export async function POST(request) {
       filename: fileName,
     })
   } catch (error) {
-    console.error('Report generation error:', error)
+    logger.error("REPORTS", 'Report generation error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

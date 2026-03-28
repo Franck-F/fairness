@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { whatifSchema, validate } from '@/lib/validations'
+import logger from '@/lib/logger'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -44,11 +46,12 @@ export async function POST(request) {
 
     const userId = await getInternalUserId(authUser, dbClient)
 
-    const { audit_id, instance_data, target_outcome, constraints } = await request.json()
-
-    if (!audit_id || !instance_data) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    const body = await request.json()
+    const { success, errors, data: validated } = validate(whatifSchema, body)
+    if (!success) {
+      return NextResponse.json({ error: errors.join(', ') }, { status: 400 })
     }
+    const { audit_id, instance_data, target_outcome, constraints } = validated
 
     // Get audit info
     const { data: audit, error: auditError } = await dbClient
@@ -62,8 +65,40 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Audit not found' }, { status: 404 })
     }
 
-    // Generate counterfactual explanations
-    // This is a simplified version - in production, use DiCE or similar library
+    // Try real DiCE counterfactuals via FastAPI backend
+    const FASTAPI_URL = process.env.FASTAPI_URL || 'http://localhost:8000'
+    try {
+      const diceResponse = await fetch(`${FASTAPI_URL}/api/whatif/counterfactuals`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dataset_id: audit.dataset_id,
+          target_column: audit.target_column,
+          instance_data,
+          num_counterfactuals: 3,
+          features_to_vary: constraints?.features_to_vary || null,
+        }),
+      })
+
+      if (diceResponse.ok) {
+        const diceResult = await diceResponse.json()
+        return NextResponse.json({
+          success: true,
+          audit_id,
+          original_instance: diceResult.original_instance,
+          original_prediction: diceResult.original_prediction,
+          target_outcome,
+          counterfactuals: diceResult.counterfactuals,
+          explanation: diceResult.explanation,
+          model_accuracy: diceResult.model_accuracy,
+          engine: 'dice',
+        })
+      }
+    } catch (e) {
+      logger.info("WHATIF", 'DiCE backend unavailable, falling back to local simulation')
+    }
+
+    // Fallback: simplified local counterfactuals
     const counterfactuals = generateCounterfactuals(
       instance_data,
       audit.sensitive_attributes,
@@ -78,9 +113,10 @@ export async function POST(request) {
       target_outcome,
       counterfactuals,
       explanation: generateExplanation(instance_data, counterfactuals),
+      engine: 'local_simulation',
     })
   } catch (error) {
-    console.error('WhatIf error:', error)
+    logger.error("WHATIF", 'WhatIf error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

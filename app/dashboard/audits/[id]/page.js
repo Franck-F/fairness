@@ -453,10 +453,10 @@ export default function AuditDetailPage({ params }) {
               <Sparkles className="h-4 w-4 mr-2" />
               Insights IA
             </TabsTrigger>
-            {audit.comparison_results && (
+            {(audit.comparison_results || audit.dataset_id_post) && (
               <TabsTrigger value="comparison" className="text-brand-primary">
                 <Zap className="h-4 w-4 mr-2" />
-                Mitigation
+                Comparaison Pre/Post
               </TabsTrigger>
             )}
             <TabsTrigger value="analysis">
@@ -603,22 +603,22 @@ export default function AuditDetailPage({ params }) {
           </TabsContent>
 
           <TabsContent value="comparison" className="space-y-6">
-            {audit.comparison_results && (
+            {audit.comparison_results ? (
               <>
                 <div className="grid gap-6 lg:grid-cols-2">
                   <Card className="border-brand-primary/20 bg-brand-primary/5">
                     <CardHeader>
                       <CardTitle className="text-brand-primary flex items-center gap-2">
                         <TrendingUp className="h-5 w-5" />
-                        Progression d'Équité
+                        Progression d'Equite
                       </CardTitle>
-                      <CardDescription>Impact de la stratégie de mitigation</CardDescription>
+                      <CardDescription>Impact de la strategie de mitigation</CardDescription>
                     </CardHeader>
                     <CardContent className="flex flex-col items-center justify-center py-10">
                       <div className="text-6xl font-black text-brand-primary mb-2">
                         {audit.comparison_results.improvement >= 0 ? '+' : ''}{audit.comparison_results.improvement}%
                       </div>
-                      <p className="text-sm font-display font-bold uppercase tracking-widest text-white/40">Gain de conformité global</p>
+                      <p className="text-sm font-display font-bold uppercase tracking-widest text-white/40">Gain de conformite global</p>
                     </CardContent>
                   </Card>
 
@@ -636,17 +636,56 @@ export default function AuditDetailPage({ params }) {
                           <YAxis domain={[0, 100]} />
                           <Tooltip />
                           <Legend />
-                          <Bar dataKey="pre" fill="#ec4899" name="Original (Pre)" />
-                          <Bar dataKey="post" fill="#10b981" name="Mitigé (Post)" />
+                          <Bar dataKey="pre" fill="#ec4899" name="Original (Pre)" radius={[4, 4, 0, 0]} />
+                          <Bar dataKey="post" fill="#10b981" name="Mitigue (Post)" radius={[4, 4, 0, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
                     </CardContent>
                   </Card>
                 </div>
 
+                {/* Radar chart comparing pre/post across all metrics */}
+                {audit.comparison_results.pre && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Radar Comparatif Pre/Post</CardTitle>
+                      <CardDescription>Vue globale de l'impact de la mitigation sur toutes les metriques</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <ResponsiveContainer width="100%" height={350}>
+                        <RadarChart data={(() => {
+                          const radarData = []
+                          Object.entries(audit.comparison_results.pre).forEach(([attr, preMetrics]) => {
+                            const postMetrics = audit.comparison_results.post?.[attr] || []
+                            if (Array.isArray(preMetrics)) {
+                              preMetrics.forEach(m => {
+                                const pm = postMetrics.find(p => p.name === m.name)
+                                radarData.push({
+                                  metric: `${m.name.replace(/_/g, ' ').substring(0, 15)}`,
+                                  pre: Math.round(m.value * 100),
+                                  post: pm ? Math.round(pm.value * 100) : Math.round(m.value * 100),
+                                })
+                              })
+                            }
+                          })
+                          return radarData.slice(0, 8)
+                        })()}>
+                          <PolarGrid stroke="#ffffff10" />
+                          <PolarAngleAxis dataKey="metric" tick={{ fill: '#ffffff60', fontSize: 10 }} />
+                          <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: '#ffffff40', fontSize: 9 }} />
+                          <Radar name="Original (Pre)" dataKey="pre" stroke="#ec4899" fill="#ec4899" fillOpacity={0.2} />
+                          <Radar name="Mitigue (Post)" dataKey="post" stroke="#10b981" fill="#10b981" fillOpacity={0.2} />
+                          <Legend />
+                          <Tooltip />
+                        </RadarChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+                )}
+
                 <Card>
                   <CardHeader>
-                    <CardTitle>Impact sur les Attributs Sensibles</CardTitle>
+                    <CardTitle>Impact Detaille par Attribut Sensible</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-8">
@@ -656,24 +695,31 @@ export default function AuditDetailPage({ params }) {
                           <div key={attr} className="space-y-4">
                             <h4 className="text-lg font-bold capitalize border-l-4 border-brand-primary pl-4">{attr}</h4>
                             <div className="grid gap-4 md:grid-cols-3">
-                              {preMetrics.map((m, idx) => {
+                              {Array.isArray(preMetrics) && preMetrics.map((m) => {
                                 const pm = postMetrics.find(p => p.name === m.name)
                                 const diff = pm ? Math.round((pm.value - m.value) * 100) : 0
+                                const isImproved = m.name.includes('Impact Disparate') ? diff > 0 : diff < 0
                                 return (
                                   <div key={m.name} className="p-4 rounded-2xl bg-white/5 border border-white/10 group">
                                     <p className="text-[10px] font-black uppercase text-white/20 mb-2">{m.name.replace(/_/g, ' ')}</p>
                                     <div className="flex items-end justify-between">
                                       <div className="flex flex-col">
                                         <span className="text-xs text-white/40 line-through">{(m.value * 100).toFixed(1)}%</span>
-                                        <span className="text-xl font-black text-white">{(pm?.value * 100).toFixed(1)}%</span>
+                                        <span className="text-xl font-black text-white">{pm ? (pm.value * 100).toFixed(1) : '—'}%</span>
                                       </div>
                                       <Badge className={cn(
                                         "font-black",
-                                        diff > 0 ? "bg-green-500/20 text-green-500" : diff < 0 ? "bg-red-500/20 text-red-500" : "bg-white/10 text-white/40"
+                                        isImproved ? "bg-green-500/20 text-green-500" : diff === 0 ? "bg-white/10 text-white/40" : "bg-red-500/20 text-red-500"
                                       )}>
                                         {diff > 0 ? '+' : ''}{diff}%
                                       </Badge>
                                     </div>
+                                    {pm && (
+                                      <div className="mt-2 flex gap-1">
+                                        <div className="h-1.5 rounded-full bg-pink-500/60" style={{ width: `${Math.min(m.value * 100, 100)}%` }} />
+                                        <div className="h-1.5 rounded-full bg-green-500/60" style={{ width: `${Math.min(pm.value * 100, 100)}%` }} />
+                                      </div>
+                                    )}
                                   </div>
                                 )
                               })}
@@ -685,6 +731,34 @@ export default function AuditDetailPage({ params }) {
                   </CardContent>
                 </Card>
               </>
+            ) : (
+              <Card className="border-dashed border-brand-primary/30 bg-brand-primary/5">
+                <CardContent className="py-12 flex flex-col items-center justify-center text-center">
+                  <Zap className="h-12 w-12 text-brand-primary/60 mb-4" />
+                  <h3 className="text-lg font-bold text-white mb-2">Comparaison Pre/Post non disponible</h3>
+                  <p className="text-muted-foreground max-w-md mb-6">
+                    Un dataset post-mitigation a ete uploade. Lancez l'analyse pour generer la comparaison
+                    entre les metriques avant et apres mitigation.
+                  </p>
+                  <Button
+                    onClick={() => runFairnessAnalysis(audit, false)}
+                    disabled={analyzing || llmAnalyzing}
+                    className="bg-brand-primary hover:bg-brand-primary/80"
+                  >
+                    {analyzing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Analyse en cours...
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="mr-2 h-4 w-4" />
+                        Lancer la comparaison
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
             )}
           </TabsContent>
 

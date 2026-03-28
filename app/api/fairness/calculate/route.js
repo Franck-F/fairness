@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-
-const FASTAPI_URL = process.env.FASTAPI_URL || 'http://localhost:8000'
+import { calculateFairnessSchema, validate } from '@/lib/validations'
+import { rateLimit, safeFetchBackend } from '@/lib/security'
+import logger from '@/lib/logger'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -39,12 +40,19 @@ export async function POST(request) {
     }
 
     const userId = await getInternalUserId(authUser, dbClient)
-    const body = await request.json()
-    const { audit_id } = body
 
-    if (!audit_id) {
-      return NextResponse.json({ error: 'audit_id is required' }, { status: 400 })
+    // Rate limiting: 5 fairness calculations per minute per user
+    const rl = rateLimit(`fairness:${userId}`, { maxRequests: 5, windowMs: 60000 })
+    if (!rl.allowed) {
+      return NextResponse.json({ error: 'Trop de requetes d\'analyse. Reessayez dans quelques secondes.' }, { status: 429 })
     }
+
+    const body = await request.json()
+    const { success, errors, data: validated } = validate(calculateFairnessSchema, body)
+    if (!success) {
+      return NextResponse.json({ error: errors.join(', ') }, { status: 400 })
+    }
+    const { audit_id } = validated
 
     // Get audit with dataset info from Supabase
     const { data: audit, error: auditError } = await dbClient
@@ -59,7 +67,7 @@ export async function POST(request) {
     }
 
     // Reset audit status and results to ensure polling waits correctly
-    console.log(`[Calculate] Resetting status for Audit ${audit_id}...`)
+    logger.info("FAIRNESS", `[Calculate] Resetting status for Audit ${audit_id}...`)
     await dbClient
       .from('audits')
       .update({
@@ -98,7 +106,7 @@ export async function POST(request) {
         formData.append('file', blob, dataset.original_filename || 'data.csv')
         formData.append('dataset_name', dataset.original_filename || 'data.csv')
 
-        const uploadResponse = await fetch(`${FASTAPI_URL}/api/datasets/upload`, {
+        const uploadResponse = await safeFetchBackend('/api/datasets/upload', {
           method: 'POST',
           body: formData,
         })
@@ -108,7 +116,7 @@ export async function POST(request) {
           return uploadResult.dataset_id
         }
       } catch (e) {
-        console.error('FastAPI upload error:', e)
+        logger.error("FAIRNESS", 'FastAPI upload error:', e)
       }
       return null
     }
@@ -120,7 +128,7 @@ export async function POST(request) {
     // If we have at least the pre dataset, calculate fairness
     if (fastApiDatasetIdPre) {
       try {
-        const fairnessResponse = await fetch(`${FASTAPI_URL}/api/fairness/calculate`, {
+        const fairnessResponse = await safeFetchBackend('/api/fairness/calculate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -173,7 +181,7 @@ export async function POST(request) {
             .eq('id', audit_id)
 
           if (updateError) {
-            console.error('Failed to update audit:', updateError)
+            logger.error("FAIRNESS", 'Failed to update audit:', updateError)
           }
 
           return NextResponse.json({
@@ -186,12 +194,12 @@ export async function POST(request) {
           })
         }
       } catch (fairnessError) {
-        console.error('FastAPI fairness error:', fairnessError)
+        logger.error("FAIRNESS", 'FastAPI fairness error:', fairnessError)
       }
     }
 
     // FastAPI backend is unreachable — return error instead of fake data
-    console.error('FastAPI backend unreachable, cannot calculate fairness metrics')
+    logger.error("FAIRNESS", 'FastAPI backend unreachable, cannot calculate fairness metrics')
 
     // Mark audit as failed so the user knows
     await dbClient
@@ -207,7 +215,7 @@ export async function POST(request) {
     }, { status: 503 })
 
   } catch (error) {
-    console.error('Fairness calculation error:', error)
+    logger.error("FAIRNESS", 'Fairness calculation error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

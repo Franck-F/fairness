@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { getGeminiModel } from '@/lib/gemini'
 import { supabase } from '@/lib/supabase'
+import { chatSchema, validate } from '@/lib/validations'
+import { sanitizeForPrompt, rateLimit } from '@/lib/security'
+import logger from '@/lib/logger'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -20,22 +23,29 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { messages, context } = await request.json()
-
-    if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      return NextResponse.json({ error: 'Messages array is required' }, { status: 400 })
+    // Rate limiting: 20 requests per minute per user
+    const rl = rateLimit(`chat:${user.id}`, { maxRequests: 20, windowMs: 60000 })
+    if (!rl.allowed) {
+      return NextResponse.json({ error: 'Trop de requetes. Reessayez dans quelques secondes.' }, { status: 429 })
     }
+
+    const body = await request.json()
+    const { success, errors, data: validated } = validate(chatSchema, body)
+    if (!success) {
+      return NextResponse.json({ error: errors.join(', ') }, { status: 400 })
+    }
+    const { messages, context } = validated
 
     // Get Gemini model
     const model = getGeminiModel()
 
     // Format messages for Gemini API - filter history (exclude current message)
     const historyMessages = messages.slice(0, -1)
-    
+
     // Ensure history starts with user message (Gemini requirement)
     let formattedHistory = historyMessages.map(msg => ({
       role: msg.role === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.content }]
+      parts: [{ text: sanitizeForPrompt(msg.content) }]
     }))
 
     // Remove leading model messages to ensure history starts with 'user'
@@ -53,8 +63,8 @@ export async function POST(request) {
       }
     }
 
-    // Add context if provided (e.g., audit results)
-    let userMessage = messages[messages.length - 1].content
+    // Add context if provided (e.g., audit results) - sanitize user message
+    let userMessage = sanitizeForPrompt(messages[messages.length - 1].content)
     if (context) {
       userMessage = `Contexte de l'audit:\n${JSON.stringify(context, null, 2)}\n\nQuestion de l'utilisateur: ${userMessage}`
     }
@@ -83,7 +93,7 @@ export async function POST(request) {
       },
     })
   } catch (error) {
-    console.error('Chat API error:', error)
+    logger.error("CHAT", 'Chat API error:', error)
     return NextResponse.json({ 
       error: error.message || 'Internal server error' 
     }, { status: 500 })
@@ -106,18 +116,19 @@ export async function PUT(request) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 })
     }
 
-    const { messages, context } = await request.json()
-
-    if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      return new Response(JSON.stringify({ error: 'Messages array is required' }), { status: 400 })
+    const body = await request.json()
+    const { success, errors, data: validated } = validate(chatSchema, body)
+    if (!success) {
+      return new Response(JSON.stringify({ error: errors.join(', ') }), { status: 400 })
     }
+    const { messages, context } = validated
 
     // Get Gemini model
     const model = getGeminiModel()
 
     // Format messages for Gemini API - filter history (exclude current message)
     const historyMessages = messages.slice(0, -1)
-    
+
     // Ensure history starts with user message (Gemini requirement)
     let formattedHistory = historyMessages.map(msg => ({
       role: msg.role === 'user' ? 'user' : 'model',
@@ -175,7 +186,7 @@ export async function PUT(request) {
           controller.enqueue(encoder.encode('data: [DONE]\n\n'))
           controller.close()
         } catch (error) {
-          console.error('Streaming error:', error)
+          logger.error("CHAT", 'Streaming error:', error)
           controller.error(error)
         }
       }
@@ -189,7 +200,7 @@ export async function PUT(request) {
       },
     })
   } catch (error) {
-    console.error('Chat streaming error:', error)
+    logger.error("CHAT", 'Chat streaming error:', error)
     return new Response(JSON.stringify({ error: error.message }), { status: 500 })
   }
 }

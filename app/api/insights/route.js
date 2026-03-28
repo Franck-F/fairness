@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getGeminiModel } from '@/lib/gemini'
+import { insightsSchema, validate } from '@/lib/validations'
+import { sanitizeForPrompt, rateLimit } from '@/lib/security'
+import logger from '@/lib/logger'
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -43,19 +46,20 @@ export async function POST(request) {
             })
             : supabase
 
-        console.log('[INSIGHTS API] Fetching user ID...')
+        logger.info("INSIGHTS", '[INSIGHTS API] Fetching user ID...')
         const userId = await getInternalUserId(authUser, dbClient)
-        console.log('[INSIGHTS API] User ID:', userId)
+        logger.info("INSIGHTS", '[INSIGHTS API] User ID:', userId)
 
-        const { audit_id } = await request.json()
-        console.log('[INSIGHTS API] Looking for audit ID:', audit_id)
-
-        if (!audit_id) {
-            return NextResponse.json({ error: 'Missing audit_id' }, { status: 400 })
+        const body = await request.json()
+        const { success, errors, data: validated } = validate(insightsSchema, body)
+        if (!success) {
+            return NextResponse.json({ error: errors.join(', ') }, { status: 400 })
         }
+        const { audit_id } = validated
+        logger.info("INSIGHTS", '[INSIGHTS API] Looking for audit ID:', audit_id)
 
         // Fetch audit details
-        console.log('[INSIGHTS API] Fetching audit from database...')
+        logger.info("INSIGHTS", '[INSIGHTS API] Fetching audit from database...')
         const { data: audit, error: auditError } = await dbClient
             .from('audits')
             .select('*, datasets!audits_dataset_id_fkey(*)')
@@ -63,22 +67,22 @@ export async function POST(request) {
             .eq('user_id', userId)
             .single()
 
-        console.log('[INSIGHTS API] Audit fetch result:', { found: !!audit, error: auditError?.message })
+        logger.info("INSIGHTS", '[INSIGHTS API] Audit fetch result:', { found: !!audit, error: auditError?.message })
 
         if (auditError || !audit) {
-            console.log('[INSIGHTS API] Audit not found:', auditError?.message)
+            logger.info("INSIGHTS", '[INSIGHTS API] Audit not found:', auditError?.message)
             return NextResponse.json({ error: 'Audit not found' }, { status: 404 })
         }
 
-        console.log('[INSIGHTS API] Audit status:', audit.status)
+        logger.info("INSIGHTS", '[INSIGHTS API] Audit status:', audit.status)
         if (audit.status !== 'completed') {
             return NextResponse.json({ error: 'Audit not completed yet' }, { status: 400 })
         }
 
-        console.log('[INSIGHTS API] Metrics results exists:', !!audit.metrics_results)
+        logger.info("INSIGHTS", '[INSIGHTS API] Metrics results exists:', !!audit.metrics_results)
         // If no metrics_results, return fallback insights
         if (!audit.metrics_results || Object.keys(audit.metrics_results).length === 0) {
-            console.log('[INSIGHTS API] No metrics, returning fallback')
+            logger.info("INSIGHTS", '[INSIGHTS API] No metrics, returning fallback')
             const fallbackInsights = [
                 `L'audit "${audit.audit_name}" est terminé avec un score global de ${audit.overall_score || 0}%.`,
                 audit.bias_detected
@@ -93,7 +97,7 @@ export async function POST(request) {
             })
         }
 
-        console.log('[INSIGHTS API] Generating Gemini insights...')
+        logger.info("INSIGHTS", '[INSIGHTS API] Generating Gemini insights...')
 
         // Build context for Gemini
         const metricsContext = audit.metrics_results
@@ -105,9 +109,15 @@ export async function POST(request) {
             }).join('\n')
             : 'Aucune métrique disponible'
 
+        // Rate limiting: 10 insight requests per minute
+        const rl = rateLimit(`insights:${userId}`, { maxRequests: 10, windowMs: 60000 })
+        if (!rl.allowed) {
+            return NextResponse.json({ error: 'Trop de requetes. Reessayez dans quelques secondes.' }, { status: 429 })
+        }
+
         const prompt = `Tu es un expert en fairness et en IA responsable. Analyse les résultats d'audit suivants et génère des insights courts et actionnables (maximum 2-3 phrases par insight).
 
-**Audit**: ${audit.audit_name}
+**Audit**: ${sanitizeForPrompt(audit.audit_name)}
 **Score Global**: ${audit.overall_score || 0}%
 **Risque**: ${audit.risk_level || 'N/A'}
 **Biais Détecté**: ${audit.bias_detected ? 'Oui' : 'Non'}
@@ -141,7 +151,7 @@ Réponds en français, sois direct et pragmatique.`
         })
 
     } catch (error) {
-        console.error('Insights generation error:', error)
+        logger.error("INSIGHTS", 'Insights generation error:', error)
         return NextResponse.json({
             error: 'Failed to generate insights',
             details: error.message

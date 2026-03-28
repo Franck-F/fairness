@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { toast } from 'sonner'
 import { Mail, Lock, User, ChevronRight, Activity, ArrowLeft, CheckCircle2 } from 'lucide-react'
-import { auth } from '@/lib/supabase'
+import { auth, supabase } from '@/lib/supabase'
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google'
 
 function SignupForm() {
@@ -45,16 +45,21 @@ function SignupForm() {
 
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      const response = await fetch('/api/auth/google', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken: credentialResponse.credential }),
+      setLoading(true)
+      const { data, error } = await supabase.auth.signInWithIdToken({
+        provider: 'google',
+        token: credentialResponse.credential,
       })
-      if (!response.ok) throw new Error('Auth Failed')
-      toast.success('Connexion Google réussie.')
+
+      if (error) throw error
+
+      toast.success('Connexion Google reussie.')
       router.push('/dashboard')
     } catch (error) {
-      toast.error('Erreur de connexion Google.')
+      console.error('Google auth error:', error)
+      toast.error(error.message || 'Erreur de connexion Google.')
+    } finally {
+      setLoading(false)
     }
   }
 

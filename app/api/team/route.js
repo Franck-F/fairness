@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { inviteTeamMemberSchema, updateTeamMemberSchema, validate } from '@/lib/validations'
+import logger from '@/lib/logger'
 
 // Get team members
 export async function GET(request) {
@@ -37,7 +39,7 @@ export async function GET(request) {
       },
     })
   } catch (error) {
-    console.error('Team GET error:', error)
+    logger.error("TEAM", 'Team GET error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
@@ -57,17 +59,12 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { email, role } = await request.json()
-
-    if (!email || !role) {
-      return NextResponse.json({ error: 'Email and role are required' }, { status: 400 })
+    const body = await request.json()
+    const { success, errors, data: validated } = validate(inviteTeamMemberSchema, body)
+    if (!success) {
+      return NextResponse.json({ error: errors.join(', ') }, { status: 400 })
     }
-
-    // Validate role
-    const validRoles = ['admin', 'auditor', 'viewer']
-    if (!validRoles.includes(role)) {
-      return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
-    }
+    const { email, role } = validated
 
     // Check if member already exists
     const { data: existingMember } = await supabase
@@ -102,7 +99,7 @@ export async function POST(request) {
 
     if (inviteError) {
       // Create table if it doesn't exist and retry
-      console.error('Invitation error (table may not exist):', inviteError)
+      logger.error("TEAM", 'Invitation error (table may not exist):', inviteError)
       
       // For now, create a pending member entry
       const { data: member, error: memberError } = await supabase
@@ -118,7 +115,7 @@ export async function POST(request) {
         .single()
 
       if (memberError) {
-        console.error('Member creation error:', memberError)
+        logger.error("TEAM", 'Member creation error:', memberError)
         return NextResponse.json({ 
           success: true,
           message: 'Invitation envoyee (simulation)',
@@ -152,7 +149,7 @@ export async function POST(request) {
       },
     })
   } catch (error) {
-    console.error('Team POST error:', error)
+    logger.error("TEAM", 'Team POST error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
@@ -172,16 +169,12 @@ export async function PUT(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { memberId, role } = await request.json()
-
-    if (!memberId || !role) {
-      return NextResponse.json({ error: 'Member ID and role are required' }, { status: 400 })
+    const putBody = await request.json()
+    const { success: putSuccess, errors: putErrors, data: putValidated } = validate(updateTeamMemberSchema, putBody)
+    if (!putSuccess) {
+      return NextResponse.json({ error: putErrors.join(', ') }, { status: 400 })
     }
-
-    const validRoles = ['admin', 'auditor', 'viewer']
-    if (!validRoles.includes(role)) {
-      return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
-    }
+    const { memberId, role } = putValidated
 
     const { data: member, error: updateError } = await supabase
       .from('team_members')
@@ -200,7 +193,7 @@ export async function PUT(request) {
       member,
     })
   } catch (error) {
-    console.error('Team PUT error:', error)
+    logger.error("TEAM", 'Team PUT error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
@@ -242,7 +235,7 @@ export async function DELETE(request) {
       message: 'Member removed successfully',
     })
   } catch (error) {
-    console.error('Team DELETE error:', error)
+    logger.error("TEAM", 'Team DELETE error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

@@ -1,14 +1,16 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { googleAuthSchema, validate } from '@/lib/validations'
 
 // POST /api/auth/google - Google OAuth sign in
 export async function POST(request) {
   try {
-    const { idToken } = await request.json()
-
-    if (!idToken) {
-      return NextResponse.json({ error: 'ID token required' }, { status: 400 })
+    const body = await request.json()
+    const { success, errors, data: validated } = validate(googleAuthSchema, body)
+    if (!success) {
+      return NextResponse.json({ error: errors.join(', ') }, { status: 400 })
     }
+    const { idToken } = validated
 
     // Verify Google token with Supabase
     const { data, error } = await supabase.auth.signInWithIdToken({

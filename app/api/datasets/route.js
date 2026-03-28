@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import logger from '@/lib/logger'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -49,22 +50,40 @@ export async function GET(request) {
       return NextResponse.json({ datasets: [] })
     }
 
+    // Parse pagination params
+    const { searchParams } = new URL(request.url)
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '20', 10)))
+    const offset = (page - 1) * limit
+
+    const { count: totalCount } = await dbClient
+      .from('datasets')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+
     const { data: datasets, error: datasetsError } = await dbClient
       .from('datasets')
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
 
     if (datasetsError) {
-      console.error('Datasets fetch error:', datasetsError)
+      logger.error("DATASETS", 'Datasets fetch error:', datasetsError)
       return NextResponse.json({ datasets: [] })
     }
 
     return NextResponse.json({
       datasets: datasets || [],
+      pagination: {
+        page,
+        limit,
+        total: totalCount || 0,
+        totalPages: Math.ceil((totalCount || 0) / limit),
+      },
     })
   } catch (error) {
-    console.error('Datasets GET error:', error)
+    logger.error("DATASETS", 'Datasets GET error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
@@ -116,7 +135,7 @@ export async function DELETE(request) {
       message: 'Dataset deleted successfully',
     })
   } catch (error) {
-    console.error('Datasets DELETE error:', error)
+    logger.error("DATASETS", 'Datasets DELETE error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { updateAuditSchema, validate } from '@/lib/validations'
+import logger from '@/lib/logger'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -52,7 +54,7 @@ export async function GET(request, { params }) {
 
     return NextResponse.json({ audit })
   } catch (error) {
-    console.error('Get audit error:', error)
+    logger.error("AUDITS", 'Get audit error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -75,9 +77,14 @@ export async function PUT(request, { params }) {
     const { id } = await params
     const body = await request.json()
 
+    const { success, errors, data: validated } = validate(updateAuditSchema, body)
+    if (!success) {
+      return NextResponse.json({ error: errors.join(', ') }, { status: 400 })
+    }
+
     const { data: audit, error } = await dbClient
       .from('audits')
-      .update(body)
+      .update(validated)
       .eq('id', id)
       .eq('user_id', userId)
       .select()
@@ -89,7 +96,7 @@ export async function PUT(request, { params }) {
 
     return NextResponse.json({ audit, success: true })
   } catch (error) {
-    console.error('Update audit error:', error)
+    logger.error("AUDITS", 'Update audit error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -123,7 +130,7 @@ export async function DELETE(request, { params }) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Delete audit error:', error)
+    logger.error("AUDITS", 'Delete audit error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

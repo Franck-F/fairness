@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-
-const FASTAPI_URL = process.env.FASTAPI_URL || 'http://127.0.0.1:8000'
+import { calculateEnhancedFairnessSchema, validate } from '@/lib/validations'
+import { safeFetchBackend } from '@/lib/security'
+import logger from '@/lib/logger'
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -40,13 +41,11 @@ export async function POST(request) {
 
         const userId = await getInternalUserId(authUser, dbClient)
         const body = await request.json()
-        const { audit_id } = body
-
-        const validAuditId = audit_id || body.id
-
-        if (!validAuditId) {
-            return NextResponse.json({ error: 'audit_id is required' }, { status: 400 })
+        const { success, errors, data: validated } = validate(calculateEnhancedFairnessSchema, body)
+        if (!success) {
+            return NextResponse.json({ error: errors.join(', ') }, { status: 400 })
         }
+        const validAuditId = validated.audit_id || validated.id
 
         // Get audit with dataset info from Supabase
         const { data: audit, error: auditError } = await dbClient
@@ -61,7 +60,7 @@ export async function POST(request) {
         }
 
         // Reset audit status and results to ensure polling waits correctly
-        console.log(`[Calculate-Enhanced] Resetting status for Audit ${validAuditId}...`)
+        logger.info("FAIRNESS", `[Calculate-Enhanced] Resetting status for Audit ${validAuditId}...`)
         await dbClient
             .from('audits')
             .update({
@@ -102,7 +101,7 @@ export async function POST(request) {
                 formData.append('dataset_name', dataset.original_filename || 'data.csv')
                 formData.append('dataset_id', datasetId)
 
-                const uploadResponse = await fetch(`${FASTAPI_URL}/api/datasets/upload`, {
+                const uploadResponse = await safeFetchBackend('/api/datasets/upload', {
                     method: 'POST',
                     body: formData,
                 })
@@ -112,26 +111,26 @@ export async function POST(request) {
                     return uploadResult.dataset_id
                 }
             } catch (e) {
-                console.error('FastAPI upload error:', e)
+                logger.error("FAIRNESS", 'FastAPI upload error:', e)
             }
             return null
         }
 
         // Upload both datasets if present
-        console.log(`[Calculate-Enhanced] Starting analysis for Audit: ${validAuditId}`)
-        console.log(`[Calculate-Enhanced] Fetching pre-dataset: ${audit.dataset_id}...`)
+        logger.info("FAIRNESS", `[Calculate-Enhanced] Starting analysis for Audit: ${validAuditId}`)
+        logger.info("FAIRNESS", `[Calculate-Enhanced] Fetching pre-dataset: ${audit.dataset_id}...`)
         const fastApiDatasetIdPre = await uploadToFastAPI(audit.dataset_id)
-        console.log(`[Calculate-Enhanced] Pre-dataset upload result: ${fastApiDatasetIdPre}`)
+        logger.info("FAIRNESS", `[Calculate-Enhanced] Pre-dataset upload result: ${fastApiDatasetIdPre}`)
 
-        console.log(`[Calculate-Enhanced] Fetching post-dataset: ${audit.dataset_id_post}...`)
+        logger.info("FAIRNESS", `[Calculate-Enhanced] Fetching post-dataset: ${audit.dataset_id_post}...`)
         const fastApiDatasetIdPost = await uploadToFastAPI(audit.dataset_id_post)
-        console.log(`[Calculate-Enhanced] Post-dataset upload result: ${fastApiDatasetIdPost}`)
+        logger.info("FAIRNESS", `[Calculate-Enhanced] Post-dataset upload result: ${fastApiDatasetIdPost}`)
 
         // If we have at least the pre dataset, calculate fairness
         if (fastApiDatasetIdPre) {
             try {
-                console.log(`[Calculate-Enhanced] Calling FastAPI fairness endpoint...`)
-                const fairnessResponse = await fetch(`${FASTAPI_URL}/api/fairness/calculate-enhanced`, {
+                logger.info("FAIRNESS", `[Calculate-Enhanced] Calling FastAPI fairness endpoint...`)
+                const fairnessResponse = await safeFetchBackend('/api/fairness/calculate-enhanced', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -153,7 +152,7 @@ export async function POST(request) {
 
                     // Always return processing status if backend says so
                     if (result.status === 'processing' || (result.message && result.message.includes('background'))) {
-                        console.log(`[Calculate-Enhanced] ${result.message}`)
+                        logger.info("FAIRNESS", `[Calculate-Enhanced] ${result.message}`)
                         return NextResponse.json({
                             success: true,
                             status: 'processing',
@@ -162,7 +161,7 @@ export async function POST(request) {
                     }
 
                     // Fallback for completion
-                    console.log(`[Calculate-Enhanced] Calculation successful.`)
+                    logger.info("FAIRNESS", `[Calculate-Enhanced] Calculation successful.`)
 
                     // Note: We are now depending on background tasks, but if synchronous fallback happens:
                     // Only update if we have results.
@@ -183,11 +182,11 @@ export async function POST(request) {
 
                 } else {
                     const errorText = await fairnessResponse.text()
-                    console.error('FastAPI error response:', errorText)
+                    logger.error("FAIRNESS", 'FastAPI error response:', errorText)
                     throw new Error(`FastAPI returned ${fairnessResponse.status}: ${errorText}`)
                 }
             } catch (fairnessError) {
-                console.error('FastAPI fairness error:', fairnessError)
+                logger.error("FAIRNESS", 'FastAPI fairness error:', fairnessError)
                 return NextResponse.json({ error: fairnessError.message || 'Error occurred during fairness calculation' }, { status: 500 })
             }
         }
@@ -198,7 +197,7 @@ export async function POST(request) {
         }, { status: 503 })
 
     } catch (error) {
-        console.error('Fairness calculation error:', error)
+        logger.error("FAIRNESS", 'Fairness calculation error:', error)
         return NextResponse.json({ error: error.message }, { status: 500 })
     }
 }

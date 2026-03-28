@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { verifyEmailSchema, validate } from '@/lib/validations'
+import logger from '@/lib/logger'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -13,11 +15,12 @@ const dbClient = isPlaceholderKey
 
 export async function POST(request) {
   try {
-    const { token } = await request.json()
-
-    if (!token) {
-      return NextResponse.json({ error: 'Token requis' }, { status: 400 })
+    const body = await request.json()
+    const { success, errors, data: validated } = validate(verifyEmailSchema, body)
+    if (!success) {
+      return NextResponse.json({ error: errors.join(', ') }, { status: 400 })
     }
+    const { token } = validated
 
     // For custom tokens, you would verify against your database
     // For now, we rely on Supabase's built-in verification
@@ -28,7 +31,7 @@ export async function POST(request) {
       message: 'Email verifie avec succes',
     })
   } catch (error) {
-    console.error('Verify email error:', error)
+    logger.error("AUTH", 'Verify email error:', error)
     return NextResponse.json(
       { error: 'Erreur lors de la verification' },
       { status: 500 }

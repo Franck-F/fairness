@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-
-const FASTAPI_URL = process.env.FASTAPI_URL || 'http://localhost:8000'
+import { safeFetchBackend } from '@/lib/security'
+import logger from '@/lib/logger'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -85,7 +85,7 @@ export async function GET(request) {
         formData.append('file', blob, dataset.original_filename || 'data.csv')
         formData.append('dataset_name', dataset.original_filename || 'data.csv')
 
-        const uploadResponse = await fetch(`${FASTAPI_URL}/api/datasets/upload`, {
+        const uploadResponse = await safeFetchBackend('/api/datasets/upload', {
           method: 'POST',
           body: formData,
         })
@@ -95,14 +95,14 @@ export async function GET(request) {
           const fastApiDatasetId = uploadResult.dataset_id
 
           // Get EDA from FastAPI
-          const edaResponse = await fetch(`${FASTAPI_URL}/api/eda/${fastApiDatasetId}`)
+          const edaResponse = await safeFetchBackend(`/api/eda/${fastApiDatasetId}`)
           if (edaResponse.ok) {
             edaResult = await edaResponse.json()
           }
         }
       }
     } catch (fastApiError) {
-      console.error('FastAPI EDA error:', fastApiError)
+      logger.error("EDA", 'FastAPI EDA error:', fastApiError)
     }
 
     // If FastAPI worked, return the result
@@ -173,7 +173,7 @@ export async function GET(request) {
       },
     })
   } catch (error) {
-    console.error('EDA error:', error)
+    logger.error("EDA", 'EDA error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

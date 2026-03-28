@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
-
-const FASTAPI_URL = process.env.FASTAPI_URL || 'http://localhost:8000'
+import { mlTrainSchema, validate } from '@/lib/validations'
+import { safeFetchBackend } from '@/lib/security'
+import logger from '@/lib/logger'
 
 // ML Training via FastAPI backend
 export async function POST(request) {
@@ -19,14 +20,14 @@ export async function POST(request) {
     }
 
     const body = await request.json()
-    const { dataset_id, algorithm, target_column, feature_columns, test_size } = body
-
-    if (!dataset_id || !target_column) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    const { success, errors, data: validated } = validate(mlTrainSchema, body)
+    if (!success) {
+      return NextResponse.json({ error: errors.join(', ') }, { status: 400 })
     }
+    const { dataset_id, algorithm, target_column, feature_columns, test_size } = validated
 
     // Call FastAPI ML training endpoint
-    const response = await fetch(`${FASTAPI_URL}/api/ml/train`, {
+    const response = await safeFetchBackend('/api/ml/train', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -78,7 +79,7 @@ export async function POST(request) {
       training_time: result.training_time,
     })
   } catch (error) {
-    console.error('ML Training error:', error)
+    logger.error("ML", 'ML Training error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

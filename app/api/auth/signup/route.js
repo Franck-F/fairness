@@ -1,13 +1,15 @@
 import { NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/api-utils'
+import { signupSchema, validate } from '@/lib/validations'
 
 export async function POST(request) {
   try {
-    const { email, password, fullName } = await request.json()
-
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password required' }, { status: 400 })
+    const body = await request.json()
+    const { success, errors, data: validated } = validate(signupSchema, body)
+    if (!success) {
+      return NextResponse.json({ error: errors.join(', ') }, { status: 400 })
     }
+    const { email, password, fullName } = validated
 
     const { data, error } = await supabaseServer.auth.signUp({
       email,

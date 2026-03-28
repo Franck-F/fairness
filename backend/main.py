@@ -23,9 +23,9 @@ from ds_engine import SeniorDataScientistEngine
 # Initialize LLM Analyzer
 try:
     llm_analyzer = LLMAnalyzer()
-    print("✅ LLM Analyzer initialized with Gemini")
+    logger.info("✅ LLM Analyzer initialized with Gemini")
 except Exception as e:
-    print(f"⚠️ LLM Analyzer warning: {e}")
+    logger.warning(f"LLM Analyzer warning: {e}")
     llm_analyzer = None
 
 # ... (existing imports)
@@ -79,22 +79,69 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 
 
+import logging
+
+# ── Structured Logger ──
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger("auditiq")
+
 app = FastAPI(
     title="AuditIQ ML Backend",
     description="Backend API for ML training, fairness calculation, and report generation",
     version="1.0.0"
 )
 
-# CORS configuration
+# ── Internal API Key for service-to-service auth ──
+INTERNAL_API_KEY = os.getenv("BACKEND_API_KEY", "")
+
+
+@app.middleware("http")
+async def verify_internal_auth(request: Request, call_next):
+    """Verify that requests come from the Next.js frontend via internal API key."""
+    # Allow health check and OPTIONS (CORS preflight) without auth
+    if request.url.path in ("/", "/health") or request.method == "OPTIONS":
+        return await call_next(request)
+
+    # In production, require internal API key
+    if INTERNAL_API_KEY:
+        provided_key = request.headers.get("x-internal-key", "")
+        if provided_key != INTERNAL_API_KEY:
+            logger.warning(
+                f"Unauthorized request to {request.url.path} "
+                f"from {request.client.host if request.client else 'unknown'}"
+            )
+            from starlette.responses import JSONResponse as StarletteJSON
+            return StarletteJSON(
+                status_code=401,
+                content={"detail": "Unauthorized: invalid internal key"}
+            )
+
+    return await call_next(request)
+
+# ── CORS ──
+ALLOWED_ORIGINS = os.getenv(
+    "CORS_ORIGINS",
+    "http://localhost:3000,https://ai-auditiq.netlify.app"
+).split(",")
+ALLOWED_ORIGIN_REGEX = r"https://.*\.vercel\.app"
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=ALLOWED_ORIGIN_REGEX,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=[
+        "Content-Type", "Authorization",
+        "X-API-Key", "X-Internal-Key",
+    ],
 )
 
-# In-memory storage for models and datasets
+# ── In-memory storage (isolated by user namespace) ──
 models_store = {}
 datasets_store = {}
 
@@ -209,49 +256,56 @@ if not os.path.exists(UPLOAD_DIR):
 
 # Helper to load dataset from store or disk
 def load_dataset(dataset_id: Any):
+    import re as _re
     # Ensure ID is a string for dictionary lookup
     sid = str(dataset_id)
-    
+
+    # Validate ID format (UUID or alphanumeric only - prevent path traversal)
+    if not _re.match(r'^[a-zA-Z0-9_-]{1,64}$', sid):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid dataset ID format"
+        )
+
     # 1. Check if already in memory
     if sid in datasets_store:
         return datasets_store[sid]["df"].copy(), datasets_store[sid]["filename"]
-    
-    # 2. Try to reload from local disk (if it survived restart)
-    possible_file = os.path.join(UPLOAD_DIR, f"{sid}.csv")
-    if os.path.exists(possible_file):
-        try:
-            df = pd.read_csv(possible_file)
-            filename = f"reloaded_{sid}.csv"
-            # Restore to store for future use
-            datasets_store[sid] = {
-                "df": df,
-                "filename": filename,
-                "name": filename,
-                "uploaded_at": datetime.now().isoformat(),
-                "rows": len(df),
-                "columns": len(df.columns)
-            }
-            print(f"✅ Restored dataset {sid} from disk.")
-            return df.copy(), filename
-        except Exception as e:
-            print(f"❌ Failed to restore {sid} from disk: {str(e)}")
-            
-    # 3. Last fallback: search for ANY file starting with ID (e.g. .xlsx)
-    import glob
-    files = glob.glob(os.path.join(UPLOAD_DIR, f"{sid}.*"))
-    if files:
-        target = files[0]
-        try:
-            if target.endswith('.csv'): df = pd.read_csv(target)
-            else: df = pd.read_excel(target)
-            filename = os.path.basename(target)
-            datasets_store[sid] = {"df": df, "filename": filename, "name": filename, "uploaded_at": datetime.now().isoformat(), "rows": len(df), "columns": len(df.columns)}
-            return df.copy(), filename
-        except: pass
 
-    # 4. If nowhere to be found
-    print(f"ERROR: Dataset ID {sid} not found in memory or disk. Keys: {list(datasets_store.keys())}")
-    raise HTTPException(status_code=404, detail=f"Dataset {sid} non trouve - Veuillez re-uploader le fichier.")
+    # 2. Try to reload from local disk (safe path construction)
+    for ext in ['.csv', '.xlsx']:
+        safe_path = os.path.join(UPLOAD_DIR, f"{sid}{ext}")
+        # Ensure resolved path stays within UPLOAD_DIR
+        resolved = os.path.realpath(safe_path)
+        if not resolved.startswith(os.path.realpath(UPLOAD_DIR)):
+            continue
+        if os.path.exists(resolved):
+            try:
+                if ext == '.csv':
+                    df = pd.read_csv(resolved)
+                else:
+                    df = pd.read_excel(resolved)
+                filename = f"{sid}{ext}"
+                datasets_store[sid] = {
+                    "df": df,
+                    "filename": filename,
+                    "name": filename,
+                    "uploaded_at": datetime.now().isoformat(),
+                    "rows": len(df),
+                    "columns": len(df.columns)
+                }
+                logger.info(f"Restored dataset {sid} from disk.")
+                return df.copy(), filename
+            except Exception as e:
+                logger.error(f"Failed to restore {sid}: {str(e)}")
+
+    # 3. Not found
+    logger.warning(f"Dataset ID {sid} not found.")
+    raise HTTPException(
+        status_code=404,
+        detail="Dataset non trouve - Veuillez re-uploader le fichier."
+    )
+
+MAX_UPLOAD_SIZE = 50 * 1024 * 1024  # 50MB
 
 @app.post("/api/datasets/upload")
 async def upload_dataset(
@@ -259,23 +313,38 @@ async def upload_dataset(
     dataset_name: str = Form(None),
     dataset_id: str = Form(None)
 ):
-    print(f"📥 Received re-upload request for dataset_id: {dataset_id}")
     try:
-        # Use provided ID or generate a new one
+        # Use provided ID or generate a new one - sanitize dataset_id
+        if dataset_id:
+            # Only allow UUID-like or alphanumeric IDs
+            import re
+            if not re.match(r'^[a-zA-Z0-9_-]{1,64}$', dataset_id):
+                raise HTTPException(status_code=400, detail="Invalid dataset_id format")
         active_id = dataset_id if dataset_id else str(uuid.uuid4())
-        
-        # Read file content
+
+        # Read file content with size limit
         content = await file.read()
-        
-        # Save to disk for persistence across reloads
-        file_ext = ".csv" if file.filename.lower().endswith('.csv') else ".xlsx"
-        save_path = os.path.join(UPLOAD_DIR, f"{active_id}{file_ext}")
+        if len(content) > MAX_UPLOAD_SIZE:
+            raise HTTPException(status_code=413, detail=f"Fichier trop volumineux. Maximum: {MAX_UPLOAD_SIZE // (1024*1024)}MB")
+        if len(content) == 0:
+            raise HTTPException(status_code=400, detail="Fichier vide")
+
+        # Validate file extension
+        allowed_ext = ('.csv', '.xlsx', '.xls')
+        filename_lower = (file.filename or 'data.csv').lower()
+        if not filename_lower.endswith(allowed_ext):
+            raise HTTPException(status_code=400, detail=f"Format non supporte. Extensions acceptees: {', '.join(allowed_ext)}")
+
+        # Sanitize filename for disk storage
+        file_ext = ".csv" if filename_lower.endswith('.csv') else ".xlsx"
+        safe_id = re.sub(r'[^a-zA-Z0-9_-]', '', active_id)
+        save_path = os.path.join(UPLOAD_DIR, f"{safe_id}{file_ext}")
         with open(save_path, "wb") as f:
             f.write(content)
         
         # Determine file type and parse
         filename = file.filename.lower()
-        print(f"DEBUG: Parsing file {filename}")
+        logger.debug(f"Parsing file {filename}")
         if filename.endswith('.csv'):
             df = pd.read_csv(io.BytesIO(content))
         elif filename.endswith(('.xlsx', '.xls')):
@@ -283,7 +352,7 @@ async def upload_dataset(
         else:
             raise HTTPException(status_code=400, detail="Format de fichier non supporte. Utilisez CSV ou Excel.")
         
-        print(f"DEBUG: File parsed. Columns: {list(df.columns)}")
+        logger.debug(f"File parsed. Columns: {list(df.columns)}")
         # Detect column types
         columns_info = []
         for col in df.columns:
@@ -312,18 +381,18 @@ async def upload_dataset(
             size_str = f"{file_size_bytes / (1024 * 1024):.2f} MB"
         
         # Data Profiling (GIGO Principle)
-        print("DEBUG: Calculating profiling stats")
+        logger.info("DEBUG: Calculating profiling stats")
         profiling = {
             "missing_values": df.isnull().sum().to_dict(),
             "data_types": {col: str(dtype) for col, dtype in df.dtypes.items()},
             "summary_stats": df.describe(include=[np.number]).to_dict() if not df.select_dtypes(include=[np.number]).empty else {},
         }
         
-        print("DEBUG: Profiling completed")
+        logger.info("DEBUG: Profiling completed")
         # Add a "quality_alert" if too many missing values
         total_missing = sum(profiling["missing_values"].values())
         quality_score = max(0, 100 - (total_missing / (len(df) * len(df.columns)) * 100))
-        print(f"DEBUG: Quality score: {quality_score}")
+        logger.debug(f"Quality score: {quality_score}")
         
         # Add to store
         datasets_store[active_id] = {
@@ -338,7 +407,7 @@ async def upload_dataset(
             "quality_score": round(quality_score, 2)
         }
         
-        print(f"✅ Dataset {active_id} uploaded. Rows: {len(df)}, Quality Score: {quality_score}")
+        logger.info(f"Dataset {active_id} uploaded. Rows: {len(df)}, Quality Score: {quality_score}")
         
         return to_json_safe({
             "dataset_id": active_id,
@@ -355,8 +424,8 @@ async def upload_dataset(
         })
     except Exception as e:
         import traceback
-        print(f"❌ Upload Error: {str(e)}")
-        print(traceback.format_exc())
+        logger.error(f"Upload Error: {str(e)}")
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
 
 # Get dataset info
@@ -517,17 +586,17 @@ def _calculate_metrics_for_df(df, target_column, sensitive_attributes, favorable
     all_scores = []
     
     for attr in sensitive_attributes:
-        print(f"🧐 [Metrics] Checking attribute: {attr}")
+        logger.debug(f"[Metrics] Checking attribute: {attr}")
         if attr not in df.columns:
-            print(f"⚠️ [Metrics] Attribute {attr} not found in columns: {df.columns.tolist()}")
+            logger.warning(f"[Metrics] Attribute {attr} not found in columns: {df.columns.tolist()}")
             continue
             
         attr_metrics = []
         groups = [g for g in df[attr].unique() if pd.notna(g)]
-        print(f"🧐 [Metrics] Found groups for {attr}: {groups}")
+        logger.debug(f"[Metrics] Found groups for {attr}: {groups}")
         
         if len(groups) < 2:
-            print(f"⚠️ [Metrics] Not enough groups for {attr} (needed 2+, found {len(groups)})")
+            logger.warning(f"[Metrics] Not enough groups for {attr} (needed 2+, found {len(groups)})")
             continue
         
         # Calculate metrics for each pair of groups
@@ -542,7 +611,7 @@ def _calculate_metrics_for_df(df, target_column, sensitive_attributes, favorable
             matches = (group_preds == fav_str)
             positive_rate = matches.mean() if len(group_preds) > 0 else 0
             
-            print(f"📊 [Metrics] Group {group}: {len(group_preds)} rows, {matches.sum()} positive matches, rate {positive_rate:.4f}")
+            logger.debug(f"[Metrics] Group {group}: {len(group_preds)} rows, {matches.sum()} positive matches, rate {positive_rate:.4f}")
 
             # True positive rate (actual positives correctly predicted)
             actual_positive_mask = (group_actual == fav_str)
@@ -891,7 +960,7 @@ METRIQUES PAR ATTRIBUT
             )
             
     except Exception as e:
-        print(f"Error in report generation: {str(e)}")
+        logger.info(f"Error in report generation: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 from fastapi import Request
@@ -905,10 +974,10 @@ async def calculate_data_bias(raw_request: Request):
     try:
         request_data = await raw_request.json()
     except Exception as e:
-        print(f"DEBUG: Failed to parse JSON: {e}")
+        logger.debug(f"Failed to parse JSON: {e}")
         raise HTTPException(status_code=400, detail="Invalid JSON body")
 
-    print(f"DEBUG: Data bias request received: {request_data}")
+    logger.debug(f"Data bias request received: {request_data}")
     
     try:
         # Extract data with safe defaults
@@ -1013,7 +1082,7 @@ async def calculate_data_bias(raw_request: Request):
         raise he
     except Exception as e:
         import traceback
-        print(f"Error in data-bias calculation: {str(e)}")
+        logger.info(f"Error in data-bias calculation: {str(e)}")
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -1026,7 +1095,7 @@ async def ds_analyze(request: DSAnalyzeRequest):
         df = datasets_store[request.dataset_id]["df"]
         
         # Log analysis start
-        print(f"Analyzing dataset {request.dataset_id} for target {request.target_column}")
+        logger.info(f"Analyzing dataset {request.dataset_id} for target {request.target_column}")
         
         detailed_stats = SeniorDataScientistEngine.get_detailed_stats(df)
         recommendations = SeniorDataScientistEngine.get_expert_recommendations(df, request.target_column)
@@ -1042,8 +1111,8 @@ async def ds_analyze(request: DSAnalyzeRequest):
         raise e
     except Exception as e:
         import traceback
-        print(f"DS Analyze Error: {str(e)}")
-        print(traceback.format_exc())
+        logger.info(f"DS Analyze Error: {str(e)}")
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/ds/intelligence")
@@ -1093,8 +1162,8 @@ async def ds_intelligence(request: DSIntelligenceRequest):
         raise e
     except Exception as e:
         import traceback
-        print(f"DS Intelligence Error: {str(e)}")
-        print(traceback.format_exc())
+        logger.info(f"DS Intelligence Error: {str(e)}")
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
 
 async def update_ds_project(project_id: str, update_data: Dict[str, Any]):
@@ -1105,9 +1174,9 @@ async def update_ds_project(project_id: str, update_data: Dict[str, Any]):
         
         # Ensure it's a valid ID
         supabase.table("ds_projects").update(update_data).eq("id", project_id).execute()
-        print(f"✅ Updated DS Project {project_id}")
+        logger.info(f"Updated DS Project {project_id}")
     except Exception as e:
-        print(f"⚠️ Failed to update DS Project {project_id}: {e}")
+        logger.warning(f"Failed to update DS Project {project_id}: {e}")
 
 @app.post("/api/ds/eda")
 async def ds_eda(request: DSEdaRequest):
@@ -1116,7 +1185,7 @@ async def ds_eda(request: DSEdaRequest):
             raise HTTPException(status_code=404, detail=f"Dataset '{request.dataset_id}' non trouve")
         
         df = datasets_store[request.dataset_id]["df"]
-        print(f"Running EDA for dataset {request.dataset_id}")
+        logger.info(f"Running EDA for dataset {request.dataset_id}")
         
         target_dist = None
         if request.target_column:
@@ -1161,8 +1230,8 @@ async def ds_eda(request: DSEdaRequest):
         raise e
     except Exception as e:
         import traceback
-        print(f"DS EDA Error: {str(e)}")
-        print(traceback.format_exc())
+        logger.info(f"DS EDA Error: {str(e)}")
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/ds/feature-engineering")
@@ -1199,8 +1268,8 @@ async def ds_feature_engineering(request: DSFeatureEngRequest):
         raise e
     except Exception as e:
         import traceback
-        print(f"DS FE Error: {str(e)}")
-        print(traceback.format_exc())
+        logger.info(f"DS FE Error: {str(e)}")
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/ds/modeling")
@@ -1231,8 +1300,8 @@ async def ds_modeling(request: DSModelingRequest):
         raise e
     except Exception as e:
         import traceback
-        print(f"DS Modeling Error: {str(e)}")
-        print(traceback.format_exc())
+        logger.info(f"DS Modeling Error: {str(e)}")
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/ds/interpret")
@@ -1269,8 +1338,8 @@ async def ds_interpret(request: DSInterpretRequest):
         raise e
     except Exception as e:
         import traceback
-        print(f"DS Interpret Error: {str(e)}")
-        print(traceback.format_exc())
+        logger.info(f"DS Interpret Error: {str(e)}")
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/ds/agent/chat")
@@ -1295,8 +1364,8 @@ async def ds_agent_chat(request: DSAgentChatRequest):
         })
     except Exception as e:
         import traceback
-        print(f"DS Agent Chat Error: {str(e)}")
-        print(traceback.format_exc())
+        logger.info(f"DS Agent Chat Error: {str(e)}")
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -1326,7 +1395,7 @@ async def create_ds_project(request: DSProjectCreateRequest):
             return {"status": "success", "project": res.data[0]}
         return {"status": "error", "message": "Failed to create project"}
     except Exception as e:
-        print(f"Error creating DS project: {e}")
+        logger.info(f"Error creating DS project: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # EDA endpoint
@@ -1373,7 +1442,7 @@ if __name__ == "__main__":
 
 @app.post("/api/fairness/calculate-enhanced")
 async def calculate_fairness_enhanced(request: FairnessRequest, background_tasks: BackgroundTasks):
-    print(f"📥 Received enhanced fairness request for Dataset {request.dataset_id}")
+    logger.info(f"Received enhanced fairness request for Dataset {request.dataset_id}")
     
     try:
         df, _ = load_dataset(request.dataset_id)
@@ -1392,7 +1461,7 @@ async def calculate_fairness_enhanced(request: FairnessRequest, background_tasks
         
         return {"status": "processing", "message": "Optimized analysis started in background."}
     except Exception as e:
-        print(f"Error in starting enhanced calculation: {str(e)}")
+        logger.info(f"Error in starting enhanced calculation: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 async def calculate_metrics_internal(request: FairnessRequest):
@@ -1410,11 +1479,11 @@ key: str = os.environ.get("SUPABASE_SERVICE_KEY") # Use Service Key for backend 
 supabase: Client = create_client(url, key)
 
 async def process_fairness_analysis_background(audit_id: str, request: FairnessRequest, df: pd.DataFrame):
-    print(f"🚀 [Background] Starting analysis for Audit {audit_id}...")
+    logger.info(f"🚀 [Background] Starting analysis for Audit {audit_id}...")
     try:
         # Use existing helper function for metrics
-        print(f"🧮 [Background] Columns in DF: {df.columns.tolist()}")
-        print(f"🧮 [Background] Sensitive Attributes: {request.sensitive_attributes}")
+        logger.info(f"🧮 [Background] Columns in DF: {df.columns.tolist()}")
+        logger.info(f"🧮 [Background] Sensitive Attributes: {request.sensitive_attributes}")
         
         metrics_result = _calculate_metrics_for_df(
             df, request.target_column, request.sensitive_attributes, request.favorable_outcome
@@ -1425,9 +1494,9 @@ async def process_fairness_analysis_background(audit_id: str, request: FairnessR
         for attr, metrics in metrics_result["metrics_by_attribute"].items():
             serialized_metrics[attr] = [m.dict() if hasattr(m, "dict") else m for m in metrics]
         
-        print(f"📊 [Background] Generated metrics for {len(serialized_metrics)} attributes")
+        logger.debug(f"[Background] Generated metrics for {len(serialized_metrics)} attributes")
         for attr, ms in serialized_metrics.items():
-            print(f"   - {attr}: {len(ms)} metrics")
+            logger.info(f"   - {attr}: {len(ms)} metrics")
 
         if request.enable_llm and llm_analyzer:
             # Prepare context for LLM
@@ -1468,7 +1537,7 @@ async def process_fairness_analysis_background(audit_id: str, request: FairnessR
             metrics_result["recommendations"] = recommendations
 
         # 5. Update Supabase
-        print(f"💾 [Background] Saving results to Supabase for Audit {audit_id}...")
+        logger.info(f"💾 [Background] Saving results to Supabase for Audit {audit_id}...")
         
         # Format recommendations for DB
         recommendations_db = (metrics_result.get("recommendations") or []).copy()
@@ -1494,10 +1563,10 @@ async def process_fairness_analysis_background(audit_id: str, request: FairnessR
             update_payload["llm_insights"] = metrics_result["llm_insights"]
 
         data, count = supabase.table("audits").update(update_payload).eq("id", audit_id).execute()
-        print(f"✅ [Background] Audit {audit_id} completed successfully.")
+        logger.info(f"[Background] Audit {audit_id} completed successfully.")
 
     except Exception as e:
-        print(f"❌ [Background] Error processing audit {audit_id}: {e}")
+        logger.error(f"[Background] Error processing audit {audit_id}: {e}")
         # Update status to failed
         try:
             supabase.table("audits").update({
@@ -1505,7 +1574,138 @@ async def process_fairness_analysis_background(audit_id: str, request: FairnessR
                 "error_message": str(e)
             }).eq("id", audit_id).execute()
         except Exception as update_err:
-            print(f"❌ Critical error: Could not update status for failed audit {audit_id}: {update_err}")
+            logger.error(f"Critical error: Could not update status for failed audit {audit_id}: {update_err}")
+
+# ============================================
+# DiCE Counterfactual Explanations
+# ============================================
+
+class CounterfactualRequest(BaseModel):
+    dataset_id: str
+    target_column: str
+    instance_data: Dict[str, Any]
+    num_counterfactuals: Optional[int] = 3
+    features_to_vary: Optional[List[str]] = None
+
+@app.post("/api/whatif/counterfactuals")
+async def generate_counterfactuals(req: CounterfactualRequest):
+    """Generate real counterfactual explanations using DiCE."""
+    try:
+        import dice_ml
+        from sklearn.ensemble import RandomForestClassifier
+        from sklearn.model_selection import train_test_split
+
+        if req.dataset_id not in datasets_store:
+            raise HTTPException(
+                status_code=404, detail="Dataset not found"
+            )
+
+        df = datasets_store[req.dataset_id]["dataframe"].copy()
+
+        if req.target_column not in df.columns:
+            raise HTTPException(status_code=400, detail=f"Target column '{req.target_column}' not found")
+
+        # Prepare data
+        target = req.target_column
+        feature_cols = [c for c in df.columns if c != target]
+
+        # Handle categorical columns
+        continuous_features = []
+        for col in feature_cols:
+            if df[col].dtype in ['int64', 'float64']:
+                continuous_features.append(col)
+            else:
+                df[col] = df[col].astype('category').cat.codes
+
+        # Ensure target is numeric
+        if df[target].dtype == 'object':
+            df[target] = df[target].astype('category').cat.codes
+
+        df = df.dropna(subset=feature_cols + [target])
+
+        # Train a simple model for counterfactual generation
+        X = df[feature_cols]
+        y = df[target]
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        model = RandomForestClassifier(n_estimators=50, random_state=42)
+        model.fit(X_train, y_train)
+
+        # Create DiCE data and model objects
+        d = dice_ml.Data(
+            dataframe=df[feature_cols + [target]],
+            continuous_features=continuous_features,
+            outcome_name=target,
+        )
+        m = dice_ml.Model(model=model, backend="sklearn")
+
+        # Create explainer
+        exp = dice_ml.Dice(d, m, method="random")
+
+        # Prepare the instance to explain
+        instance_dict = {}
+        for col in feature_cols:
+            if col in req.instance_data:
+                instance_dict[col] = req.instance_data[col]
+            else:
+                instance_dict[col] = float(df[col].median()) if col in continuous_features else int(df[col].mode()[0])
+
+        instance_df = pd.DataFrame([instance_dict])
+
+        # Generate counterfactuals
+        features_to_vary = req.features_to_vary or "all"
+        cf = exp.generate_counterfactuals(
+            instance_df,
+            total_CFs=req.num_counterfactuals,
+            desired_class="opposite",
+            features_to_vary=features_to_vary,
+        )
+
+        # Parse results
+        cf_df = cf.cf_examples_list[0].final_cfs_df
+        counterfactuals = []
+        for _, row in cf_df.iterrows():
+            cf_instance = row.to_dict()
+            changes = []
+            for col in feature_cols:
+                if col in instance_dict and cf_instance.get(col) != instance_dict[col]:
+                    changes.append({
+                        "attribute": col,
+                        "from": instance_dict[col],
+                        "to": cf_instance[col],
+                        "impact": "high" if abs(float(cf_instance.get(col, 0)) - float(instance_dict.get(col, 0))) > df[col].std() else "medium",
+                    })
+            counterfactuals.append({
+                "instance": to_json_safe(cf_instance),
+                "changes": to_json_safe(changes),
+                "predicted_outcome": to_json_safe(cf_instance.get(target)),
+            })
+
+        # Generate explanation
+        original_pred = model.predict(instance_df)[0]
+        explanation = f"Le modele predit '{int(original_pred)}' pour l'instance originale. "
+        if counterfactuals:
+            best_cf = min(counterfactuals, key=lambda x: len(x["changes"]))
+            n_changes = len(best_cf["changes"])
+            explanation += f"Le contrefactuel le plus proche necessite {n_changes} changement(s) pour inverser la prediction."
+
+        return to_json_safe({
+            "success": True,
+            "original_instance": instance_dict,
+            "original_prediction": int(original_pred),
+            "counterfactuals": counterfactuals,
+            "explanation": explanation,
+            "model_accuracy": float(model.score(X_test, y_test)),
+        })
+
+    except ImportError:
+        raise HTTPException(
+            status_code=501,
+            detail="DiCE n'est pas installe. Installez-le avec: pip install dice-ml"
+        )
+    except Exception as e:
+        logger.info(f"Counterfactual error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # End of file
 
