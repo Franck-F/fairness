@@ -16,7 +16,89 @@ from reportlab.lib.units import inch
 from config import logger
 from schemas import ReportRequest
 
+# Ancrage juridique francais (refonte alignement memoire).
+# Ces imports n'ajoutent aucune dependance externe : legal_fr et
+# sector_templates_fr sont des modules purs du backend.
+from legal_fr import (
+    get_cnil_guidance,
+    get_french_law_for_use_case,
+    map_ai_act_article_to_french_law,
+)
+from sector_templates_fr import get_template, list_templates_names
+
 router = APIRouter(prefix="/api", tags=["Reports"])
+
+
+def _build_legal_context(use_case: str | None) -> dict | None:
+    """Construit un bloc de contexte juridique francais pour un cas d'usage.
+
+    Renvoie None si `use_case` est absent ou inconnu. Utilise par la
+    generation PDF/TXT pour enrichir automatiquement les rapports.
+    """
+    if not use_case:
+        return None
+
+    template = get_template(use_case)
+    if template.get("error"):
+        return None
+
+    legal = get_french_law_for_use_case(use_case) if use_case in {
+        "recrutement",
+        "credit",
+        "assurance",
+        "marketing",
+        "service_client",
+    } else template.get("legal_fr_details")
+
+    ai_act_numbers: list[int] = []
+    for ai in template.get("legal_framework", {}).get("ai_act", []):
+        ref = str(ai.get("article", ""))
+        cleaned = ref.replace("Art.", "").replace("Annexe III - ", "")
+        for token in cleaned.split():
+            digits = "".join(c for c in token if c.isdigit())
+            if not digits:
+                continue
+            num = int(digits)
+            if num and num not in ai_act_numbers:
+                ai_act_numbers.append(num)
+
+    ai_act_mapping = [
+        map_ai_act_article_to_french_law(num)
+        for num in ai_act_numbers
+        if isinstance(num, int)
+    ]
+    ai_act_mapping = [m for m in ai_act_mapping if not m.get("error")]
+
+    return {
+        "use_case": use_case,
+        "template": template,
+        "legal_fr": legal,
+        "ai_act_mapping": ai_act_mapping,
+        "cnil_guidance": get_cnil_guidance(),
+    }
+
+
+@router.get("/reports/legal-context/{use_case}")
+async def get_legal_context(use_case: str):
+    """Retourne le contexte juridique francais structure pour un cas d'usage.
+
+    NOTE D'INTEGRATION : ce endpoint est appele par le frontend pour
+    afficher une section "Cadre juridique francais applicable" dans les
+    rapports. Pour l'integrer directement dans la generation PDF, passer
+    le champ `use_case` dans `ReportRequest` et appeler
+    `_build_legal_context` au debut de `_generate_pdf_report` /
+    `_generate_txt_report` (voir ci-dessous).
+    """
+    context = _build_legal_context(use_case)
+    if context is None:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                f"Cas d'usage '{use_case}' inconnu. "
+                f"Disponibles : {list_templates_names()}"
+            ),
+        )
+    return context
 
 
 @router.post("/reports/generate")
@@ -152,6 +234,93 @@ def _generate_pdf_report(request: ReportRequest):
         for rec in recommendations:
             elements.append(Paragraph(f"* {rec}", styles["Normal"]))
 
+    # -----------------------------------------------------------------
+    # Cadre juridique francais applicable (refonte alignement memoire).
+    # Active uniquement si le champ `use_case` est present dans les
+    # resultats de fairness transmis par le frontend. Aucun effet de
+    # bord si absent : le rapport existant reste inchange.
+    # -----------------------------------------------------------------
+    use_case = results.get("use_case") or results.get("sector_template")
+    legal_context = _build_legal_context(use_case) if use_case else None
+    if legal_context:
+        elements.append(Spacer(1, 20))
+        elements.append(
+            Paragraph(
+                "Cadre Juridique Francais Applicable",
+                styles["Heading2"],
+            )
+        )
+        tpl_desc = legal_context["template"].get("description", use_case)
+        elements.append(
+            Paragraph(
+                f"<b>Cas d'usage :</b> {tpl_desc}",
+                styles["Normal"],
+            )
+        )
+        elements.append(Spacer(1, 8))
+
+        legal_fr = legal_context.get("legal_fr") or {}
+        articles_fr = legal_fr.get("articles_francais", [])
+        if articles_fr:
+            elements.append(
+                Paragraph(
+                    "<b>Articles francais applicables :</b>",
+                    styles["Normal"],
+                )
+            )
+            for art in articles_fr:
+                warn = (
+                    " [A VERIFIER]"
+                    if art.get("verification_recommended")
+                    else ""
+                )
+                code = art.get("code", "")
+                ref = art.get("reference", "")
+                objet = art.get("objet", "")
+                elements.append(
+                    Paragraph(
+                        f"* {code} {ref} : {objet}{warn}",
+                        styles["Normal"],
+                    )
+                )
+            elements.append(Spacer(1, 8))
+
+        regulateurs = legal_fr.get("regulateurs_competents", [])
+        if regulateurs:
+            elements.append(
+                Paragraph(
+                    "<b>Regulateurs competents :</b>",
+                    styles["Normal"],
+                )
+            )
+            for reg in regulateurs:
+                elements.append(
+                    Paragraph(
+                        f"* {reg.get('nom')} - {reg.get('perimetre')}",
+                        styles["Normal"],
+                    )
+                )
+            elements.append(Spacer(1, 8))
+
+        ai_act_mapping = legal_context.get("ai_act_mapping", [])
+        if ai_act_mapping:
+            elements.append(
+                Paragraph(
+                    "<b>Correspondance AI Act / droit francais :</b>",
+                    styles["Normal"],
+                )
+            )
+            for m in ai_act_mapping:
+                num = m["article_ai_act"]
+                objet = m["ai_act_objet"]
+                elements.append(
+                    Paragraph(
+                        f"* AI Act art. {num} - {objet}",
+                        styles["Normal"],
+                    )
+                )
+            elements.append(Spacer(1, 8))
+
     # Methodology
     elements.append(Spacer(1, 30))
     elements.append(Paragraph("Methodologie & Limites", styles["Heading2"]))
@@ -207,6 +376,41 @@ METRIQUES PAR ATTRIBUT
     report_text += "\n------------------------------------------------\nRECOMMANDATIONS\n------------------------------------------------\n"
     for rec in request.fairness_results.get("recommendations", []):
         report_text += f"* {rec}\n"
+
+    # -----------------------------------------------------------------
+    # Cadre juridique francais applicable (refonte alignement memoire).
+    # -----------------------------------------------------------------
+    fr_results = request.fairness_results
+    use_case = fr_results.get("use_case") or fr_results.get("sector_template")
+    legal_context = _build_legal_context(use_case) if use_case else None
+    if legal_context:
+        report_text += (
+            "\n------------------------------------------------\n"
+            "CADRE JURIDIQUE FRANCAIS APPLICABLE\n"
+            "------------------------------------------------\n"
+        )
+        legal_fr = legal_context.get("legal_fr") or {}
+        for art in legal_fr.get("articles_francais", []):
+            warn = (
+                " [A VERIFIER]"
+                if art.get("verification_recommended")
+                else ""
+            )
+            code = art.get("code", "")
+            ref = art.get("reference", "")
+            objet = art.get("objet", "")
+            report_text += f"* {code} {ref} : {objet}{warn}\n"
+        report_text += "\nRegulateurs competents :\n"
+        for reg in legal_fr.get("regulateurs_competents", []):
+            nom = reg.get("nom")
+            perim = reg.get("perimetre")
+            report_text += f"* {nom} - {perim}\n"
+        if legal_context.get("ai_act_mapping"):
+            report_text += "\nCorrespondance AI Act / droit francais :\n"
+            for m in legal_context["ai_act_mapping"]:
+                num = m["article_ai_act"]
+                objet = m["ai_act_objet"]
+                report_text += f"* AI Act art. {num} - {objet}\n"
 
     report_text += "\n================================================\nGenere par AuditIQ - Plateforme d'Audit IA\n================================================"
 
