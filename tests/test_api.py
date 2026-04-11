@@ -113,6 +113,7 @@ class TestFairness:
         assert response.status_code == 404
 
 
+@pytest.mark.skip(reason="Module ML training désactivé lors de la refonte d'alignement (hors-scope problématique)")
 class TestMLTraining:
     def _upload_and_get_id(self, client, sample_csv):
         with open(sample_csv, "rb") as f:
@@ -136,6 +137,7 @@ class TestMLTraining:
 
 
 class TestPydanticValidation:
+    @pytest.mark.skip(reason="Endpoint /api/ml/train désactivé (refonte alignement)")
     def test_invalid_algorithm(self, client):
         response = client.post("/api/ml/train", json={
             "dataset_id": "test",
@@ -144,6 +146,7 @@ class TestPydanticValidation:
         })
         assert response.status_code == 422
 
+    @pytest.mark.skip(reason="Endpoint /api/ml/train désactivé (refonte alignement)")
     def test_invalid_test_size(self, client):
         response = client.post("/api/ml/train", json={
             "dataset_id": "test",

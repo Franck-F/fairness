@@ -150,38 +150,43 @@ def _init_llm():
 
 
 def _register_routers():
-    """Import and register all routers."""
+    """Import and register all routers aligned on the bias-detection problematic."""
     from routers.datasets import router as datasets_router  # noqa: E402
-    from routers.ml import router as ml_router  # noqa: E402
     from routers.fairness import router as fairness_router  # noqa: E402
     from routers.reports import router as reports_router  # noqa: E402
-    from routers.datascience import router as ds_router  # noqa: E402
+    from routers.unsupervised import router as unsupervised_router  # noqa: E402
+    from routers.llm_audit import router as llm_audit_router  # noqa: E402
     from routers.fairness import set_llm_analyzer as set_fairness_llm  # noqa: E402
-    from routers.datascience import set_llm_analyzer as set_ds_llm  # noqa: E402
 
     return (
-        datasets_router, ml_router, fairness_router,
-        reports_router, ds_router,
-        set_fairness_llm, set_ds_llm,
+        datasets_router, fairness_router, reports_router,
+        unsupervised_router, llm_audit_router,
+        set_fairness_llm,
     )
 
 
 llm_analyzer = _init_llm()
 
 (
-    datasets_router, ml_router, fairness_router,
-    reports_router, ds_router,
-    set_fairness_llm, set_ds_llm,
+    datasets_router, fairness_router, reports_router,
+    unsupervised_router, llm_audit_router,
+    set_fairness_llm,
 ) = _register_routers()
 
 set_fairness_llm(llm_analyzer)
-set_ds_llm(llm_analyzer)
 
 app.include_router(datasets_router)
-app.include_router(ml_router)
 app.include_router(fairness_router)
 app.include_router(reports_router)
-app.include_router(ds_router)
+app.include_router(unsupervised_router)
+app.include_router(llm_audit_router)
+
+# Routers désactivés lors de la refonte d'alignement avec la problématique du mémoire
+# (détection facile des biais pour conformité AI Act). Ces modules dépassaient le scope
+# et contredisaient le critère "facilement" en surchargeant l'utilisateur non-spécialiste.
+# - routers.ml : entraînement de modèles ML (hors-scope, AuditIQ audite, n'entraîne pas)
+# - routers.datascience : agent chat data science généraliste (hors-scope)
+# Code conservé sur disque pour traçabilité de la refonte mais non-importé.
 
 
 # --- Health Check ---

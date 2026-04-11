@@ -109,3 +109,7 @@ temp/
 
 # Emergent
 .emergent/summary.txt
+
+# Office lock files (Word/Excel/PowerPoint open lock)
+~$*
+**/~$*

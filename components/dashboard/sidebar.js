@@ -11,35 +11,33 @@ import {
   Upload,
   FileBarChart2,
   FileText,
-  BarChart3,
   Users,
   Settings,
   LogOut,
   ChevronLeft,
   ChevronRight,
-  MessageSquare,
-  Link2,
   Shield,
   Bell,
-  User,
-  Sparkles,
+  Search,
+  Bot,
   X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+// Navigation alignée sur la problématique : détection des biais IA pour PME (AI Act).
+// Modules hors-scope retirés lors de la refonte d'alignement (chat, data-science généraliste,
+// what-if, connexions, monitoring autonome) pour respecter le critère "facilement" de la
+// problématique et éviter la surcharge cognitive de l'utilisateur non-spécialiste.
 const navigationItems = [
   { name: 'Tableau de Bord', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Nouvel Audit', href: '/dashboard/upload', icon: Upload },
   { name: 'Mes Audits', href: '/dashboard/audits', icon: FileBarChart2 },
-  { name: 'Conformité', href: '/dashboard/compliance', icon: Shield },
+  { name: 'Détection Non Supervisée', href: '/dashboard/unsupervised', icon: Search },
+  { name: 'Audit Chatbot / LLM', href: '/dashboard/llm-audit', icon: Bot },
+  { name: 'Conformité AI Act', href: '/dashboard/compliance', icon: Shield },
   { name: 'Rapports', href: '/dashboard/reports', icon: FileText },
-  { name: 'Analyse', href: '/dashboard/data-science', icon: BarChart3 },
-  { name: 'Analyse WhatIf', href: '/dashboard/whatif', icon: Sparkles },
-  { name: 'Assistant IA', href: '/dashboard/chat', icon: MessageSquare },
-  { name: 'Connexions', href: '/dashboard/connections', icon: Link2 },
+  { name: 'Alertes & Notifications', href: '/dashboard/notifications', icon: Bell },
   { name: 'Équipe', href: '/dashboard/team', icon: Users },
-  { name: 'Profil', href: '/dashboard/profile', icon: User },
-  { name: 'Notifications', href: '/dashboard/notifications', icon: Bell },
   { name: 'Paramètres', href: '/dashboard/settings', icon: Settings },
 ]
 
