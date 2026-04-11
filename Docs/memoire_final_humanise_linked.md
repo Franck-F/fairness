@@ -1089,55 +1089,58 @@ Ce Consulting Project touche à sa fin, mais le projet AuditIQ ne s'arrête pas 
 
 # **BIBLIOGRAPHIE**
 
+*Cette bibliographie est organisée par catégorie thématique pour faciliter la consultation, puis par ordre alphabétique d'auteur au sein de chaque sous-section, conformément à l'usage académique français.*
+
+
 ## **Textes réglementaires**
 
-* Règlement (UE) 2024/1689 du Parlement européen et du Conseil du 13 juin 2024 établissant des règles harmonisées concernant l'intelligence artificielle (AI Act). *Journal officiel de l'Union européenne*.  
 * Commission européenne (2025). *Digital Omnibus Proposal — Proposition de simplification des obligations réglementaires numériques pour les PME*. Bruxelles.  
 * Parlement européen (2026, mars). Résolution législative sur le Digital Omnibus — Position en première lecture. 569 voix pour.
+* Règlement (UE) 2024/1689 du Parlement européen et du Conseil du 13 juin 2024 établissant des règles harmonisées concernant l'intelligence artificielle (AI Act). *Journal officiel de l'Union européenne*.  
 
 ## **Articles scientifiques et rapports de recherche**
 
+* Algorithm Audit (2025). Auditing a Dutch Public Sector Risk Profiling Algorithm Using an Unsupervised Bias Detection Tool. *arXiv:2502.01713*.  
+* Barocas, S. & Selbst, A.D. (2016). Big Data's Disparate Impact. *California Law Review*, 104(3), 671-732.  
+* Bertrand, M. & Mullainathan, S. (2004). Are Emily and Greg More Employable Than Lakisha and Jamal? A Field Experiment on Labor Market Discrimination. *American Economic Review*, 94(4), 991-1013.  
+* Braun, V. & Clarke, V. (2006). Using thematic analysis in psychology. *Qualitative Research in Psychology*, 3(2), 77-101.  
 * Buolamwini, J. & Gebru, T. (2018). Gender Shades: Intersectional Accuracy Disparities in Commercial Gender Classification. *Proceedings of Machine Learning Research*, 81, 1-15.  
 * Chouldechova, A. (2017). Fair prediction with disparate impact: A study of bias in recidivism prediction instruments. *Big Data*, 5(2), 153-163.  
+* Commission européenne (2024). *Enquête sur l'adoption de l'IA par les PME européennes*. Direction générale des réseaux de communication, du contenu et des technologies.  
+* Corbett-Davies, S. & Goel, S. (2018). The Measure and Mismeasure of Fairness: A Critical Review of Fair Machine Learning. *arXiv:1808.00023*.  
+* Creswell, J.W. & Plano Clark, V.L. (2018). *Designing and Conducting Mixed Methods Research* (3e éd.). Sage Publications.  
+* Edwards, L. & Veale, M. (2025). Standardised Bias? The Role of European Standards Bodies in the AI Act. *Internet Policy Review*.  
+* Eurobaromètre spécial (2024). *Attitudes des Européens vis-à-vis de l'intelligence artificielle*. Commission européenne.
 * Kleinberg, J., Mullainathan, S. & Raghavan, M. (2016). Inherent Trade-Offs in the Fair Determination of Risk Scores. *Proceedings of Innovations in Theoretical Computer Science (ITCS)*.  
 * Mehrabi, N., Morstatter, F., Saxena, N., Lerman, K. & Galstyan, A. (2021). A Survey on Bias and Fairness in Machine Learning. *ACM Computing Surveys*, 54(6), 1-35.  
-* Braun, V. & Clarke, V. (2006). Using thematic analysis in psychology. *Qualitative Research in Psychology*, 3(2), 77-101.  
-* Creswell, J.W. & Plano Clark, V.L. (2018). *Designing and Conducting Mixed Methods Research* (3e éd.). Sage Publications.  
-* Algorithm Audit (2025). Auditing a Dutch Public Sector Risk Profiling Algorithm Using an Unsupervised Bias Detection Tool. *arXiv:2502.01713*.  
-* Urbiola, A., Cabot, J. & Pérez, J. (2025). LangBiTe: An Open-Source Platform to Automate Bias Testing of Large Language Models. *SoftwareX*, Elsevier.  
+* Metcalf, J. et al. (2025). Auditing the Audits: Lessons for Algorithmic Accountability from Local Law 144's Bias Audits. *ACM FAccT Conference Proceedings*.  
+* Mitchell, S., Potash, E., Barocas, S., D'Amour, A. & Lum, K. (2021). Algorithmic Fairness: Choices, Assumptions, and Definitions. *Annual Review of Statistics and Its Application*, 8, 141-163.  
+* Mökander, J. et al. (2025). Artificial Intelligence Bias Auditing: Current Approaches, Challenges and Lessons from Practice. *Review of Accounting and Finance*, Emerald.  
+* Ntoutsi, E. et al. (2024). Bias and Ethics of AI Systems Applied in Auditing: A Systematic Review. *ScienceDirect*.  
+* O'Neil, C. (2016). *Weapons of Math Destruction: How Big Data Increases Inequality and Threatens Democracy*. Crown Publishing.  
 * Paprocki, M. et al. (2025). From Bias to Accountability: How the EU AI Act Confronts Challenges in European GeoAI Auditing. *arXiv:2505.18236*.  
 * Service de recherche du Parlement européen (2025). *Algorithmic Discrimination under the AI Act and the GDPR*. EPRS\_ATA(2025)769509\_EN.  
-* Mökander, J. et al. (2025). Artificial Intelligence Bias Auditing: Current Approaches, Challenges and Lessons from Practice. *Review of Accounting and Finance*, Emerald.  
-* Metcalf, J. et al. (2025). Auditing the Audits: Lessons for Algorithmic Accountability from Local Law 144's Bias Audits. *ACM FAccT Conference Proceedings*.  
-* Ntoutsi, E. et al. (2024). Bias and Ethics of AI Systems Applied in Auditing: A Systematic Review. *ScienceDirect*.  
+* Urbiola, A., Cabot, J. & Pérez, J. (2025). LangBiTe: An Open-Source Platform to Automate Bias Testing of Large Language Models. *SoftwareX*, Elsevier.  
 * Veale, M. & Borgesius, F.Z. (2025). Using Sensitive Data to De-bias AI Systems: Article 10(5) of the EU AI Act. *Computer Law & Security Review*, Elsevier.  
-* Edwards, L. & Veale, M. (2025). Standardised Bias? The Role of European Standards Bodies in the AI Act. *Internet Policy Review*.  
-* Bertrand, M. & Mullainathan, S. (2004). Are Emily and Greg More Employable Than Lakisha and Jamal? A Field Experiment on Labor Market Discrimination. *American Economic Review*, 94(4), 991-1013.  
-* O'Neil, C. (2016). *Weapons of Math Destruction: How Big Data Increases Inequality and Threatens Democracy*. Crown Publishing.  
-* Barocas, S. & Selbst, A.D. (2016). Big Data's Disparate Impact. *California Law Review*, 104(3), 671-732.  
-* Corbett-Davies, S. & Goel, S. (2018). The Measure and Mismeasure of Fairness: A Critical Review of Fair Machine Learning. *arXiv:1808.00023*.  
-* Mitchell, S., Potash, E., Barocas, S., D'Amour, A. & Lum, K. (2021). Algorithmic Fairness: Choices, Assumptions, and Definitions. *Annual Review of Statistics and Its Application*, 8, 141-163.  
 * Wachter, S., Mittelstadt, B. & Russell, C. (2021). Why Fairness Cannot Be Automated: Bridging the Gap Between EU Non-Discrimination Law and AI. *Computer Law & Security Review*, 41, 105567.  
-* Commission européenne (2024). *Enquête sur l'adoption de l'IA par les PME européennes*. Direction générale des réseaux de communication, du contenu et des technologies.  
-* Eurobaromètre spécial (2024). *Attitudes des Européens vis-à-vis de l'intelligence artificielle*. Commission européenne.
 
 ## **Ressources en ligne et rapports professionnels**
 
-* Artificial Intelligence Act EU (s.d.). *Small Businesses' Guide to the AI Act*. Disponible sur : [artificialintelligenceact.eu/small-businesses-guide-to-the-ai-act](https://artificialintelligenceact.eu/small-businesses-guide-to-the-ai-act/)  
-* Riemenschneider Legal (2025). *EU AI Act for SMEs 2025: What You Must Do Now*. Disponible sur : [riemenschneider.legal/en/eu-ai-act-for-smes-2025](https://riemenschneider.legal/en/eu-ai-act-for-smes-2025/)  
-* Berger, M. & Satyanarayan, R. (2025). How SMEs Can Prepare for the EU's AI Regulations. *Harvard Business Review*.  
 * Accountancy Europe (2025). *The EU AI Act: A Guide for SME Accountants*. Bruxelles.  
-* European Digital SME Alliance (2025). *AI Act Compliance Made Easier: Help Is on Its Way for SMEs Developing AI Solutions*.  
 * AI Policy Bulletin (2025). It's Too Hard for Small and Medium-Sized Businesses to Comply with EU AI Act: Here's What to Do.  
+* Artificial Intelligence Act EU (s.d.). *Small Businesses' Guide to the AI Act*. Disponible sur : [artificialintelligenceact.eu/small-businesses-guide-to-the-ai-act](https://artificialintelligenceact.eu/small-businesses-guide-to-the-ai-act/)  
+* Berger, M. & Satyanarayan, R. (2025). How SMEs Can Prepare for the EU's AI Regulations. *Harvard Business Review*.  
+* EDPB (2025, janvier). *AI Bias Evaluation*. Comité européen de la protection des données.
+* European Digital SME Alliance (2025). *AI Act Compliance Made Easier: Help Is on Its Way for SMEs Developing AI Solutions*.  
 * ISACA (2024). A Proposed High-Level Approach to AI Audit. *ISACA Journal*, Volume 2.  
 * OECD.AI (2024). *Catalogue of Tools for Trustworthy AI — Unsupervised Bias Detection Tool*. Disponible sur : [oecd.ai/en/catalogue/tools](https://oecd.ai/en/catalogue/tools/)  
-* EDPB (2025, janvier). *AI Bias Evaluation*. Comité européen de la protection des données.
+* Riemenschneider Legal (2025). *EU AI Act for SMEs 2025: What You Must Do Now*. Disponible sur : [riemenschneider.legal/en/eu-ai-act-for-smes-2025](https://riemenschneider.legal/en/eu-ai-act-for-smes-2025/)  
 
 ## **Outils et frameworks techniques**
 
+* Algorithm Audit (2024-2025). *Unsupervised Bias Detection Tool*. Disponible sur : [algorithmaudit.eu/technical-tools/bdt](https://algorithmaudit.eu/technical-tools/bdt/)  
 * Fairlearn Contributors (s.d.). *Fairlearn: A toolkit for assessing and improving fairness in AI*. Disponible sur : [github.com/fairlearn/fairlearn](https://github.com/fairlearn/fairlearn)  
 * IBM Research (s.d.). *AI Fairness 360 (AIF360)*. Disponible sur : [github.com/Trusted-AI/AIF360](https://github.com/Trusted-AI/AIF360)  
-* Algorithm Audit (2024-2025). *Unsupervised Bias Detection Tool*. Disponible sur : [algorithmaudit.eu/technical-tools/bdt](https://algorithmaudit.eu/technical-tools/bdt/)  
 * SOM Research Lab, UOC (2024-2025). *LangBiTe*. Disponible sur : [github.com/SOM-Research/LangBiTe](https://github.com/SOM-Research/LangBiTe)
 
 # **ANNEXES**
@@ -1253,10 +1256,24 @@ Ce Consulting Project touche à sa fin, mais le projet AuditIQ ne s'arrête pas 
 
 ## **Annexe C : AuditIQ — Accès au MVP**
 
-* **Dépôt GitHub :** [github.com/Franck-F/fairness](https://github.com/Franck-F/fairness.git)  
+* **Dépôt GitHub :** [github.com/Franck-F/fairness](https://github.com/Franck-F/fairness)
 * **Démo en ligne :** [fairness-eight.vercel.app](https://fairness-eight.vercel.app/)
+* **Suivi de projet :** [github.com/Franck-F/fairness/projects](https://github.com/Franck-F/fairness/projects) (GitHub Projects et Issues)
+* **Questionnaire du sondage :** [Microsoft Forms](https://forms.office.com/Pages/AnalysisPage.aspx?AnalyzerToken=mpb4sGEh833qosb7vYT0mgSBsEhFAogo&id=yrQckGK4KUCTBuXND22fhguwfrtiJ9lCpVsQtTv76iVUOTRLUEFNTzJSUkdJWkdHMldUTlAyRlRNMi4u)
 
-*QR codes à insérer pour la version imprimée.*
+**QR codes** *(scannez avec un smartphone pour accéder directement aux ressources)* :
+
+| Dépôt GitHub | Démo MVP en ligne |
+|:---:|:---:|
+| ![QR Dépôt GitHub](qr_codes/qr_github_repo.png){ width=180px } | ![QR Démo MVP](qr_codes/qr_demo_mvp.png){ width=180px } |
+| github.com/Franck-F/fairness | fairness-eight.vercel.app |
+
+| Suivi de projet | Questionnaire sondage |
+|:---:|:---:|
+| ![QR Suivi projet](qr_codes/qr_gestion_projet.png){ width=180px } | ![QR Sondage](qr_codes/qr_sondage_forms.png){ width=180px } |
+| GitHub Projects | Microsoft Forms |
+
+
 
 ## **Annexe D : Stack technique d'AuditIQ**
 

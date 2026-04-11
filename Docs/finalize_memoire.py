@@ -75,6 +75,8 @@ def run_add_footnotes(input_path: Path, output_path: Path) -> int:
 
 
 def run_pandoc(input_path: Path, output_path: Path) -> None:
+    # --resource-path permet à pandoc de retrouver les images relatives
+    # (qr_codes/*.png) référencées depuis le markdown.
     cmd = [
         "pandoc",
         str(input_path),
@@ -82,6 +84,7 @@ def run_pandoc(input_path: Path, output_path: Path) -> None:
         "--toc",
         "--toc-depth=3",
         "--number-sections",
+        "--resource-path=" + str(ROOT),
         "--metadata", "author=Franck F.",
         "--metadata", "lang=fr-FR",
     ]
@@ -105,11 +108,11 @@ def main() -> None:
     INTERMEDIATE.write_text(linked, encoding="utf-8")
     print(f"      -> {n_urls} URLs converties au format markdown")
 
-    print(f"2/3 Ajout des notes de bas de page")
+    print("2/3 Ajout des notes de bas de page")
     n_notes = run_add_footnotes(INTERMEDIATE, WITH_FOOTNOTES)
     print(f"      -> {n_notes} notes ajoutées")
 
-    print(f"3/3 Génération DOCX via pandoc")
+    print("3/3 Génération DOCX via pandoc")
     run_pandoc(WITH_FOOTNOTES, DOCX)
     size_kb = DOCX.stat().st_size // 1024
     print(f"      -> {DOCX.name} ({size_kb} K)")
