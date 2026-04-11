@@ -32,7 +32,9 @@ import {
   Database,
   Loader2,
   ExternalLink,
-  Download
+  Download,
+  Search,
+  Bot
 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -287,6 +289,59 @@ export default function DashboardPage() {
             icon={Database}
             description="Sources de données"
           />
+        </section>
+
+        {/* Nouveaux modules AI Act */}
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card
+            className="p-6 cursor-pointer border-primary/20 hover:border-primary/50 transition-colors group"
+            onClick={() => router.push('/dashboard/unsupervised')}
+          >
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+                <Search className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-base font-display font-semibold text-foreground">Détection non supervisée</h3>
+                  <Badge variant="secondary" className="text-[10px]">Nouveau</Badge>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Identifiez des biais sans collecter d'attribut démographique. Conforme à l'esprit
+                  de l'article 10 de l'AI Act et respectueux du RGPD.
+                </p>
+                <div className="mt-3 flex items-center gap-1 text-xs font-medium text-primary group-hover:gap-2 transition-all">
+                  Lancer une détection
+                  <ChevronRight className="h-3 w-3" />
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          <Card
+            className="p-6 cursor-pointer border-primary/20 hover:border-primary/50 transition-colors group"
+            onClick={() => router.push('/dashboard/llm-audit')}
+          >
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+                <Bot className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-base font-display font-semibold text-foreground">Audit Chatbot / LLM</h3>
+                  <Badge variant="secondary" className="text-[10px]">Nouveau</Badge>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Testez votre assistant conversationnel contre une banque de prompts sensibles
+                  (genre, origine, âge, religion) en quelques clics.
+                </p>
+                <div className="mt-3 flex items-center gap-1 text-xs font-medium text-primary group-hover:gap-2 transition-all">
+                  Auditer un chatbot
+                  <ChevronRight className="h-3 w-3" />
+                </div>
+              </div>
+            </div>
+          </Card>
         </section>
 
         {/* Main Content Grid */}
