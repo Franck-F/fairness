@@ -13,63 +13,85 @@ const logoUrl = 'https://customer-assets.emergentagent.com/job_auditiq/artifacts
 
 const plans = [
   {
-    name: 'Essai gratuit',
+    name: 'Gratuit',
     monthly: 0,
     annual: 0,
-    description: 'Pour tester la plateforme sur un cas d usage réel, sans engagement.',
-    cta: 'Essayer gratuitement',
+    description: '35 % des PME ont 0 € de budget audit IA. Notre tier gratuit est conçu pour eux : un vrai outil, pas une démo bridée.',
+    cta: 'Démarrer gratuitement',
     href: '/signup',
     featured: false,
-    features: ['1 projet actif', 'Métriques de base', 'Rapport synthétique', 'Support communautaire'],
+    features: [
+      '3 audits supervisés par mois',
+      'Détection non supervisée incluse',
+      'Rapports PDF basiques',
+      'Ancrage juridique français',
+      'Hébergement UE conforme RGPD',
+    ],
   },
   {
-    name: 'Starter',
-    monthly: 37,
-    annual: 31,
-    description: 'Pour lancer vos premiers audits et structurer un socle de gouvernance.',
-    cta: 'Commencer',
+    name: 'PME',
+    monthly: 29,
+    annual: 24,
+    description: 'Pour les PME qui veulent auditer régulièrement leurs modèles et leurs chatbots IA, avec un prix qui tient dans un budget TPE/PME.',
+    cta: 'Choisir PME',
     href: '/signup',
-    featured: false,
-    features: ['3 projets actifs', 'Mesures d équité essentielles', 'Exports PDF', 'Support par e-mail'],
-  },
-  {
-    name: 'Professionnel',
-    monthly: 75,
-    annual: 62,
-    description: 'Pour les équipes qui veulent industrialiser la revue des modèles à risque.',
-    cta: 'Demander une démo',
-    href: '/contact',
     featured: true,
-    features: ['Automations avancées', 'Scénarios what-if', 'Collaboration équipe', 'Rapports prioritaires'],
+    features: [
+      'Audits supervisés illimités',
+      'Audit LLM et chatbot inclus',
+      'Rapports PDF avec ancrage juridique',
+      'Alertes et historique des audits',
+      'Support par e-mail',
+    ],
   },
   {
     name: 'Entreprise',
     monthly: null,
     annual: null,
-    description: 'Pour les organisations soumises à des exigences fortes de preuve et de gouvernance.',
-    cta: 'Planifier un échange',
+    description: 'Pour les structures plus grandes qui veulent multi-équipes, API et accompagnement juridique dédié.',
+    cta: 'Nous contacter',
     href: '/contact',
     featured: false,
-    features: ['SSO & gouvernance', 'Programmes dédiés', 'Conformité continue', 'Support expert'],
+    features: [
+      'Multi-équipes et rôles',
+      'Intégrations API',
+      'Support juridique dédié',
+      'Déploiement sur mesure',
+      'SLA et accompagnement',
+    ],
   },
 ]
 
 const faqs = [
   {
-    question: 'Puis-je changer de plan a tout moment ?',
-    answer: 'Oui. Les changements sont immediats et la facturation est ajustee au prorata.',
+    question: 'Pourquoi un tier gratuit aussi complet ?',
+    answer:
+      'Parce que notre sondage montre que 35 % des PME françaises ont 0 € de budget dédié à l’audit IA et que 82 % ont moins de 2000 €. Un tier gratuit vitrine n’aurait aucun sens. Le nôtre inclut les trois modules avec un quota adapté à un premier cas d’usage réel.',
   },
   {
-    question: 'Y a-t-il une periode d essai ?',
-    answer: 'Oui. Vous pouvez démarrer avec un essai sur le plan Pro sans engagement long terme.',
+    question: 'Le plan PME couvre-t-il l’audit d’un chatbot ?',
+    answer:
+      'Oui. Le plan PME inclut le module d’audit LLM/chatbot avec la banque de prompts appariés. Il fonctionne avec OpenAI, Mistral, Gemini et Claude. Vous fournissez votre clé API, nous exécutons les prompts et générons le rapport.',
   },
   {
-    question: 'Comment fonctionne la formule Enterprise ?',
-    answer: 'Nous definissons ensemble le perimetre, les integrations et le niveau d accompagnement.',
+    question: 'Puis-je changer de plan à tout moment ?',
+    answer:
+      'Oui. Les changements sont immédiats et la facturation est ajustée au prorata. Vous pouvez aussi revenir au plan Gratuit sans perdre vos audits précédents.',
   },
   {
-    question: 'Proposez-vous un support de deploiement ?',
-    answer: 'Oui. Onboarding, cadrage des metriques et gouvernance continue peuvent etre inclus.',
+    question: 'AuditIQ est-il un certificat de conformité AI Act ?',
+    answer:
+      'Non, et c’est écrit dans chaque rapport. AuditIQ est un outil de première ligne pour documenter votre démarche au regard des articles 10 et 11 de l’AI Act. Pour les systèmes à haut risque, un audit externe reste nécessaire.',
+  },
+  {
+    question: 'Où sont hébergées mes données ?',
+    answer:
+      'Sur Supabase, sur des serveurs situés dans l’Union Européenne. Vos datasets ne sortent jamais de l’UE et ne sont utilisés que pour l’audit que vous lancez. Vous pouvez demander leur suppression à tout moment.',
+  },
+  {
+    question: 'Proposez-vous un accompagnement juridique ?',
+    answer:
+      'Le plan Entreprise inclut un support juridique dédié. Pour les plans Gratuit et PME, les rapports intègrent directement les références au Code du travail, à la CNIL, au Défenseur des droits et à l’ACPR, pour faciliter une revue par un conseil juridique externe.',
   },
 ]
 
@@ -124,10 +146,10 @@ export default function PricingPage() {
                 Tarification
               </span>
               <h1 className="mt-5 text-4xl font-semibold leading-tight text-white sm:text-5xl md:text-6xl">
-                Le bon niveau de gouvernance IA pour chaque stade de maturité.
+                Inaccessible n’est pas un mot dans notre vocabulaire.
               </h1>
               <p className="mt-5 max-w-2xl text-sm leading-7 text-white/60 sm:text-base">
-                Choisissez la formule adaptee a votre maturite, du test initial au pilotage multi-modeles a l echelle.
+                L’audit IA est un droit, pas un luxe. 35 % des PME françaises ont 0 € de budget dédié : notre tier gratuit est conçu pour elles. Le plan PME à 29 €/mois couvre les audits illimités et les chatbots. Le plan Entreprise est sur devis.
               </p>
             </RevealOnScroll>
 
@@ -155,7 +177,7 @@ export default function PricingPage() {
       </div>
 
       <section className="px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
-        <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-2 xl:grid-cols-3">
           {plans.map((plan, index) => {
             const price = isAnnual ? plan.annual : plan.monthly
             return (
@@ -213,7 +235,7 @@ export default function PricingPage() {
             <span className="inline-flex rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-white/55">
               FAQ
             </span>
-            <h2 className="mt-5 text-3xl font-semibold leading-tight text-white sm:text-4xl">Questions frequentes sur la tarification.</h2>
+            <h2 className="mt-5 text-3xl font-semibold leading-tight text-white sm:text-4xl">Questions fréquentes sur la tarification et les modules.</h2>
           </div>
 
           <div className="mt-10 space-y-4">
@@ -239,10 +261,10 @@ export default function PricingPage() {
           <RevealOnScroll>
             <div className="overflow-hidden rounded-[34px] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.04),rgba(117,45,177,0.22)_55%,rgba(226,8,161,0.22))] px-6 py-10 text-center sm:px-10 sm:py-14">
             <h2 className="mx-auto max-w-3xl text-3xl font-semibold leading-tight text-white sm:text-4xl">
-              Besoin d un cadrage sur vos volumes et vos exigences conformite ?
+              Pas sûr du plan qui vous convient ?
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/65 sm:text-base">
-              Nous pouvons vous aider à choisir la formule qui correspond à votre maturité data et gouvernance.
+              Commencez par le tier gratuit et lancez un premier audit. Vous pourrez passer au plan PME plus tard si vos besoins augmentent. Aucun engagement.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Button asChild className="rounded-full bg-brand-primary px-6 text-white hover:bg-brand-primary/90">

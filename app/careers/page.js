@@ -14,56 +14,35 @@ export const metadata = {
 }
 
 const benefits = [
-  { icon: Heart, title: 'Sante', description: 'Mutuelle premium et couverture complete.' },
-  { icon: Clock3, title: 'Flexibilite', description: 'Organisation hybride et horaires souples.' },
-  { icon: Zap, title: 'Formation', description: 'Budget formation continue pour progresser vite.' },
-  { icon: Globe2, title: 'International', description: 'Équipe multiculturelle et pratique de l anglais.' },
-  { icon: Users, title: 'Culture équipe', description: 'Rituels de partage, feedback et apprentissage.' },
-  { icon: Building2, title: 'Impact réel', description: 'Travail au coeur des enjeux IA et conformité.' },
+  { icon: Heart, title: 'Projet utile', description: 'Un outil qui sert vraiment les PME françaises, pas une énième plateforme pour grandes entreprises.' },
+  { icon: Clock3, title: 'Liberté', description: 'Contributions à votre rythme, open source, aucune hiérarchie lourde.' },
+  { icon: Zap, title: 'Apprentissage', description: 'Plongez dans l’AI Act, le droit français et les méthodes d’audit des biais IA.' },
+  { icon: Globe2, title: 'Visibilité', description: 'Votre nom apparaît dans les rapports et sur le projet si vous le souhaitez.' },
+  { icon: Users, title: 'Retours directs', description: 'Travail direct avec des PME françaises qui utilisent l’outil.' },
+  { icon: Building2, title: 'Impact concret', description: 'Chaque amélioration profite à des organisations qui n’auraient pas pu s’offrir un audit classique.' },
 ]
 
 const jobs = [
   {
-    title: 'Senior ML Engineer',
-    department: 'Engineering',
-    location: 'Paris / Remote',
-    type: 'CDI',
-    description: 'Développez les moteurs d évaluation d équité et les flux d audit automatisé.',
+    title: 'Testeurs PME bénévoles',
+    department: 'Communauté',
+    location: 'France — à distance',
+    type: 'Bénévolat',
+    description: 'Vous êtes dans une PME française et vous voulez tester AuditIQ sur un cas réel ? Rejoignez le cercle de testeurs et aidez à améliorer l’outil.',
   },
   {
-    title: 'Full Stack Engineer',
-    department: 'Engineering',
-    location: 'Paris / Remote',
-    type: 'CDI',
-    description: 'Concevez les surfaces produit qui relient data, produit et conformité.',
+    title: 'Contributions open source',
+    department: 'Code',
+    location: 'À distance',
+    type: 'Contribution',
+    description: 'Le projet accueille les contributions sur les trois modules : Fairlearn, clustering non supervisé, banque de prompts paired. Ouvrez une issue ou une PR.',
   },
   {
-    title: 'Product Manager',
-    department: 'Product',
-    location: 'Paris',
-    type: 'CDI',
-    description: 'Pilotez la roadmap de gouvernance IA et les parcours de remediation.',
-  },
-  {
-    title: 'Data Scientist Équité',
-    department: 'Research',
-    location: 'Paris / Remote',
-    type: 'CDI',
-    description: 'Renforcez les methodes d analyse de biais et la robustesse des recommandations.',
-  },
-  {
-    title: 'Customer Success Manager',
-    department: 'Customer Success',
-    location: 'Paris',
-    type: 'CDI',
-    description: 'Accompagnez les clients dans le deploiement de leur gouvernance continue.',
-  },
-  {
-    title: 'DevOps Engineer',
-    department: 'Engineering',
-    location: 'Paris / Remote',
-    type: 'CDI',
-    description: 'Fiabilisez l infrastructure produit et la qualite de service a grande echelle.',
+    title: 'Relecture juridique',
+    department: 'Droit',
+    location: 'France',
+    type: 'Collaboration',
+    description: 'Juriste, DPO ou avocat intéressé par l’AI Act et le droit français de la non-discrimination ? Aidez à renforcer l’ancrage juridique des rapports.',
   },
 ]
 
@@ -113,17 +92,19 @@ export default function CareersPage() {
             </div>
             <RevealOnScroll className="mt-8 max-w-4xl" duration={0.65}>
               <span className="inline-flex rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-white/55">
-                Nous recrutons
+                Contribuer au projet
               </span>
               <h1 className="mt-5 text-4xl font-semibold leading-tight text-white sm:text-5xl md:text-6xl">
-                Rejoignez l équipe qui rend la gouvernance IA vraiment opérationnelle.
+                AuditIQ est un projet ouvert, porté par un solo dev. On avance ensemble.
               </h1>
               <p className="mt-5 max-w-2xl text-sm leading-7 text-white/60 sm:text-base">
-                Nous construisons des outils qui relient rigueur technique, adoption métier et exigences de conformité.
+                Pas de postes salariés à proposer aujourd’hui. En revanche, le projet accueille les testeurs PME, les contributions open source et les relectures juridiques. Si vous voulez aider à rendre l’audit IA accessible aux PME françaises, venez.
               </p>
-              <Button className="mt-8 rounded-full bg-brand-primary px-6 text-white hover:bg-brand-primary/90">
-                Voir les offres
-                <ArrowRight className="h-4 w-4" />
+              <Button asChild className="mt-8 rounded-full bg-brand-primary px-6 text-white hover:bg-brand-primary/90">
+                <Link href="/contact">
+                  Nous contacter
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
               </Button>
             </RevealOnScroll>
           </div>
@@ -132,7 +113,7 @@ export default function CareersPage() {
 
       <section className="px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
         <div className="mx-auto max-w-7xl">
-          <h2 className="text-3xl font-semibold text-white sm:text-4xl">Pourquoi nous rejoindre</h2>
+          <h2 className="text-3xl font-semibold text-white sm:text-4xl">Pourquoi contribuer</h2>
           <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {benefits.map((benefit, index) => {
               const Icon = benefit.icon
@@ -159,19 +140,18 @@ export default function CareersPage() {
             <span className="inline-flex rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-white/55">
               Culture
             </span>
-            <h2 className="mt-5 text-3xl font-semibold leading-tight text-white sm:text-4xl">Une culture d execution, de transparence et d apprentissage.</h2>
+            <h2 className="mt-5 text-3xl font-semibold leading-tight text-white sm:text-4xl">Un projet assumé : solo, ouvert, aligné sur une problématique précise.</h2>
             <p className="mt-4 text-sm leading-7 text-white/60 sm:text-base">
-              Chez AuditIQ, nous croyons que la qualite des decisions depend autant des donnees que des discussions entre equipes.
-              Nous privilegions une communication claire, des feedbacks frequents et des objectifs lisibles.
+              AuditIQ est développé par un seul full-stack, dans le cadre d’un mémoire universitaire. Nous assumons cette échelle et nous la transformons en atout : décisions rapides, code ouvert, transparence sur les limites, orientation PME française non négociable.
             </p>
             </div>
           </RevealOnScroll>
           <div className="grid grid-cols-2 gap-4">
             {[
-              ['35', 'Collaborateurs'],
-              ['12', 'Nationalites'],
-              ['45%', 'Femmes dans la team'],
-              ['4.8', 'Note Glassdoor'],
+              ['1', 'Développeur solo'],
+              ['3', 'Modules complémentaires'],
+              ['34', 'PME sondées'],
+              ['0 €', 'Budget audit de 35% des PME'],
             ].map(([value, label], index) => (
               <RevealOnScroll key={label} delay={index * 0.06}>
                 <div className="rounded-[24px] border border-white/10 bg-[#0d0d0f] p-5 text-center transition-transform duration-300 hover:-translate-y-1">
@@ -186,8 +166,8 @@ export default function CareersPage() {
 
       <section className="px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
         <div className="mx-auto max-w-7xl">
-          <h2 className="text-3xl font-semibold text-white sm:text-4xl">Postes ouverts</h2>
-          <p className="mt-3 text-sm text-white/58">{jobs.length} postes disponibles actuellement.</p>
+          <h2 className="text-3xl font-semibold text-white sm:text-4xl">Manières de contribuer</h2>
+          <p className="mt-3 text-sm text-white/58">{jobs.length} pistes ouvertes pour rejoindre le projet, sans lien salarial.</p>
 
           <div className="mt-10 space-y-4">
             {jobs.map((job, index) => (
@@ -207,7 +187,7 @@ export default function CareersPage() {
                       <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{job.location}</span>
                     </div>
                   </div>
-                  <Button className="rounded-full bg-white text-black hover:bg-white/90">Postuler</Button>
+                  <Button asChild className="rounded-full bg-white text-black hover:bg-white/90"><Link href="/contact">Nous écrire</Link></Button>
                 </div>
                 </article>
               </RevealOnScroll>
@@ -221,14 +201,14 @@ export default function CareersPage() {
           <RevealOnScroll>
             <div className="overflow-hidden rounded-[34px] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.04),rgba(117,45,177,0.22)_55%,rgba(226,8,161,0.22))] px-6 py-10 text-center sm:px-10 sm:py-14">
             <h2 className="mx-auto max-w-3xl text-3xl font-semibold leading-tight text-white sm:text-4xl">
-              Vous ne trouvez pas encore votre poste ideal ?
+              Une autre idée pour contribuer au projet ?
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/65 sm:text-base">
-              Envoyez-nous une candidature spontanee, nous sommes toujours a la recherche de profils forts.
+              Écrivez-nous directement. Toute forme d’aide qui sert les PME françaises est bienvenue : retours d’usage, références juridiques, relecture de rapports, suggestions.
             </p>
             <Button asChild className="mt-8 rounded-full bg-brand-primary px-6 text-white hover:bg-brand-primary/90">
               <Link href="/contact">
-                Candidature spontanee
+                Nous contacter
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>

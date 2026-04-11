@@ -30,13 +30,13 @@ const sections = [
     id: 'description',
     title: '3. Description du service',
     content:
-      'AuditIQ est une plateforme SaaS d audit d équité et de détection de biais dans les systèmes d intelligence artificielle.',
+      'AuditIQ est une plateforme SaaS d’audit de biais pensée pour les PME françaises, articulée autour de trois modules complémentaires.',
     list: [
-      'Upload et analyse de datasets',
-      'Entrainement de modeles de machine learning',
-      'Calcul de métriques d équité',
-      'Generation de rapports d audit',
-      'Assistant IA pour l interpretation des resultats',
+      'Audit supervisé (Fairlearn) : métriques DP, EO, EOd, règle des 4/5',
+      'Détection non supervisée (KMeans + test du Khi²) sans collecte d’attributs sensibles',
+      'Audit LLM et chatbot via banque de prompts appariés inspirée de LangBiTe',
+      'Génération de rapports PDF avec ancrage au droit français (L.1132-1, CNIL, Défenseur des droits, ACPR) et aux articles 10 et 11 de l’AI Act',
+      'AuditIQ est un outil de première ligne et ne constitue en aucun cas un certificat de conformité AI Act',
     ],
   },
   {
@@ -57,15 +57,15 @@ const sections = [
   },
   {
     id: 'donnees',
-    title: '6. Donnees utilisateur',
+    title: '6. Données utilisateur et données sensibles',
     content:
-      'L utilisateur reste proprietaire des donnees qu il uploade. AuditIQ les traite uniquement pour fournir le service, conformement a la politique de confidentialite.',
+      'L’utilisateur reste propriétaire des données qu’il importe. AuditIQ les traite uniquement pour fournir le service, conformément à la politique de confidentialité. Les données sont hébergées sur Supabase, dans l’Union Européenne, en conformité avec le RGPD. Pour les traitements susceptibles d’impliquer des données relevant de l’AI Act article 10(5) (attributs sensibles strictement nécessaires à la détection de biais), AuditIQ propose le module de détection non supervisée qui évite leur collecte.',
   },
   {
     id: 'responsabilite',
-    title: '7. Responsabilite',
+    title: '7. Limitation de responsabilité',
     content:
-      'AuditIQ s efforce de maintenir le service accessible 24h/24 et 7j/7 sans garantir une disponibilite absolue. AuditIQ ne peut etre tenue responsable des dommages indirects lies a l usage du service.',
+      'AuditIQ est un outil d’audit de première ligne. Il ne constitue pas un certificat de conformité AI Act, ni un avis juridique, ni une garantie de non-discrimination. La responsabilité finale des décisions algorithmiques reste celle de l’utilisateur. AuditIQ s’efforce d’assurer la disponibilité du service sans garantie de disponibilité absolue, et ne peut être tenue responsable des dommages indirects liés à l’usage du service ou à l’interprétation des rapports produits.',
   },
   {
     id: 'resiliation',

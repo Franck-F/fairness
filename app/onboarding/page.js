@@ -141,8 +141,7 @@ export default function OnboardingPage() {
               <Sparkles className="h-16 w-16 text-primary mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">Bonjour {user?.user_metadata?.full_name || 'là'} !</h3>
               <p className="text-muted-foreground max-w-md mx-auto">
-                Nous sommes ravis de vous accueillir sur AuditIQ. Prenons quelques minutes pour configurer votre espace
-                et vous aider à démarrer rapidement.
+                AuditIQ est un outil de première ligne pensé pour les PME françaises, articulé autour de trois modules : audit supervisé, détection non supervisée et audit LLM/chatbot. Trois minutes pour configurer votre espace, et vous pourrez lancer votre premier audit.
               </p>
               <div className="grid grid-cols-3 gap-4 mt-8 max-w-md mx-auto">
                 <div className="text-center">
@@ -260,11 +259,11 @@ export default function OnboardingPage() {
                 <Label className="mb-3 block">Cas d'usage principaux (plusieurs choix possibles)</Label>
                 <div className="space-y-2">
                   {[
+                    { value: 'recruitment', label: 'Recrutement / tri de CV (RH)' },
+                    { value: 'chatbot', label: 'Chatbot IA / assistant client' },
+                    { value: 'marketing', label: 'Marketing / ciblage clients' },
                     { value: 'scoring', label: 'Scoring crédit / risque' },
-                    { value: 'recruitment', label: 'Recrutement / RH' },
-                    { value: 'customer', label: 'Service client / Support' },
-                    { value: 'fraud', label: 'Détection de fraude' },
-                    { value: 'recommendation', label: 'Systèmes de recommandation' },
+                    { value: 'customer', label: 'Service client / support' },
                     { value: 'other', label: 'Autre' },
                   ].map((useCase) => (
                     <div key={useCase.value} className="flex items-center space-x-2 border rounded-lg p-3 hover:bg-muted/50 cursor-pointer" onClick={() => toggleUseCase(useCase.value)}>
@@ -281,11 +280,11 @@ export default function OnboardingPage() {
                 <Label className="mb-3 block">Objectifs avec AuditIQ (plusieurs choix possibles)</Label>
                 <div className="space-y-2">
                   {[
-                    { value: 'compliance', label: 'Conformité réglementaire (AI Act, GDPR)' },
-                    { value: 'fairness', label: 'Améliorer la fairness de mes modèles' },
-                    { value: 'bias', label: 'Détecter et corriger les biais' },
-                    { value: 'trust', label: 'Renforcer la confiance dans l\'IA' },
-                    { value: 'reporting', label: 'Générer des rapports pour stakeholders' },
+                    { value: 'ai-act', label: 'Documenter ma démarche AI Act (art. 10 et 11)' },
+                    { value: 'french-law', label: 'Me situer face au droit français (L.1132-1, CNIL)' },
+                    { value: 'unsupervised', label: 'Auditer sans collecter d’attributs sensibles' },
+                    { value: 'llm', label: 'Tester le biais de mon chatbot IA' },
+                    { value: 'reporting', label: 'Générer un rapport pour ma direction ou mon juriste' },
                   ].map((goal) => (
                     <div key={goal.value} className="flex items-center space-x-2 border rounded-lg p-3 hover:bg-muted/50 cursor-pointer" onClick={() => toggleGoal(goal.value)}>
                       <Checkbox
@@ -313,10 +312,10 @@ export default function OnboardingPage() {
               <div className="bg-primary/5 rounded-lg p-4 max-w-md mx-auto">
                 <p className="text-sm font-medium mb-2">Prochaines étapes suggérées :</p>
                 <ul className="text-sm text-left space-y-1 text-muted-foreground">
-                  <li>• Uploadez votre premier dataset</li>
-                  <li>• Lancez un audit de fairness</li>
-                  <li>• Explorez le Chat AI pour des conseils</li>
-                  <li>• Invitez vos collègues</li>
+                  <li>• Importez un premier fichier CSV ou Excel</li>
+                  <li>• Lancez un audit supervisé (Fairlearn)</li>
+                  <li>• Essayez la détection non supervisée sans attributs sensibles</li>
+                  <li>• Testez le module d’audit LLM sur votre chatbot</li>
                 </ul>
               </div>
             </div>

@@ -10,44 +10,41 @@ const logoUrl = 'https://customer-assets.emergentagent.com/job_auditiq/artifacts
 
 export const metadata = {
   title: 'À propos - AuditIQ',
-  description: 'Découvrez AuditIQ et notre mission de gouvernance IA responsable.',
+  description: 'AuditIQ, un outil de première ligne d’audit de biais IA pour PME françaises, ancré dans le droit français et inspiré d’Algorithm Audit et LangBiTe.',
 }
 
 const values = [
   {
     icon: ShieldCheck,
-    title: 'Rigueur de preuve',
-    description: 'Chaque evaluation laisse une trace claire, partageable et defendable face aux exigences internes et externes.',
+    title: 'Honnêteté sur nos limites',
+    description: 'AuditIQ est un outil de première ligne, pas un certificat de conformité AI Act. Nous le disons clairement à chaque rapport.',
   },
   {
     icon: Target,
-    title: 'Clarte operationnelle',
-    description: 'Les equipes disposent des memes indicateurs, des memes statuts et des memes priorites de remediation.',
+    title: 'Accessibilité réelle',
+    description: 'Pensé pour les PME sans data scientist : langage clair, interfaces simples, tier gratuit central. L’audit n’est pas réservé aux grandes entreprises.',
   },
   {
     icon: Users,
-    title: 'Travail transversal',
-    description: 'Produit, data et conformité avancent sur un même cadre au lieu de fonctionner en silos.',
+    title: 'Triple interface',
+    description: 'Cognitif (comprendre), technique (évaluer), réglementaire (savoir ce que l’AI Act exige). Les trois niveaux dans un seul parcours.',
   },
   {
     icon: Zap,
-    title: 'Execution continue',
-    description: 'La gouvernance IA ne se limite pas a une revue ponctuelle, elle vit au rythme du produit.',
+    title: 'Ancrage juridique français',
+    description: 'Code du travail L.1132-1, CNIL, Défenseur des droits, ACPR : chaque résultat renvoie aux textes pertinents du droit français.',
   },
 ]
 
 const milestones = [
-  { label: 'Entreprises accompagnees', value: '200+' },
-  { label: 'Audits structures', value: '10K+' },
-  { label: 'Métriques d équité', value: '16+' },
-  { label: 'Satisfaction client', value: '98%' },
+  { label: 'Modules complémentaires', value: '3' },
+  { label: 'PME sondées', value: '34' },
+  { label: 'PME avec 0 € budget audit', value: '35%' },
+  { label: 'Intérêt si outil simple', value: '44%' },
 ]
 
 const team = [
-  { name: 'Franck Fambou', role: 'CEO', scope: 'Vision et gouvernance IA' },
-  { name: 'Nora Diallo', role: 'CTO', scope: 'Systèmes ML et architecture' },
-  { name: 'Sami Belaid', role: 'Head of Research', scope: 'Science de l équité' },
-  { name: 'Ines Caron', role: 'Head of Product', scope: 'Adoption et flux' },
+  { name: 'Franck Fambou', role: 'Fondateur', scope: 'Full-stack et vision produit' },
 ]
 
 function GridGlow() {
@@ -99,11 +96,10 @@ export default function AboutPage() {
                 Notre mission
               </span>
               <h1 className="mt-5 text-4xl font-semibold leading-tight text-white sm:text-5xl md:text-6xl">
-                Construire un standard operationnel pour la gouvernance IA responsable.
+                Un outil de première ligne, pensé pour les PME françaises.
               </h1>
               <p className="mt-5 max-w-2xl text-sm leading-7 text-white/60 sm:text-base">
-                AuditIQ est né d un constat simple : les organisations parlent beaucoup de conformité IA,
-                mais manquent d un système concret pour suivre, expliquer et améliorer leurs modèles dans le temps.
+                AuditIQ est né d’un constat simple : les grandes plateformes d’audit IA parlent aux grandes entreprises, avec des tarifs et des prérequis techniques inaccessibles aux PME. Pourtant, ce sont les PME qui utilisent massivement l’IA au quotidien — recrutement, chatbot, marketing, scoring — sans data scientist pour vérifier.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button asChild className="rounded-full bg-brand-primary px-6 text-white hover:bg-brand-primary/90">
@@ -141,24 +137,24 @@ export default function AboutPage() {
             <span className="inline-flex rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-white/55">
               Notre histoire
             </span>
-            <h2 className="mt-5 text-3xl font-semibold leading-tight text-white sm:text-4xl">Passer de l intention a l execution.</h2>
+            <h2 className="mt-5 text-3xl font-semibold leading-tight text-white sm:text-4xl">La problématique de mémoire qui nous guide.</h2>
             <p className="mt-4 text-sm leading-7 text-white/60 sm:text-base">
-              Les equipes se retrouvaient avec des fichiers disperses, des revues non standardisees et
-              une faible lisibilite sur les risques reels de leurs modeles. AuditIQ est construit pour
-              transformer cette complexité en un flux visible et répétable.
+              Ce projet est le fruit d’un mémoire de fin d’études recentré sur une problématique précise : comment permettre à une PME française, sans data scientist et avec un budget limité, d’auditer elle-même ses outils IA face aux exigences de l’AI Act (articles 10 et 11) et au droit français de la non-discrimination (L.1132-1, CNIL, Défenseur des droits, ACPR) ?
             </p>
             <p className="mt-4 text-sm leading-7 text-white/60 sm:text-base">
-              Au lieu de produire un audit ponctuel, nous aidons les organisations a mettre en place une
-              capacite continue : mesurer, decider, corriger, documenter.
+              Nous nous inspirons de deux projets de référence : Algorithm Audit (Pays-Bas) pour la détection non supervisée de biais via clustering, et LangBiTe pour l’audit des LLM par prompts appariés. AuditIQ traduit ces approches en un parcours simple, ancré dans le contexte juridique français.
+            </p>
+            <p className="mt-4 text-sm leading-7 text-white/60 sm:text-base">
+              Notre positionnement théorique : une « triple interface » qui relie le cognitif (comprendre les biais), le technique (savoir les évaluer) et le réglementaire (savoir ce que l’AI Act exige). Trois niveaux que les outils existants traitent rarement ensemble.
             </p>
             </div>
           </RevealOnScroll>
           <RevealOnScroll delay={0.12}>
             <div className="rounded-[30px] border border-white/10 bg-[linear-gradient(140deg,rgba(226,8,161,0.16),rgba(104,54,176,0.16)_42%,rgba(255,255,255,0.03))] p-6 sm:p-8 framer-float">
             <div className="rounded-[24px] border border-white/10 bg-black/25 p-5">
-              <p className="text-[10px] uppercase tracking-[0.2em] text-white/50">Modèle opérationnel</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-white/50">Les trois modules</p>
               <div className="mt-4 space-y-3">
-                {['Detecter les ecarts', 'Prioriser les actions', 'Tracer les decisions', 'Documenter la preuve'].map((line) => (
+                {['Audit supervisé (Fairlearn)', 'Détection non supervisée (KMeans + Khi²)', 'Audit LLM et chatbot (prompts paired)', 'Rapports PDF ancrés en droit FR'].map((line) => (
                   <div key={line} className="flex items-center gap-3 text-sm text-white/75">
                     <Sparkles className="h-4 w-4 text-brand-cotton" />
                     {line}
@@ -166,7 +162,7 @@ export default function AboutPage() {
                 ))}
               </div>
               <div className="mt-6 rounded-2xl border border-brand-primary/25 bg-brand-primary/10 px-4 py-3 text-sm text-white/85">
-                Objectif : faire de la conformité IA un processus métier, pas une opération exceptionnelle.
+                Objectif : rendre l’audit IA accessible aux PME françaises, comme une première ligne avant un audit externe.
               </div>
             </div>
             </div>
@@ -180,7 +176,7 @@ export default function AboutPage() {
             <span className="inline-flex rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-white/55">
               Nos valeurs
             </span>
-            <h2 className="mt-5 text-3xl font-semibold leading-tight text-white sm:text-4xl">Le cadre qui guide nos decisions produit.</h2>
+            <h2 className="mt-5 text-3xl font-semibold leading-tight text-white sm:text-4xl">Les principes qui guident AuditIQ.</h2>
           </div>
 
           <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -208,7 +204,8 @@ export default function AboutPage() {
             <span className="inline-flex rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-white/55">
               Equipe
             </span>
-            <h2 className="mt-5 text-3xl font-semibold leading-tight text-white sm:text-4xl">Une équipe produit, data et conformité.</h2>
+            <h2 className="mt-5 text-3xl font-semibold leading-tight text-white sm:text-4xl">Un projet solo, assumé et transparent.</h2>
+            <p className="mt-4 text-sm leading-7 text-white/60 sm:text-base">AuditIQ est porté par un seul développeur full-stack, dans le cadre d’un mémoire universitaire. Nous ne prétendons pas être une grande équipe : nous prétendons être utile, et honnêtes là-dessus.</p>
           </div>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {team.map((member, index) => (
@@ -235,10 +232,10 @@ export default function AboutPage() {
           <RevealOnScroll>
             <div className="overflow-hidden rounded-[34px] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.04),rgba(117,45,177,0.22)_55%,rgba(226,8,161,0.22))] px-6 py-10 text-center sm:px-10 sm:py-14">
             <h2 className="mx-auto max-w-3xl text-3xl font-semibold leading-tight text-white sm:text-4xl">
-              Construisez une gouvernance IA qui tient dans la duree.
+              Essayez AuditIQ. Sans carte bancaire, sans data scientist.
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/65 sm:text-base">
-              Si vous souhaitez, on peut aussi aligner vos pages internes et vos parcours dashboard sur cette nouvelle direction.
+              Le tier gratuit vous donne accès aux trois modules avec des quotas adaptés à un premier cas d’usage PME. Partagez vos retours, c’est précieux pour le projet.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Button asChild className="rounded-full bg-brand-primary px-6 text-white hover:bg-brand-primary/90">

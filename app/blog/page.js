@@ -14,66 +14,66 @@ export const metadata = {
   description: 'Articles et ressources sur la gouvernance IA, l équité et la conformité algorithmique.',
 }
 
-const categories = ['Tous', 'Gouvernance', 'Technique', 'Réglementation', 'Étude de cas', 'Produit']
+const categories = ['Tous', 'AI Act', 'Droit français', 'Non supervisé', 'LLM et chatbots', 'Terrain PME']
 
 const featuredPost = {
-  title: 'AI Act 2026 : comment transformer des obligations de conformité en routines produit',
+  title: 'AI Act pour PME : par où commencer quand on n’a ni data scientist ni juriste ?',
   excerpt:
-    'Un cadre pratique pour passer des exigences réglementaires à un système d audit opérationnel et partageable.',
-  author: 'Dr. Marie Laurent',
-  date: '16 mars 2026',
-  readTime: '9 min',
-  category: 'Réglementation',
+    'Un guide pratique, en langage clair, pour comprendre ce que les articles 10 et 11 de l’AI Act exigent réellement des PME françaises qui utilisent de l’IA au quotidien.',
+  author: 'Équipe AuditIQ',
+  date: '8 avril 2026',
+  readTime: '10 min',
+  category: 'AI Act',
 }
 
 const posts = [
   {
-    title: 'Designer une revue d équité lisible pour le légal et le produit',
-    excerpt: 'Comment rendre les métriques techniques actionnables pour les équipes non data.',
-    author: 'Nora Diallo',
-    date: '10 mars 2026',
-    readTime: '6 min',
-    category: 'Gouvernance',
-  },
-  {
-    title: 'Analyse what-if : éviter les faux positifs de remédiation',
-    excerpt: 'Un guide de scénarios pour tester les arbitrages avant de toucher au modèle en production.',
-    author: 'Sami Belaid',
-    date: '4 mars 2026',
-    readTime: '7 min',
-    category: 'Technique',
-  },
-  {
-    title: 'Étude de cas fintech : 68% de temps gagné sur la préparation des comités',
-    excerpt: 'Retour terrain sur la centralisation des preuves d audit et des décisions de mitigation.',
-    author: 'Ines Caron',
-    date: '26 février 2026',
+    title: 'Détecter un biais sans collecter d’attributs sensibles : la voie non supervisée',
+    excerpt: 'Comment KMeans et le test du Khi² permettent de sortir du paradoxe AI Act article 10(5) vs RGPD.',
+    author: 'Équipe AuditIQ',
+    date: '2 avril 2026',
     readTime: '8 min',
-    category: 'Étude de cas',
+    category: 'Non supervisé',
   },
   {
-    title: 'Mise en place d un registre d audit IA sans tableur',
-    excerpt: 'Les structures minimales pour commencer proprement sans ralentir les squads produit.',
-    author: 'Franck Fambou',
-    date: '18 février 2026',
-    readTime: '5 min',
-    category: 'Produit',
-  },
-  {
-    title: 'Mesurer la dérive et l équité au même rythme de mise en production',
-    excerpt: 'Pourquoi separer ces sujets cree des angles morts dans la gouvernance.',
-    author: 'Nora Diallo',
-    date: '11 février 2026',
+    title: 'Code du travail L.1132-1 et algorithmes RH : ce que dit le droit français',
+    excerpt: 'Tri de CV, scoring de candidats, matching : ce que L.1132-1 interdit, ce qu’il tolère, et comment s’auditer.',
+    author: 'Équipe AuditIQ',
+    date: '26 mars 2026',
     readTime: '7 min',
-    category: 'Technique',
+    category: 'Droit français',
   },
   {
-    title: 'Prioriser les remédiations : impact risque vs impact métier',
-    excerpt: 'Un modele simple pour sequencer les actions correctives avec les bonnes parties prenantes.',
-    author: 'Ines Caron',
-    date: '3 février 2026',
+    title: 'Auditer son chatbot en 10 minutes avec une banque de prompts appariés',
+    excerpt: 'Méthode pas-à-pas pour tester un chatbot RH ou client, inspirée du framework LangBiTe.',
+    author: 'Équipe AuditIQ',
+    date: '19 mars 2026',
     readTime: '6 min',
-    category: 'Gouvernance',
+    category: 'LLM et chatbots',
+  },
+  {
+    title: 'Le piège du dilemme de l’audit : pourquoi on ne peut pas toujours collecter le genre',
+    excerpt: 'Analyse du paradoxe entre AI Act article 10(5) et RGPD, et pourquoi la détection non supervisée est une réponse.',
+    author: 'Équipe AuditIQ',
+    date: '12 mars 2026',
+    readTime: '9 min',
+    category: 'AI Act',
+  },
+  {
+    title: 'CNIL, Défenseur des droits, ACPR : qui fait quoi face aux biais algorithmiques ?',
+    excerpt: 'Panorama des autorités françaises compétentes et des textes qu’elles mobilisent.',
+    author: 'Équipe AuditIQ',
+    date: '5 mars 2026',
+    readTime: '7 min',
+    category: 'Droit français',
+  },
+  {
+    title: '34 PME interrogées : ce que notre sondage révèle sur l’audit IA en France',
+    excerpt: 'Budget, usages, freins : les chiffres qui ont guidé la conception d’AuditIQ comme outil de première ligne.',
+    author: 'Équipe AuditIQ',
+    date: '27 février 2026',
+    readTime: '6 min',
+    category: 'Terrain PME',
   },
 ]
 
@@ -126,10 +126,10 @@ export default function BlogPage() {
                 Éditorial
               </span>
               <h1 className="mt-5 text-4xl font-semibold leading-tight text-white sm:text-5xl md:text-6xl">
-                Ressources pour operer une gouvernance IA claire et durable.
+                Ressources pratiques pour les PME françaises face aux biais IA.
               </h1>
               <p className="mt-5 max-w-2xl text-sm leading-7 text-white/60 sm:text-base">
-                Analyses, retours d experience et guides pratiques pour structurer vos audits et vos plans de remediation.
+                Guides pas-à-pas, décryptages juridiques (AI Act, L.1132-1, CNIL) et retours terrain pour auditer vos outils IA sans data scientist.
               </p>
             </RevealOnScroll>
 
@@ -168,7 +168,7 @@ export default function BlogPage() {
           <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
             <div className="rounded-[28px] border border-white/10 bg-[linear-gradient(140deg,rgba(226,8,161,0.16),rgba(104,54,176,0.16)_42%,rgba(255,255,255,0.03))] p-6 framer-float">
               <p className="text-[10px] uppercase tracking-[0.2em] text-white/55">Article vedette</p>
-              <h2 className="mt-4 text-2xl font-semibold text-white sm:text-3xl">AI Act 2026</h2>
+              <h2 className="mt-4 text-2xl font-semibold text-white sm:text-3xl">AI Act pour PME</h2>
               <p className="mt-3 text-sm leading-7 text-white/70">{featuredPost.excerpt}</p>
             </div>
             <div>
@@ -217,10 +217,10 @@ export default function BlogPage() {
           <RevealOnScroll>
             <div className="overflow-hidden rounded-[34px] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.04),rgba(117,45,177,0.22)_55%,rgba(226,8,161,0.22))] px-6 py-10 text-center sm:px-10 sm:py-14">
             <h2 className="mx-auto max-w-3xl text-3xl font-semibold leading-tight text-white sm:text-4xl">
-              Recevez nos analyses produit et conformité directement par e-mail.
+              Recevez nos guides pratiques par e-mail.
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/65 sm:text-base">
-              Une newsletter concise, orientée actions, pour vos équipes data, produit et légal.
+              Une newsletter sobre, orientée PME françaises, pour comprendre l’AI Act et auditer vos outils IA sans jargon.
             </p>
             <div className="mx-auto mt-8 flex max-w-xl flex-col gap-3 sm:flex-row">
               <Input placeholder="votre@email.com" className="border-white/10 bg-white/[0.03] text-white placeholder:text-white/30" />

@@ -49,16 +49,17 @@ const sections = [
   },
   {
     id: 'hebergement',
-    title: '3. Hebergement',
+    title: '3. Hébergement',
     icon: Server,
-    content: 'Le site est heberge par :',
+    content: 'Le site et les données applicatives sont hébergés chez :',
     details: [
-      { label: 'Hebergeur', value: 'Vercel Inc.' },
-      { label: 'Adresse', value: '340 S Lemon Ave #4133, Walnut, CA 91789, USA' },
-      { label: 'Site', value: 'https://vercel.com' },
+      { label: 'Hébergeur front-end', value: 'Vercel Inc.' },
+      { label: 'Adresse Vercel', value: '340 S Lemon Ave #4133, Walnut, CA 91789, USA' },
+      { label: 'Hébergeur données', value: 'Supabase (région UE)' },
+      { label: 'Site', value: 'https://vercel.com · https://supabase.com' },
     ],
     footer:
-      'Les donnees sont stockees sur des serveurs situes dans l Union Europeenne (AWS Frankfurt).',
+      'Les données utilisateurs, datasets importés et résultats d’audit sont stockés sur des serveurs Supabase situés dans l’Union Européenne, en conformité avec le RGPD. Aucun transfert hors UE n’est opéré sans garanties appropriées.',
   },
   {
     id: 'propriete',
@@ -95,10 +96,10 @@ const sections = [
   },
   {
     id: 'responsabilite',
-    title: '8. Limitation de responsabilite',
+    title: '8. Limitation de responsabilité',
     icon: AlertTriangle,
     content:
-      'AuditIQ s efforce de fournir des informations exactes et a jour, sans garantie d absence totale d erreur ou omission.',
+      'AuditIQ est un outil d’audit de première ligne pour les PME françaises. AuditIQ ne constitue pas un certificat de conformité à l’AI Act, ni un avis juridique formel. Les rapports produits documentent une démarche au regard des articles 10 et 11 de l’AI Act et du droit français de la non-discrimination, mais la responsabilité finale des systèmes IA et des décisions algorithmiques reste celle de l’utilisateur. AuditIQ s’efforce de fournir des informations exactes et à jour sans garantie d’absence totale d’erreur ou omission.',
   },
   {
     id: 'droit',

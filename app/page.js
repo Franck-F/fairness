@@ -28,107 +28,107 @@ import { MarketingFooter } from '@/components/ui/marketing-footer'
 
 const logoUrl = 'https://customer-assets.emergentagent.com/job_auditiq/artifacts/snxql2e8_logo%20audiot-iq%20big%20without%20bg.png.png'
 
-const trustSignals = ['AI Act prêt', 'Suivi des biais', 'Piste d\'audit', 'Explicabilité', 'Scoring de risque']
+const trustSignals = ['AI Act articles 10 et 11', 'Code du travail L.1132-1', 'CNIL et RGPD', 'Pensé pour les PME', 'Sans data scientist']
 
 const services = [
   {
-    eyebrow: 'Audit de workflow',
-    title: 'Cartographiez vos risques avant la mise en production',
+    eyebrow: 'Module 1 — Audit supervisé',
+    title: 'Mesurez les biais de vos modèles avec les métriques de référence',
     description:
-      'AuditIQ détecte les points sensibles de votre pipeline ML, remonte les jeux de données critiques et formalise les zones à risque réglementaire.',
-    bullets: ['Inventaire des modèles', 'Contrôles de datasets', 'Journal d’évidence'],
-    panelTitle: 'Moniteur de risque',
-    panelRows: ['Dérive dataset', 'Attributs protégés', 'Seuil de biais'],
+      'Lancez un audit classique inspiré de Fairlearn sur vos jeux de données étiquetés : Parité Démographique, Égalité des Chances, Odds Égalisés, règle des 4/5. Trois rapports clairs, sans jargon, calibrés pour les équipes non techniques.',
+    bullets: ['Parité Démographique (DP)', 'Égalité des Chances (EO)', 'Règle des 4/5 (80%)'],
+    panelTitle: 'Audit supervisé',
+    panelRows: ['Parité Démographique', 'Égalité des Chances', 'Règle des 4/5'],
   },
   {
-    eyebrow: 'Supervision modèle',
-    title: 'Automatisez les audits d’équité et de robustesse',
+    eyebrow: 'Module 2 — Détection non supervisée',
+    title: 'Détectez des biais sans collecter d’attributs sensibles',
     description:
-      'Lancez des campagnes d’évaluation sur plusieurs métriques, comparez vos modèles et produisez des rapports prêts pour les équipes conformité.',
-    bullets: ['16+ métriques d équité', 'Scénarios what-if', 'Rapports exportables'],
-    panelTitle: 'File d audits',
-    panelRows: ['Parité de genre', 'Parité d âge', 'Taux de validation'],
+      'Quand la loi vous empêche de collecter genre, origine ou âge (AI Act art. 10(5), RGPD), notre clustering KMeans couplé à un test du Khi² révèle les écarts de décision entre groupes similaires. Une voie légale pour auditer sans labels démographiques.',
+    bullets: ['Clustering KMeans', 'Test du Khi²', 'Zéro attribut sensible requis'],
+    panelTitle: 'Détection non supervisée',
+    panelRows: ['Groupes homogènes détectés', 'Écart de décision', 'Signal statistique'],
   },
   {
-    eyebrow: 'Ops et gouvernance',
-    title: 'Coordonnez data, légal et produit dans une seule interface',
+    eyebrow: 'Module 3 — Audit LLM et chatbot',
+    title: 'Testez le biais de vos chatbots et assistants IA génératifs',
     description:
-      'Les équipes suivent le même statut d’audit, valident les écarts et priorisent les actions correctives sans multiplier les tableurs.',
-    bullets: ['Assignation claire', 'Validation multi-équipes', 'Historique complet'],
-    panelTitle: 'Comité de revue',
-    panelRows: ['Revue légale', 'Validation produit', 'Plan de mitigation'],
+      'Inspiré du framework LangBiTe, notre banque de prompts appariés détecte les réponses discriminantes de vos LLM (OpenAI, Mistral, Gemini, Claude). Idéal pour les 17 % de PME qui utilisent un chatbot RH, commercial ou support.',
+    bullets: ['Banque de prompts paired', 'Scoring automatique', 'Prêt pour chatbots RH et support'],
+    panelTitle: 'Audit LLM et chatbot',
+    panelRows: ['Prompts appariés', 'Réponses comparées', 'Écarts détectés'],
   },
   {
-    eyebrow: 'Programmes dédiés',
-    title: 'Structurez une gouvernance IA crédible face aux régulateurs',
+    eyebrow: 'Triple interface',
+    title: 'Cognitive, technique, réglementaire — les trois niveaux au même endroit',
     description:
-      'AuditIQ vous aide à passer d’un audit ponctuel à une capacité continue de contrôle, de remédiation et de preuve.',
-    bullets: ['Playbooks internes', 'Conformité continue', 'Accompagnement expert'],
-    panelTitle: 'Centre de contrôle',
-    panelRows: ['Pack de preuve', 'Suivi responsable', 'Prochain jalon'],
+      'AuditIQ est conçu comme un outil de première ligne pour les PME françaises : comprendre les biais (cognitif), savoir les évaluer (technique), savoir ce que l’AI Act exige (réglementaire). Un seul parcours pour les trois.',
+    bullets: ['Comprendre', 'Évaluer', 'Se situer face à l’AI Act'],
+    panelTitle: 'Triple interface',
+    panelRows: ['Cognitif — comprendre', 'Technique — évaluer', 'Réglementaire — se situer'],
   },
 ]
 
 const processSteps = [
   {
     step: 'Étape 1',
-    title: 'Analyse intelligente',
+    title: 'Importez un fichier',
     description:
-      'Connexion des sources, lecture de la structure des données et détection des variables sensibles à surveiller.',
-    tags: ['Scan des sources', 'Vérification schéma', 'Cartographie du risque'],
+      'Un simple CSV ou Excel suffit. Pas de pipeline ML à modifier, pas d’intégration technique à prévoir. Votre dataset ou les logs de votre chatbot, et c’est parti.',
+    tags: ['CSV, Excel, JSON', 'Import direct', 'Aucune intégration'],
     icon: Radar,
   },
   {
     step: 'Étape 2',
-    title: 'Développement IA',
+    title: 'Choisissez votre module',
     description:
-      'Configuration des tests, sélection des métriques d’équité et préparation des scénarios d’évaluation.',
-    tags: ['Sets de métriques', 'Tests what-if', 'Règles de seuil'],
+      'Audit supervisé si vous avez des labels démographiques, détection non supervisée sinon, audit LLM pour vos chatbots. AuditIQ vous guide vers le bon module selon votre contexte.',
+    tags: ['Supervisé (Fairlearn)', 'Non supervisé (KMeans)', 'LLM (prompts paired)'],
     icon: Brain,
   },
   {
     step: 'Étape 3',
-    title: 'Intégration fluide',
+    title: 'Lisez le diagnostic',
     description:
-      'Intégration fluide avec vos flux internes pour partager les résultats avec les métiers, la data et la conformité.',
-    tags: ['Flux équipe', 'Sync des preuves', 'API prête'],
+      'Les résultats sont traduits en langage clair : où est le biais, quelle règle française il peut heurter (L.1132-1, CNIL, Défenseur des droits), et quelle action engager.',
+    tags: ['Langage clair', 'Ancrage juridique FR', 'Sans jargon'],
     icon: Users,
   },
   {
     step: 'Étape 4',
-    title: 'Optimisation continue',
+    title: 'Téléchargez le rapport',
     description:
-      'Suivi des écarts dans le temps, plan de remédiation et itérations sur les modèles à fort impact.',
-    tags: ['Revue des tendances', 'Boucle de mitigation', 'Suivi des scores'],
+      'Un PDF structuré, partageable en interne ou avec un conseil juridique. Il documente votre démarche face à l’AI Act articles 10 et 11, sans prétendre à la conformité totale.',
+    tags: ['Rapport PDF', 'AI Act art. 10 et 11', 'Partage interne'],
     icon: Zap,
   },
 ]
 
 const caseStudies = [
   {
-    company: 'Financia',
-    quote: 'AuditIQ a réduit de 68% le temps nécessaire pour documenter les contrôles d’équité avant comité de validation.',
+    company: 'PME RH — secteur recrutement',
+    quote: 'Nous utilisons un outil de tri de CV et nous ne savions pas comment vérifier qu’il respecte L.1132-1. AuditIQ nous a donné une première réponse claire.',
     description:
-      'Une fintech B2B utilisait plusieurs modèles de scoring sans vision unifiée de ses risques. AuditIQ a centralisé les métriques, les écarts et les preuves.',
-    stats: ['68% de temps gagné', '4 équipes alignées', 'Rapport AI Act prêt'],
+      '17 % des PME interrogées dans notre sondage utilisent l’IA pour le recrutement. Pour celles qui n’ont ni data scientist ni juriste spécialisé, un audit de première ligne est souvent la seule porte d’entrée.',
+    stats: ['Audit supervisé en moins d’une heure', 'Ancrage L.1132-1 intégré', 'Rapport partageable au conseil'],
     image:
       'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=900&q=80',
   },
   {
-    company: 'Mediance',
-    quote: 'Les audits mensuels sont passés d’un exercice artisanal à un rituel piloté, traçable et partageable.',
+    company: 'PME services — chatbot client',
+    quote: 'On a déployé un chatbot IA pour le support. On voulait juste vérifier qu’il ne répond pas différemment selon le profil du client.',
     description:
-      'Une entreprise healthtech avait besoin d’une preuve continue de conformité pour ses modèles d’aide à la décision.',
-    stats: ['80% moins de friction', 'Piste d audit complète', 'Alertes de dérive actives'],
+      '17 % des PME utilisent des chatbots IA selon notre sondage. Le module d’audit LLM applique une banque de prompts appariés inspirée de LangBiTe pour détecter les écarts de réponse.',
+    stats: ['Audit LLM prêt à l’emploi', 'Compatible OpenAI, Mistral, Gemini', 'Pensé pour équipes non techniques'],
     image:
       'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80',
   },
   {
-    company: 'ScaleOps',
-    quote: 'Les responsables produit visualisent enfin le coût réel des biais et les priorités de remédiation.',
+    company: 'PME commerce — scoring marketing',
+    quote: 'Nous n’avons pas le droit de collecter le genre ou l’origine de nos clients, donc on pensait qu’on ne pouvait rien auditer. La détection non supervisée a changé ça.',
     description:
-      'Pour une scale-up SaaS, AuditIQ a servi de centre de pilotage partagé entre produit, data et direction des risques.',
-    stats: ['3x plus de visibilité', 'Plans d’action priorisés', 'Indicateurs alignés métier'],
+      'Le paradoxe de l’AI Act art. 10(5) vs RGPD bloque beaucoup de PME. Le clustering KMeans couplé au test du Khi² permet de détecter des écarts entre groupes similaires sans jamais collecter d’attribut sensible.',
+    stats: ['Aucun attribut sensible requis', 'Conforme RGPD', 'Sortie du dilemme de l’audit'],
     image:
       'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=900&q=80',
   },
@@ -136,75 +136,65 @@ const caseStudies = [
 
 const benefits = [
   {
-    title: 'Productivité accrue',
-    description: 'Moins de collecte manuelle, plus de temps pour analyser les écarts réellement critiques.',
+    title: 'Accessible sans data scientist',
+    description: 'Pensé pour les équipes non techniques : RH, direction, juridique. Pas besoin d’expertise ML pour lancer un premier audit.',
     icon: Zap,
   },
   {
-    title: 'Confiance réglementaire',
-    description: 'Un historique d’audit clair et compréhensible pour les équipes conformité et gouvernance.',
+    title: 'Ancrage juridique français',
+    description: 'Code du travail L.1132-1, recommandations CNIL, Défenseur des droits, ACPR : chaque résultat renvoie aux bons textes.',
     icon: ShieldCheck,
   },
   {
-    title: 'Disponibilité continue',
-    description: 'Les contrôles se répètent au rythme de vos mises en production et non plus uniquement avant les audits.',
+    title: 'Sort du dilemme AI Act / RGPD',
+    description: 'La détection non supervisée vous permet d’auditer sans collecter d’attributs sensibles, contournant le paradoxe art. 10(5).',
     icon: Clock3,
   },
   {
-    title: 'Réduction des coûts',
-    description: 'Réduisez l’effort dispersé entre équipes et évitez les reprises tardives sur des modèles déjà déployés.',
+    title: 'Coût adapté aux PME',
+    description: 'Un tier gratuit central, un plan PME à prix fixe, pas de facturation à l’API. 35 % des PME ont 0 € de budget, nous le prenons au sérieux.',
     icon: BarChart3,
   },
   {
-    title: 'Décisions guidées par la donnée',
-    description: 'Métriques, tendances et recommandations structurent les arbitrages de remédiation.',
+    title: 'Première ligne, pas certification',
+    description: 'AuditIQ est un outil de première ligne, pas un certificat de conformité AI Act. Vous reprenez la main en connaissance de cause.',
     icon: Brain,
   },
   {
-    title: 'Scalabilité de gouvernance',
-    description: 'Passez de quelques modèles surveillés à un portefeuille complet sans perdre en lisibilité.',
+    title: 'Triple interface unique',
+    description: 'Comprendre le biais (cognitif), l’évaluer (technique), savoir ce que la loi exige (réglementaire) — les trois dans un seul parcours.',
     icon: Lock,
   },
 ]
 
 const pricingPlans = [
   {
-    name: 'Essai gratuit',
+    name: 'Gratuit',
     monthly: 0,
     annual: 0,
-    description: 'Pour tester la plateforme sur un cas d usage réel, sans engagement.',
-    features: ['1 projet actif', 'Métriques de base', 'Rapport synthétique', 'Support communautaire'],
-    cta: 'Essayer gratuitement',
+    description: 'Parce que 35 % des PME ont 0 € de budget audit IA. L’audit de première ligne est un droit, pas un luxe.',
+    features: ['3 audits supervisés par mois', 'Détection non supervisée incluse', 'Rapports basiques PDF', 'Ancrage juridique français'],
+    cta: 'Démarrer gratuitement',
     href: '/signup',
     featured: false,
   },
   {
-    name: 'Starter',
-    monthly: 37,
-    annual: 31,
-    description: 'Pour lancer vos premiers audits et structurer un socle de gouvernance.',
-    features: ['3 projets actifs', 'Mesures d équité essentielles', 'Exports PDF', 'Support par e-mail'],
-    cta: 'Commencer',
+    name: 'PME',
+    monthly: 29,
+    annual: 24,
+    description: 'Pour les PME qui veulent auditer régulièrement leurs modèles et leurs chatbots IA.',
+    features: ['Audits supervisés illimités', 'Audit LLM et chatbot inclus', 'Rapports PDF avec ancrage juridique', 'Alertes et historique'],
+    cta: 'Choisir PME',
     href: '/signup',
-    featured: false,
-  },
-  {
-    name: 'Professionnel',
-    monthly: 75,
-    annual: 62,
-    description: 'Pour les équipes qui veulent industrialiser la revue des modèles à risque.',
-    features: ['Automations avancées', 'Scénarios what-if', 'Collaboration équipe', 'Rapports prioritaires'],
-    cta: 'Demander une démo',
-    href: '/contact',
     featured: true,
   },
   {
     name: 'Entreprise',
     monthly: null,
     annual: null,
-    description: 'Pour les organisations soumises à des exigences fortes de preuve et de gouvernance.',
-    features: ['SSO & gouvernance', 'Programmes dédiés', 'Conformité continue', 'Support expert'],
-    cta: 'Planifier un échange',
+    description: 'Pour les structures qui veulent multi-équipes, API et accompagnement juridique.',
+    features: ['Multi-équipes', 'Intégrations API', 'Support juridique dédié', 'Déploiement sur mesure'],
+    cta: 'Nous contacter',
     href: '/contact',
     featured: false,
   },
@@ -212,49 +202,49 @@ const pricingPlans = [
 
 const faqs = [
   {
-    question: 'Comment AuditIQ aide-t-il pour l’AI Act ?',
+    question: 'AuditIQ garantit-il ma conformité à l’AI Act ?',
     answer:
-      'AuditIQ convertit les exigences de gouvernance en contrôles opérationnels: métriques d’équité, seuils, journaux d’évidence et rapports prêts à partager en revue interne ou avec vos interlocuteurs conformité.',
+      'Non, et nous sommes transparents là-dessus. AuditIQ est un outil de première ligne qui vous aide à documenter votre démarche au regard des articles 10 et 11 de l’AI Act. Ce n’est pas un certificat de conformité totale : un audit externe reste nécessaire pour les systèmes à haut risque.',
   },
   {
-    question: 'Peut-on connecter nos modèles et datasets existants ?',
+    question: 'Je n’ai pas de data scientist dans mon équipe, est-ce un frein ?',
     answer:
-      'Oui. La plateforme s’intègre à vos flux existants pour éviter une refonte lourde: vous conservez vos pipelines actuels et ajoutez une couche de pilotage, de traçabilité et de priorisation.',
+      'Non. AuditIQ est conçu pour les PME sans data scientist. Les interfaces sont en langage clair, sans jargon ML. Vous importez un fichier CSV ou Excel, le module vous guide, et le rapport est lisible par une direction, un juriste ou un responsable RH.',
   },
   {
-    question: 'Les équipes non techniques peuvent-elles suivre les audits ?',
+    question: 'Je n’ai pas le droit de collecter le genre ou l’origine de mes utilisateurs. Comment auditer sans ces attributs ?',
     answer:
-      'Oui. Les tableaux de bord sont conçus pour les équipes produit, conformité et direction: statuts, risques, décisions et plans d’action sont lisibles sans expertise ML avancée.',
+      'C’est exactement ce que permet notre module de détection non supervisée. En appliquant un clustering KMeans couplé à un test du Khi², AuditIQ identifie des écarts de décision entre groupes similaires sans jamais collecter d’attribut sensible. C’est une voie pour sortir du paradoxe AI Act art. 10(5) vs RGPD.',
   },
   {
-    question: 'Faut-il une équipe conformité dédiée pour démarrer ?',
+    question: 'Peut-on auditer un chatbot IA avec AuditIQ ?',
     answer:
-      'Non. Vous pouvez démarrer avec une équipe réduite. AuditIQ vous aide à poser un cadre progressif, clarifier les rôles et structurer les décisions au fur et à mesure de votre montée en maturité.',
+      'Oui. Le module d’audit LLM applique une banque de prompts appariés, inspirée du framework LangBiTe, pour détecter les réponses discriminantes de votre chatbot. Il fonctionne avec OpenAI, Mistral, Gemini et Claude.',
   },
   {
-    question: 'Proposez-vous un accompagnement ?',
+    question: 'À quelles lois françaises AuditIQ se réfère-t-il ?',
     answer:
-      'Oui. Nous proposons des parcours d’onboarding, de cadrage métrique et d’accompagnement expert pour accélérer la mise en place, sécuriser les premiers cycles d’audit et rendre vos équipes autonomes.',
+      'Nous ancrons nos rapports sur le Code du travail article L.1132-1 (non-discrimination), les recommandations CNIL, la jurisprudence du Défenseur des droits et les positions de l’ACPR pour le secteur financier. Chaque constat renvoie au texte pertinent.',
   },
   {
     question: 'Combien de temps faut-il pour un premier audit exploitable ?',
     answer:
-      'La plupart des équipes obtiennent un premier audit actionnable en quelques jours, selon la qualité des données, la disponibilité des modèles et le niveau de gouvernance déjà en place.',
+      'Moins d’une heure pour un audit supervisé ou non supervisé sur un fichier simple. Environ dix minutes pour un audit LLM/chatbot une fois la clé API configurée.',
   },
   {
-    question: 'Peut-on prioriser les écarts par criticité métier ?',
+    question: 'Pourquoi un tier gratuit central ?',
     answer:
-      'Oui. Vous pouvez classer les constats selon le niveau de risque, l’impact métier et l’urgence de remédiation afin de concentrer les efforts sur les écarts réellement critiques.',
+      'Parce que notre sondage auprès de 34 PME françaises montre que 35 % ont 0 € de budget dédié et 82 % ont moins de 2000 €. L’audit IA ne peut pas être réservé aux grandes entreprises. Le gratuit inclut 3 audits supervisés par mois, la détection non supervisée et un rapport basique.',
   },
   {
-    question: 'Comment fonctionne l’essai gratuit à 0€ ?',
+    question: 'Où sont stockées mes données ?',
     answer:
-      'L’essai gratuit permet de valider la valeur de la plateforme sur un cas réel, avec un périmètre initial clair. Vous pouvez ensuite évoluer vers une offre supérieure sans rupture de continuité.',
+      'Sur des serveurs Supabase situés dans l’Union Européenne, conformes RGPD. Vos datasets ne sortent jamais de l’UE et ne sont utilisés que pour l’audit que vous lancez.',
   },
   {
-    question: 'Les résultats peuvent-ils être partagés avec les parties prenantes ?',
+    question: 'Puis-je partager les rapports avec un conseil juridique ou mon DPO ?',
     answer:
-      'Oui. Les rapports et historiques d’audit sont conçus pour être partageables avec les responsables produit, la conformité, la direction et les équipes techniques, avec un niveau de preuve cohérent.',
+      'Oui. Les rapports PDF sont pensés pour être partagés avec votre direction, votre DPO, votre juriste ou un auditeur externe. Ils documentent la méthode, les métriques, les résultats et les références juridiques mobilisées.',
   },
 ]
 
@@ -351,7 +341,7 @@ function SectionHeading({ eyebrow, title, description, centered = false }) {
 
 export default function LandingPage() {
   const router = useRouter()
-  const helperPrompt = 'Génère un rapport AI Act et liste les écarts à corriger avant validation interne.'
+  const helperPrompt = 'Auditer mon outil de tri de CV sans collecter le genre des candidats. Par où commencer ?'
   const [typedPrompt, setTypedPrompt] = useState('')
   const [isAnnual, setIsAnnual] = useState(true)
 
@@ -465,7 +455,7 @@ export default function LandingPage() {
                     <Sparkles className="h-3 w-3" />
                     Nouveau
                   </span>
-                  Workflow d'audit automatisé
+                  Outil de première ligne pour PME françaises
                 </motion.div>
 
                 <motion.h1
@@ -474,7 +464,7 @@ export default function LandingPage() {
                   transition={{ duration: 0.6, delay: 0.1 }}
                   className="mx-auto mt-8 max-w-3xl text-4xl font-semibold leading-[1.02] text-white sm:text-5xl md:text-6xl lg:text-7xl"
                 >
-                  Pilotez la conformité IA en toute clarté.
+                  Auditer vos IA facilement, même sans data scientist.
                 </motion.h1>
 
                 <motion.p
@@ -483,7 +473,7 @@ export default function LandingPage() {
                   transition={{ duration: 0.6, delay: 0.2 }}
                   className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-white/60 sm:text-base"
                 >
-                  AuditIQ transforme vos obligations d’audit en un workflow lisible, mesurable et partageable entre équipes data, produit et conformité.
+                  AuditIQ est une plateforme d’audit de biais pensée pour les PME françaises. Trois modules complémentaires, un ancrage juridique français clair, et une triple interface qui relie le cognitif, le technique et le réglementaire.
                 </motion.p>
 
                 <motion.div
@@ -519,10 +509,10 @@ export default function LandingPage() {
                 >
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="rounded-full border border-brand-primary/30 bg-brand-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-cotton">
-                      Audit en direct
+                      Audit en cours
                     </span>
                     <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-white/50">
-                      3 modèles actifs
+                      3 modules actifs
                     </span>
                   </div>
                   <div className="mt-6 grid gap-4 md:grid-cols-[1fr_1.15fr]">
@@ -532,13 +522,13 @@ export default function LandingPage() {
                       transition={{ duration: 0.45, delay: 0.52 }}
                       className="rounded-[24px] border border-white/8 bg-black/30 p-4"
                     >
-                      <p className="text-[11px] font-semibold text-white/85">Toutes les tâches</p>
+                      <p className="text-[11px] font-semibold text-white/85">Pistes détectées</p>
                       <div className="mt-4 space-y-3">
                         {[
-                          ['Seuil de biais dépassé', 'Revue en attente'],
-                          ['Revue de dérive du modèle', '2 jours restants'],
-                          ['Workflow de validation', 'Signature légale'],
-                          ['Cartographie AI Act (UE)', 'Prêt'],
+                          ['Règle des 4/5 non respectée', 'Audit supervisé'],
+                          ['Cluster à écart significatif', 'Non supervisé — Khi²'],
+                          ['Réponses LLM divergentes', 'Audit chatbot'],
+                          ['Ancrage L.1132-1', 'Rapport PDF prêt'],
                         ].map(([title, meta], index) => (
                           <motion.div
                             key={title}
@@ -562,7 +552,7 @@ export default function LandingPage() {
                       </div>
                     </motion.div>
                     <div className="grid gap-4">
-                      <MetricPanelTicker title="Vue d\'équité" rows={['Parité de validation', 'Écart de faux positifs', 'Équilibre de population']} />
+                      <MetricPanelTicker title="Métriques d'équité" rows={['Parité Démographique', 'Égalité des Chances', 'Règle des 4/5']} />
                       <motion.div
                         initial={{ opacity: 0, x: 14 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -572,8 +562,8 @@ export default function LandingPage() {
                       >
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-[11px] font-semibold text-white/85">Comment puis-je aider ?</p>
-                            <p className="text-[10px] text-white/35">Assistant conformité</p>
+                            <p className="text-[11px] font-semibold text-white/85">Question PME fréquente</p>
+                            <p className="text-[10px] text-white/35">Guide juridique intégré</p>
                           </div>
                           <motion.div
                             animate={{ rotate: [0, 10, -8, 0], scale: [1, 1.08, 1] }}
@@ -605,7 +595,7 @@ export default function LandingPage() {
                           </div>
                         </motion.div>
                         <div className="mt-4 flex flex-wrap gap-2 text-[10px] text-white/55">
-                          {['Analyser', 'Brouillon de rapport', 'Assigner un responsable'].map((item, index) => (
+                          {['Choisir un module', 'Lire le diagnostic', 'Télécharger le PDF'].map((item, index) => (
                             <motion.span
                               key={item}
                               initial={{ opacity: 0, y: 8 }}
@@ -629,7 +619,7 @@ export default function LandingPage() {
                   className="space-y-4"
                 >
                   <div className="rounded-[30px] border border-white/10 bg-white/[0.03] p-5">
-                    <p className="text-[10px] uppercase tracking-[0.24em] text-white/45">Plus de 50 équipes font confiance à une supervision IA structurée</p>
+                    <p className="text-[10px] uppercase tracking-[0.24em] text-white/45">Un outil de première ligne pensé pour les PME françaises</p>
                     <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
                       {trustSignals.map((signal, index) => (
                         <motion.div
@@ -657,12 +647,12 @@ export default function LandingPage() {
                         <FileCheck2 className="h-5 w-5 text-brand-cotton" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-white">Rapports prêts à partager</p>
-                        <p className="text-xs text-white/50">Conformes, lisibles, exploitables</p>
+                        <p className="text-sm font-semibold text-white">Rapports ancrés dans le droit français</p>
+                        <p className="text-xs text-white/50">L.1132-1, CNIL, Défenseur des droits</p>
                       </div>
                     </div>
                     <p className="mt-5 text-sm leading-7 text-white/70">
-                      Chaque audit alimente un historique traçable, avec statut, responsable, justification et plan de remédiation associé.
+                      Chaque rapport relie vos constats techniques aux textes français pertinents et aux articles 10 et 11 de l’AI Act. Lisible par une direction ou un juriste, sans jargon ML.
                     </p>
                   </motion.div>
                 </motion.div>
@@ -673,9 +663,9 @@ export default function LandingPage() {
           <section className="px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
             <div className="mx-auto max-w-7xl">
               <SectionHeading
-                eyebrow="Nos services"
-                title="Des services concrets pour cadrer, auditer et fiabiliser vos modèles IA"
-                description="De la cartographie des risques à la remédiation continue, chaque service vous aide à industrialiser la conformité sans alourdir vos équipes."
+                eyebrow="Trois modules, une triple interface"
+                title="Trois manières d’auditer, une seule plateforme pensée pour les PME"
+                description="Supervisé, non supervisé, LLM : chaque module couvre un cas réel d’usage en PME française, du tri de CV au chatbot client, en passant par le scoring marketing."
                 centered
               />
 
@@ -722,8 +712,8 @@ export default function LandingPage() {
             <div className="mx-auto max-w-7xl">
               <SectionHeading
                 eyebrow="Notre process"
-                title="Un processus clair pour piloter vos audits de conformité IA"
-                description="De l’analyse initiale à l’optimisation continue, chaque étape structure la décision, accélère la remédiation et renforce la traçabilité."
+                title="Quatre étapes, zéro prérequis technique"
+                description="De l’import du fichier au rapport PDF, AuditIQ vous guide sans jargon. Pensé pour être lancé par une direction, un responsable RH ou un juriste, pas uniquement par un data scientist."
                 centered
               />
 
@@ -766,9 +756,9 @@ export default function LandingPage() {
           <section className="bg-white/[0.015] px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
             <div className="mx-auto max-w-7xl">
               <SectionHeading
-                eyebrow="Etudes de cas"
-                title="Des études de cas qui montrent l’impact concret d’une gouvernance IA maîtrisée"
-                description="Découvrez comment nos clients réduisent les risques, accélèrent la remédiation et renforcent leur capacité de preuve auprès des parties prenantes."
+                eyebrow="Cas d’usage PME"
+                title="Des cas d’usage typiques issus du terrain PME français"
+                description="Ces scénarios reflètent les usages observés dans notre sondage : recrutement, chatbot client, scoring marketing. Pas de témoignages inventés, des situations réelles que AuditIQ aide à traiter."
                 centered
               />
 
@@ -810,9 +800,9 @@ export default function LandingPage() {
           <section className="px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
             <div className="mx-auto max-w-7xl">
               <SectionHeading
-                eyebrow="Benefices"
-                title="Les bénéfices clés d’une gouvernance IA réellement exploitable"
-                description="Une vision claire de l’impact opérationnel, avec des bénéfices mesurables pour les équipes data, conformité et produit."
+                eyebrow="Pourquoi AuditIQ"
+                title="Un positionnement clair, assumé, aligné sur la réalité PME"
+                description="AuditIQ ne promet pas de tout résoudre. Nous assumons un rôle précis : outil de première ligne, accessible, ancré dans le droit français, honnête sur ses limites."
                 centered
               />
 
@@ -846,8 +836,8 @@ export default function LandingPage() {
             <div className="mx-auto max-w-7xl">
               <SectionHeading
                 eyebrow="Tarification"
-                title="Une tarification claire pour déployer la gouvernance IA à votre rythme"
-                description="Choisissez le niveau d’accompagnement adapté à votre maturité, de l’audit initial au pilotage multi-modèles à l’échelle."
+                title="Inaccessible n’est pas un mot dans notre vocabulaire"
+                description="35 % des PME ont 0 € de budget pour auditer leurs IA. Notre tier gratuit n’est pas une vitrine : c’est notre positionnement. L’audit est un droit, pas un luxe."
                 centered
               />
 
@@ -873,7 +863,7 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+              <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                 {pricingPlans.map((plan, index) => {
                   const price = isAnnual ? plan.annual : plan.monthly
 
@@ -931,8 +921,8 @@ export default function LandingPage() {
             <div className="mx-auto max-w-5xl">
               <SectionHeading
                 eyebrow="FAQ"
-                title="Les réponses clés pour lancer une gouvernance IA solide"
-                description="Un cadre clair pour démarrer vite, prioriser les bons chantiers et aligner produit, data et conformité dès les premières décisions."
+                title="Les questions que les PME françaises nous posent le plus"
+                description="Transparence sur nos limites, clarté sur nos modules, ancrage juridique français. Si votre question n’est pas ici, écrivez-nous."
                 centered
               />
 
@@ -968,20 +958,20 @@ export default function LandingPage() {
                 transition={{ duration: 0.5 }}
                 className="overflow-hidden rounded-[34px] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.04),rgba(117,45,177,0.22)_55%,rgba(226,8,161,0.22))] px-6 py-10 text-center sm:px-10 sm:py-14"
               >
-                <p className="text-[10px] uppercase tracking-[0.24em] text-white/55">Passer a l action</p>
+                <p className="text-[10px] uppercase tracking-[0.24em] text-white/55">Passer à l’action</p>
                 <h2 className="mx-auto mt-5 max-w-3xl text-3xl font-semibold leading-tight text-white sm:text-4xl md:text-5xl">
-                  Transformez vos obligations de gouvernance IA en execution claire et mesurable.
+                  Votre premier audit gratuit, en moins d’une heure.
                 </h2>
                 <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/65 sm:text-base">
-                  Centralisez vos controles, priorisez les remediations critiques et partagez des preuves solides avec vos equipes et vos instances de decision.
+                  Importez un CSV, choisissez un module, lisez le diagnostic, téléchargez le rapport. C’est la voie la plus directe pour comprendre où en est votre outil IA au regard de L.1132-1 et de l’AI Act.
                 </p>
                 <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                  <Button className="rounded-full bg-brand-primary px-6 text-white hover:bg-brand-primary/90" onClick={() => router.push('/contact')}>
-                    Planifier une demo
+                  <Button className="rounded-full bg-brand-primary px-6 text-white hover:bg-brand-primary/90" onClick={() => router.push('/signup')}>
+                    Démarrer gratuitement
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                   <Button variant="ghost" className="rounded-full border border-white/12 bg-white/[0.03] px-6 text-white hover:bg-white/[0.06]" onClick={() => router.push('/pricing')}>
-                    Comparer les offres
+                    Voir les tarifs
                   </Button>
                 </div>
               </motion.div>

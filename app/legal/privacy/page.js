@@ -51,8 +51,13 @@ const sections = [
         ],
       },
       {
-        title: 'Donnees metier',
-        items: ['Datasets uploades pour analyse', 'Configurations d audit', 'Resultats d audit'],
+        title: 'Données métier',
+        items: [
+          'Datasets importés pour audit (CSV, Excel)',
+          'Logs de chatbot pour audit LLM',
+          'Configurations et résultats d’audit',
+          'Attributs sensibles uniquement si le module supervisé l’exige (AI Act art. 10(5))',
+        ],
       },
     ],
   },
@@ -126,21 +131,28 @@ const sections = [
   },
   {
     id: 'transferts',
-    title: '10. Transferts internationaux',
+    title: '10. Hébergement et transferts internationaux',
     icon: Globe,
     content:
-      'Vos donnees sont hebergees au sein de l Union Europeenne. En cas de transfert hors UE, des garanties appropriees sont appliquees (clauses contractuelles types).',
+      'Les données utilisateurs, datasets importés et résultats d’audit sont hébergés sur Supabase dans l’Union Européenne. Aucun transfert hors UE n’est opéré sans garanties appropriées (clauses contractuelles types). Pour le module d’audit LLM, les prompts sont envoyés au fournisseur de LLM choisi par l’utilisateur (OpenAI, Mistral, Gemini, Claude) avec la clé API qu’il fournit : AuditIQ n’opère pas de transfert supplémentaire.',
+  },
+  {
+    id: 'ai-act',
+    title: '11. AI Act article 10(5) et données sensibles',
+    icon: Shield,
+    content:
+      'L’AI Act article 10(5) autorise, sous conditions strictes, le traitement d’attributs sensibles (genre, origine, âge, etc.) lorsqu’il est strictement nécessaire à la détection et correction des biais. AuditIQ respecte ce cadre : le module supervisé ne demande ces attributs que lorsque l’utilisateur en dispose légalement, et le module de détection non supervisée permet de s’en passer totalement via un clustering KMeans couplé à un test du Khi². L’utilisateur reste responsable de la légalité de la collecte des attributs qu’il importe.',
   },
   {
     id: 'modifications',
-    title: '11. Modifications',
+    title: '12. Modifications',
     icon: Shield,
     content:
       'Nous pouvons modifier cette politique. Les changements importants sont notifies par email ou via le service.',
   },
   {
     id: 'contact',
-    title: '12. Contact DPO',
+    title: '13. Contact DPO',
     icon: Mail,
     content:
       'Pour toute question sur la protection de vos donnees, contactez notre Delegue a la Protection des Donnees : dpo@auditiq.ai',

@@ -91,10 +91,10 @@ export default function ContactPage() {
                 Contact
               </span>
               <h1 className="mt-5 text-4xl font-semibold leading-tight text-white sm:text-5xl md:text-6xl">
-                Parlons de votre gouvernance IA et de vos besoins de conformité.
+                Parlons de votre audit et de votre contexte PME.
               </h1>
               <p className="mt-5 max-w-2xl text-sm leading-7 text-white/60 sm:text-base">
-                Une question, un cadrage, un besoin de démonstration : notre équipe vous accompagne pour structurer un déploiement solide.
+                Une question sur un module, un doute sur l’AI Act, un besoin d’aide pour cadrer un premier audit, un retour sur le tier gratuit : écrivez-nous. AuditIQ est un projet pensé pour les PME françaises, vos retours comptent.
               </p>
             </RevealOnScroll>
           </div>
@@ -139,12 +139,12 @@ export default function ContactPage() {
 
             <RevealOnScroll delay={0.1}>
               <div className="rounded-[28px] border border-white/10 bg-[linear-gradient(135deg,rgba(226,8,161,0.18),rgba(117,45,177,0.18)_55%,rgba(255,255,255,0.03))] p-5 framer-float">
-              <p className="text-[10px] uppercase tracking-[0.2em] text-white/55">Support client</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-white/55">Sujets fréquents</p>
               <p className="mt-3 text-sm leading-7 text-white/78">
-                Deja client ? Accedez a votre dashboard pour suivre vos tickets et partager vos retours d audit avec nos experts.
+                Questions sur l’AI Act articles 10 et 11, le Code du travail L.1132-1, une recommandation CNIL, le choix du module adapté à votre outil IA, ou un retour d’expérience à partager : tout est bienvenu.
               </p>
               <Button asChild className="mt-5 rounded-full bg-white text-black hover:bg-white/90">
-                <Link href="/login">Acceder au support</Link>
+                <Link href="/dashboard">Accéder à mon espace</Link>
               </Button>
               </div>
             </RevealOnScroll>
@@ -153,7 +153,7 @@ export default function ContactPage() {
           <RevealOnScroll delay={0.1}>
             <div className="rounded-[30px] border border-white/10 bg-[#0d0d0f] p-5 sm:p-6">
             <h2 className="text-xl font-semibold text-white">Envoyez-nous un message</h2>
-            <p className="mt-2 text-sm text-white/58">Nous vous repondons rapidement avec des recommandations concretes.</p>
+            <p className="mt-2 text-sm text-white/58">Nous répondons généralement sous 48h ouvrées, avec des éléments concrets adaptés à votre contexte PME.</p>
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-5">
               <div className="grid gap-4 md:grid-cols-2">
@@ -199,7 +199,7 @@ export default function ContactPage() {
                     id="subject"
                     value={formData.subject}
                     onChange={(event) => setFormData({ ...formData, subject: event.target.value })}
-                    placeholder="Demo, pricing, support..."
+                    placeholder="Audit chatbot, AI Act, tier gratuit..."
                     className="border-white/10 bg-white/[0.03] text-white placeholder:text-white/25"
                   />
                 </div>
@@ -211,7 +211,7 @@ export default function ContactPage() {
                   id="message"
                   value={formData.message}
                   onChange={(event) => setFormData({ ...formData, message: event.target.value })}
-                  placeholder="Decrivez votre contexte, vos objectifs et vos contraintes..."
+                  placeholder="Décrivez votre outil IA (tri de CV, chatbot, scoring...), votre contexte et votre question..."
                   rows={7}
                   required
                   className="border-white/10 bg-white/[0.03] text-white placeholder:text-white/25"
@@ -237,10 +237,10 @@ export default function ContactPage() {
           <RevealOnScroll>
             <div className="overflow-hidden rounded-[34px] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.04),rgba(117,45,177,0.22)_55%,rgba(226,8,161,0.22))] px-6 py-10 text-center sm:px-10 sm:py-14">
             <h2 className="mx-auto max-w-3xl text-3xl font-semibold leading-tight text-white sm:text-4xl">
-              Besoin d accélérer votre feuille de route de conformité IA ?
+              Besoin d’une première réponse rapide ?
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/65 sm:text-base">
-              On peut commencer par un cadrage rapide puis prioriser les actions les plus impactantes.
+              Le tier gratuit vous permet souvent de lancer un premier audit et d’obtenir un diagnostic avant même de nous écrire. Essayez, c’est sans engagement.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Button asChild className="rounded-full bg-brand-primary px-6 text-white hover:bg-brand-primary/90">
